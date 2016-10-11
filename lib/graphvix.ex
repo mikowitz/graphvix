@@ -186,6 +186,23 @@ defmodule Graphvix do
   end
 
   @doc """
+  Saves the graph and compiles to the provided filename and filetype.
+
+  Defaults are `G.dot` and `:pdf`
+
+  ## Examples
+
+      iex> graph = Graphvix.new
+      iex> ...
+      iex> ...
+      iex> Graphvix.compile(graph)
+
+  """
+  def compile(graph, filename \\ "G", filetype \\ :pdf) do
+    write(graph) |> Writer.save(filename) |> Writer.compile(filetype)
+  end
+
+  @doc """
   Save the graph to a DOT file, compile it to PDF, and open the PDF file.
 
   ## Examples

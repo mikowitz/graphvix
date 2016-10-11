@@ -76,4 +76,17 @@ end
     ```elixir
     iex> Graphvix.save(graph) #=> creates G.dot
     iex> Graphvix.save(graph, "my_graph") #=> creates my_graph.dot
+    ```
 
+1. Compile the graph to a PDF or PNG
+
+    ```elixir
+    iex> Graphvix.compile(graph) #=> creates G.dot and G.pdf
+    iex> Graphvix.compile(graph, :png) #=> creates G.dot and G.png
+    ```
+
+1. Compile and open the graph as a PDF/PNG from IEx
+
+    ```elixir
+    iex> Graphvix.graph(graph) #=> creates G.dot and G.pdf; opens G.pdf
+    ```

@@ -15,8 +15,8 @@ defmodule Writer do
     filename
   end
 
-  def compile(filename) do
-    System.cmd("dot", ["-Tpdf", filename <> ".dot", "-o", filename <> ".pdf"])
+  def compile(filename, filetype \\ :pdf) do
+    System.cmd("dot", ["-T#{filetype}", filename <> ".dot", "-o", filename <> ".#{filetype}"])
     filename
   end
 

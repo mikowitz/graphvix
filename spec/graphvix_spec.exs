@@ -127,4 +127,25 @@ digraph G {
       expect File.rm("G.dot") |> to(eq {:error, :enoent})
     end
   end
+
+  describe ".compile" do
+    it "saves at a default file location and compiles to PDF" do
+      g = Graphvix.new
+
+      Graphvix.compile(g)
+
+      expect File.rm("G.dot") |> to(eq :ok)
+      expect File.rm("G.pdf") |> to(eq :ok)
+    end
+
+    it "saves at a default file location and compiles to PNG if that option is passed in" do
+      g = Graphvix.new
+
+      Graphvix.compile(g, "my_graph", :png)
+
+      expect File.rm("my_graph.dot") |> to(eq :ok)
+      expect File.rm("my_graph.png") |> to(eq :ok)
+      expect File.rm("my_graph.pdf") |> to(eq {:error, :enoent})
+    end
+  end
 end
