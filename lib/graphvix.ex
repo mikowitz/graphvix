@@ -137,6 +137,20 @@ defmodule Graphvix do
     GenServer.call(graph, {:add_cluster, extract_ids(nodes)})
   end
 
+  def add_to_cluster(graph, cluster_id, node_ids) when is_list(node_ids) do
+    GenServer.call(graph, {:add_to_cluster, cluster_id, extract_ids(node_ids)})
+  end
+  def add_to_cluster(graph, cluster_id, node_id) do
+    add_to_cluster(graph, cluster_id, [node_id])
+  end
+
+  def remove_from_cluster(graph, cluster_id, node_ids) when is_list(node_ids) do
+    GenServer.call(graph, {:remove_from_cluster, cluster_id, extract_ids(node_ids)})
+  end
+  def remove_from_cluster(graph, cluster_id, node_id) do
+    remove_from_cluster(graph, cluster_id, [node_id])
+  end
+
   def extract_ids([]), do: []
   def extract_ids([%{id: id}|nodes]) do
     [id|extract_ids(nodes)]

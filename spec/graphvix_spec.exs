@@ -68,6 +68,35 @@ defmodule GraphvixSpec do
     end
   end
 
+  describe ".add_to_cluster" do
+    it "adds nodes to a cluster" do
+      graph = Graphvix.new
+      n1 = Graphvix.add_node(graph, label: "Start")
+      n2 = Graphvix.add_node(graph, label: "End")
+      n3 = Graphvix.add_node(graph, label: "Epilogue")
+
+      cluster = Graphvix.add_cluster(graph, [n1])
+      Graphvix.add_to_cluster(graph, cluster.id, n2.id)
+      Graphvix.add_to_cluster(graph, cluster.id, [n2, n3])
+
+      expect Graphvix.find(graph, cluster.id) |> Map.get(:node_ids) |> to(eq [n1.id, n2.id, n3.id])
+    end
+  end
+
+  describe ".remove_from_cluster" do
+    it "removes nodes from a cluster" do
+      graph = Graphvix.new
+      n1 = Graphvix.add_node(graph, label: "Start")
+      n2 = Graphvix.add_node(graph, label: "End")
+      n3 = Graphvix.add_node(graph, label: "Epilogue")
+
+      cluster = Graphvix.add_cluster(graph, [n1, n2.id, n3])
+      Graphvix.remove_from_cluster(graph, cluster.id, n1)
+
+      expect Graphvix.find(graph, cluster.id) |> Map.get(:node_ids) |> to(eq [n2.id, n3.id])
+    end
+  end
+
   describe ".find" do
     it "finds an edge or node based on id" do
       graph = Graphvix.new

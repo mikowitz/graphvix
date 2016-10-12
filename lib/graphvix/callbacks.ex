@@ -39,8 +39,24 @@ defmodule Graphvix.Callbacks do
         {:reply, new_cluster, %{ graph | clusters: new_clusters }}
       end
 
+      def handle_call({:add_to_cluster, cluster_id, node_ids}, _from, graph) do
+        cluster = Map.get(graph.clusters, cluster_id)
+        new_node_ids = (cluster.node_ids ++ node_ids) |> Enum.uniq
+        new_cluster = %{ cluster | node_ids: new_node_ids }
+        new_clusters = %{ graph.clusters | cluster.id => new_cluster }
+        {:reply, new_cluster, %{ graph | clusters: new_clusters }}
+      end
+
+      def handle_call({:remove_from_cluster, cluster_id, node_ids}, _from, graph) do
+        cluster = Map.get(graph.clusters, cluster_id)
+        new_node_ids = (cluster.node_ids -- node_ids) |> Enum.uniq
+        new_cluster = %{ cluster | node_ids: new_node_ids }
+        new_clusters = %{ graph.clusters | cluster.id => new_cluster }
+        {:reply, new_cluster, %{ graph | clusters: new_clusters }}
+      end
+
       def handle_call({:find, id}, _from, graph) do
-        result = Map.get(graph.nodes, id) || Map.get(graph.edges, id)
+        result = Map.get(graph.nodes, id) || Map.get(graph.edges, id) || Map.get(graph.clusters, id)
         {:reply, result, graph}
       end
 
