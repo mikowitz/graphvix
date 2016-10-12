@@ -80,7 +80,7 @@ defmodule Graphvix.Callbacks do
         |> Enum.reject(fn {_, v} -> is_nil(v) end)
       end
 
-      def update_graph_with_element_removed(graph, key, id) do
+      defp update_graph_with_element_removed(graph, key, id) do
         with_removed = remove_from_map(Map.get(graph, key), id)
         %{ graph | key => with_removed }
       end
@@ -100,10 +100,10 @@ defmodule Graphvix.Callbacks do
         graph |> find_element(id) |> kind_of
       end
 
-      def kind_of(nil), do: nil
-      def kind_of(%{node_ids: _}), do: :cluster
-      def kind_of(%{start_node: _}), do: :edge
-      def kind_of(_), do: :node
+      defp kind_of(nil), do: nil
+      defp kind_of(%{node_ids: _}), do: :cluster
+      defp kind_of(%{start_node: _}), do: :edge
+      defp kind_of(_), do: :node
 
       defp remove_from_map(map, id) do
         {_, results} = Map.pop(map, id)

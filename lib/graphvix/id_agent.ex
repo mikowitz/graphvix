@@ -1,4 +1,6 @@
 defmodule Graphvix.IdAgent do
+  @moduledoc false
+
   def next do
     Agent.get_and_update(agent, &{&1, &1 + 1})
   end

@@ -137,6 +137,21 @@ defmodule Graphvix do
     GenServer.call(graph, {:add_cluster, extract_ids(nodes)})
   end
 
+  @doc """
+  Add one or more nodes to the `cluster` in the `graph`.
+
+  The third argument can be a single node id or a list of node ids.
+
+  ## Examples
+
+      iex> graph = Graphvix.new
+      iex> node1 = Graphvix.add_node(graph, label: "Start")
+      iex> node2 = Graphvix.add_node(graph, label: "End")
+      iex> node3 = Graphvix.add_node(graph, label: "Epilogue")
+      iex> cluster = Graphvix.add_cluster(graph, [node1, node2])
+      iex> Graphvix.add_to_cluster(graph, cluster.id, node3.id)
+
+  """
   def add_to_cluster(graph, cluster_id, node_ids) when is_list(node_ids) do
     GenServer.call(graph, {:add_to_cluster, cluster_id, extract_ids(node_ids)})
   end
@@ -144,19 +159,26 @@ defmodule Graphvix do
     add_to_cluster(graph, cluster_id, [node_id])
   end
 
+  @doc """
+  Remove one or more nodes from the `cluster` in the `graph`.
+
+  The third argument can be a single node id or a list of node ids.
+
+  ## Examples
+
+      iex> graph = Graphvix.new
+      iex> node1 = Graphvix.add_node(graph, label: "Start")
+      iex> node2 = Graphvix.add_node(graph, label: "End")
+      iex> node3 = Graphvix.add_node(graph, label: "Epilogue")
+      iex> cluster = Graphvix.add_cluster(graph, [node1, node2, node3])
+      iex> Graphvix.remove_from_cluster(graph, cluster.id, [node1.id, node3.id])
+
+  """
   def remove_from_cluster(graph, cluster_id, node_ids) when is_list(node_ids) do
     GenServer.call(graph, {:remove_from_cluster, cluster_id, extract_ids(node_ids)})
   end
   def remove_from_cluster(graph, cluster_id, node_id) do
     remove_from_cluster(graph, cluster_id, [node_id])
-  end
-
-  def extract_ids([]), do: []
-  def extract_ids([%{id: id}|nodes]) do
-    [id|extract_ids(nodes)]
-  end
-  def extract_ids([id|nodes]) do
-    [id|extract_ids(nodes)]
   end
 
   @doc """
@@ -243,9 +265,7 @@ defmodule Graphvix do
   end
 
   @doc """
-  Saves the graph and compiles to the provided filename and filetype.
-
-  Defaults are `G.dot` and `:pdf`
+  Saves the graph and compiles to the provided filetype.
 
   ## Examples
 
@@ -258,6 +278,19 @@ defmodule Graphvix do
   def compile(graph, filetype) when is_atom(filetype) do
     compile(graph, "G", filetype)
   end
+  @doc """
+  Saves the graph and compiles to the provided filename and filetype.
+
+  Defaults are `G.dot` and `:pdf`
+
+  ## Examples
+
+      iex> graph = Graphvix.new
+      iex> ...
+      iex> ...
+      iex> Graphvix.compile(graph)
+
+  """
   def compile(graph, filename \\ "G", filetype \\ :pdf) do
     write(graph) |> Writer.save(filename) |> Writer.compile(filetype)
   end
@@ -282,5 +315,15 @@ defmodule Graphvix do
   end
   def graph(graph, filename \\ "G", filetype \\ :pdf) do
     write(graph) |> Writer.save(filename) |> Writer.compile(filetype) |> Writer.open
+  end
+
+  ## PRIVATE ##
+
+  defp extract_ids([]), do: []
+  defp extract_ids([%{id: id}|nodes]) do
+    [id|extract_ids(nodes)]
+  end
+  defp extract_ids([id|nodes]) do
+    [id|extract_ids(nodes)]
   end
 end
