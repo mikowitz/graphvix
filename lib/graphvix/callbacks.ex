@@ -32,6 +32,13 @@ defmodule Graphvix.Callbacks do
         {:reply, new_edge, %{ graph | edges: new_edges }}
       end
 
+      def handle_call({:add_cluster, node_ids}, _from, graph) do
+        id = get_id
+        new_cluster = %{ id: id, node_ids: node_ids }
+        new_clusters = Map.put(graph.clusters, id, new_cluster)
+        {:reply, new_cluster, %{ graph | clusters: new_clusters }}
+      end
+
       def handle_call({:find, id}, _from, graph) do
         result = Map.get(graph.nodes, id) || Map.get(graph.edges, id)
         {:reply, result, graph}

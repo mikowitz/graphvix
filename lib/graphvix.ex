@@ -45,7 +45,7 @@ defmodule Graphvix do
 
   """
   def new do
-    {:ok, pid} = GenServer.start(__MODULE__, %{nodes: %{}, edges: %{}})
+    {:ok, pid} = GenServer.start(__MODULE__, %{nodes: %{}, edges: %{}, clusters: %{}})
     pid
   end
 
@@ -113,6 +113,36 @@ defmodule Graphvix do
   end
   def add_edge(graph, n1_id, n2_id, attrs) do
     GenServer.call(graph, {:add_edge, n1_id, n2_id, attrs})
+  end
+
+  @doc """
+  Creates a new cluster with the listed nodes.
+
+  ## Examples
+
+      iex> graph = Graphvix.new
+      iex> node1 = Graphvix.add_node(graph, label: "Start")
+      iex> node2 = Graphvix.add_node(graph, label: "End")
+      iex> cluster = Graphvix.add_cluster(graph, [node1, node2])
+
+  You can also pass node ids instead of nodes
+
+      iex> graph = Graphvix.new
+      iex> node1 = Graphvix.add_node(graph, label: "Start")
+      iex> node2 = Graphvix.add_node(graph, label: "End")
+      iex> cluster = Graphvix.add_cluster(graph, [node1.id, node2.id])
+
+  """
+  def add_cluster(graph, nodes \\ []) do
+    GenServer.call(graph, {:add_cluster, extract_ids(nodes)})
+  end
+
+  def extract_ids([]), do: []
+  def extract_ids([%{id: id}|nodes]) do
+    [id|extract_ids(nodes)]
+  end
+  def extract_ids([id|nodes]) do
+    [id|extract_ids(nodes)]
   end
 
   @doc """

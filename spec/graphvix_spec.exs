@@ -10,7 +10,7 @@ defmodule GraphvixSpec do
   describe ".get" do
     it "returns a hash" do
       expect Graphvix.new |> Graphvix.get |> to(
-        eq %{nodes: %{}, edges: %{}}
+        eq %{nodes: %{}, edges: %{}, clusters: %{}}
       )
     end
   end
@@ -53,6 +53,18 @@ defmodule GraphvixSpec do
       e1 = Graphvix.add_edge(graph, n1, n2)
 
       expect e1 |> Map.get(:attrs) |> to(be_empty)
+    end
+  end
+
+  describe ".add_cluster" do
+    it "returns a cluster with a unique id and the provided nodes" do
+      graph = Graphvix.new
+      n1 = Graphvix.add_node(graph, label: "Start")
+      n2 = Graphvix.add_node(graph, label: "End")
+      n3 = Graphvix.add_node(graph, label: "Epilogue")
+
+      cluster = Graphvix.add_cluster(graph, [n1, n2, n3])
+      expect cluster |> Map.get(:node_ids) |> to(eq [n1.id, n2.id, n3.id])
     end
   end
 
