@@ -124,9 +124,20 @@ defmodule GraphvixSpec do
     end
   end
 
+  describe ".remove" do
+    it "removes a node, edge, or cluster entirely" do
+      graph = Graphvix.new
+      n1 = Graphvix.add_node(graph, label: "Start", color: "red")
+
+      Graphvix.remove(graph, n1.id)
+
+      expect Graphvix.get(graph) |> Map.get(:nodes) |> to(be_empty)
+    end
+  end
+
   describe ".write" do
     it "returns a dot representation of the graph" do
-      expect Graphvix.new |> Graphvix.write |> to(eq "digraph G {\n\n}")
+      expect Graphvix.new |> Graphvix.write |> to(eq "digraph G {\n\n\n}")
     end
 
     it "returns nodes and edges correctly" do
@@ -137,6 +148,8 @@ defmodule GraphvixSpec do
       Graphvix.add_edge(graph, n1, n2)
       Graphvix.add_edge(graph, n1, n3)
 
+      cluster = Graphvix.add_cluster(graph, [n1, n2])
+
       expect graph |> Graphvix.write |> to(
       eq ~s/
 digraph G {
@@ -146,6 +159,11 @@ digraph G {
 
   node_#{n1.id} -> node_#{n2.id};
   node_#{n1.id} -> node_#{n3.id};
+
+  subgraph cluster_#{cluster.id} {
+    node_#{n1.id} -> node_#{n2.id} [style=invis];
+    { rank = "same"; node_#{n1.id}; node_#{n2.id}; }
+  }
 }/ |> String.strip)
     end
   end

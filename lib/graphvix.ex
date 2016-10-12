@@ -197,6 +197,18 @@ defmodule Graphvix do
   end
 
   @doc """
+  Removes the node, edge, or cluster with the provided `id` from the graph
+
+      iex> graph = Graphvix.new
+      iex> node1 = Graphvix.add_node(graph, label: "Start")
+      iex> Graphvix.remove(graph, node1.id)
+
+  """
+  def remove(graph, id) do
+    GenServer.cast(graph, {:remove, id})
+  end
+
+  @doc """
   Returns a string representation in .dot format of the graph.
 
   ## Examples

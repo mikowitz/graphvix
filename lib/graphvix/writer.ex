@@ -1,11 +1,13 @@
 defmodule Graphvix.Writer do
   @moduledoc false
-  def write(%{nodes: nodes, edges: edges}) do
+  def write(%{nodes: nodes, edges: edges, clusters: clusters}) do
     [
       "digraph G {",
       (nodes |> Enum.map(&node_to_dot/1)),
       "",
       (edges |> Enum.map(&edge_to_dot/1)),
+      "",
+      (clusters |> Enum.map(&cluster_to_dot/1)),
       "}"
     ] |> List.flatten |> Enum.join("\n")
   end
@@ -46,6 +48,20 @@ defmodule Graphvix.Writer do
       "node_#{n2_id}",
       attrs_to_dot(attrs)
     ] |> convert_to_indented_line
+  end
+
+  defp cluster_to_dot({id, %{node_ids: node_ids}}) do
+    connected_node_ids = node_ids
+    |> Enum.map(&"node_#{&1}")
+    |> Enum.join(" -> ")
+    |> Kernel.<>(" [style=invis];")
+    rank_ids = node_ids |> Enum.map(&"node_#{&1};") |> Enum.join(" ")
+    [
+      "subgraph cluster_#{id} {",
+      connected_node_ids |> indent,
+      ~s/{ rank = "same"; #{rank_ids} }/ |> indent,
+      "}"
+    ] |> List.flatten |> Enum.map(&indent(&1, 1)) |> Enum.join("\n")
   end
 
   def convert_to_indented_line(elements) do

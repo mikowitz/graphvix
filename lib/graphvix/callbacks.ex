@@ -3,13 +3,23 @@ defmodule Graphvix.Callbacks do
   defmacro __using__(_) do
     quote do
       def handle_cast({:update, id, attrs}, graph) do
-        new_graph = case Map.get(graph.nodes, id) do
-          nil ->
-            case Map.get(graph.edges, id) do
-              nil -> graph
-              edge -> update_attrs_for_element_in_graph(graph, edge, :edges, attrs)
-            end
-            node -> update_attrs_for_element_in_graph(graph, node, :nodes, attrs)
+        new_graph = case kind_of_element(graph, id) do
+          :node -> update_attrs_for_element_in_graph(graph, Map.get(graph.nodes, id), :nodes, attrs)
+          :edge -> update_attrs_for_element_in_graph(graph, Map.get(graph.edges, id), :edges, attrs)
+          _ -> graph
+        end
+        {:noreply, new_graph}
+      end
+
+      def handle_cast({:remove, id}, graph) do
+        new_graph = case kind_of_element(graph, id) do
+          nil -> graph
+          :cluster -> update_graph_with_element_removed(graph, :clusters, id)
+          :edge -> update_graph_with_element_removed(graph, :edges, id)
+          :node ->
+            graph
+            |> remove_edges_attached_to_node(id)
+            |> update_graph_with_element_removed(:nodes, id)
         end
         {:noreply, new_graph}
       end
@@ -56,12 +66,7 @@ defmodule Graphvix.Callbacks do
       end
 
       def handle_call({:find, id}, _from, graph) do
-        result = Map.get(graph.nodes, id) || Map.get(graph.edges, id) || Map.get(graph.clusters, id)
-        {:reply, result, graph}
-      end
-
-      def handle_call(:next, _from, id) do
-        {:reply, id, id + 1}
+        {:reply, find_element(graph, id), graph}
       end
 
       defp update_attrs_for_element_in_graph(graph, element, key, attrs) do
@@ -75,12 +80,38 @@ defmodule Graphvix.Callbacks do
         |> Enum.reject(fn {_, v} -> is_nil(v) end)
       end
 
+      def update_graph_with_element_removed(graph, key, id) do
+        with_removed = remove_from_map(Map.get(graph, key), id)
+        %{ graph | key => with_removed }
+      end
+
+      defp remove_edges_attached_to_node(graph, node_id) do
+        new_edges = Enum.reject(graph.edges, fn {_, %{start_node: s_id, end_node: e_id}} ->
+          s_id == node_id || e_id == node_id
+        end)
+        %{ graph | edges: new_edges }
+      end
+
+      defp find_element(graph, id) do
+        Map.get(graph.nodes, id) || Map.get(graph.edges, id) || Map.get(graph.clusters, id)
+      end
+
+      defp kind_of_element(graph, id) do
+        graph |> find_element(id) |> kind_of
+      end
+
+      def kind_of(nil), do: nil
+      def kind_of(%{node_ids: _}), do: :cluster
+      def kind_of(%{start_node: _}), do: :edge
+      def kind_of(_), do: :node
+
+      defp remove_from_map(map, id) do
+        {_, results} = Map.pop(map, id)
+        results
+      end
+
       defp get_id do
-        id_agent = case Agent.start(fn -> 1 end, name: :id_agent) do
-          {:ok, agent} -> agent
-          {:error, {:already_started, agent}} -> agent
-        end
-        Agent.get_and_update(id_agent, fn n -> {n, n+1} end)
+        Graphvix.IdAgent.next
       end
     end
   end
