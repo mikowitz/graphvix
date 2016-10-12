@@ -198,6 +198,9 @@ defmodule Graphvix do
       iex> Graphvix.compile(graph)
 
   """
+  def compile(graph, filetype) when is_atom(filetype) do
+    compile(graph, "G", filetype)
+  end
   def compile(graph, filename \\ "G", filetype \\ :pdf) do
     write(graph) |> Writer.save(filename) |> Writer.compile(filetype)
   end

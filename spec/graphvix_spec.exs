@@ -147,5 +147,15 @@ digraph G {
       expect File.rm("my_graph.png") |> to(eq :ok)
       expect File.rm("my_graph.pdf") |> to(eq {:error, :enoent})
     end
+
+    it "allows default filename and format as the second parameter" do
+      g = Graphvix.new
+
+      Graphvix.compile(g, :png)
+
+      expect File.rm("G.dot") |> to(eq :ok)
+      expect File.rm("G.png") |> to(eq :ok)
+      expect File.rm("G.pdf") |> to(eq {:error, :enoent})
+    end
   end
 end
