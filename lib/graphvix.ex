@@ -31,7 +31,7 @@ defmodule Graphvix do
   """
 
   use GenServer
-  use Callbacks
+  use Graphvix.Callbacks
 
   @doc """
   Creates a new graph, and returns a PID pointing to the process managing

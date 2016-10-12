@@ -1,4 +1,4 @@
-defmodule Callbacks do
+defmodule Graphvix.Callbacks do
   @moduledoc false
   defmacro __using__(_) do
     quote do
