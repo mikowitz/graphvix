@@ -17,11 +17,11 @@ defmodule Graphvix.Writer do
 
   def compile(filename, filetype \\ :pdf) do
     System.cmd("dot", ["-T#{filetype}", filename <> ".dot", "-o", filename <> ".#{filetype}"])
-    filename
+    filename <> ".#{filetype}"
   end
 
-  def open(filename) do
-    System.cmd("open", [filename <> ".pdf"])
+  def open(filename_with_ext) do
+    System.cmd("open", [filename_with_ext])
   end
 
   defp node_to_dot({id, %{attrs: attrs}}) do

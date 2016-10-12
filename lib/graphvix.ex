@@ -221,8 +221,10 @@ defmodule Graphvix do
   and `G.pdf` will open in your preferred PDF viewer.
 
   """
-  def graph(graph, filename \\ "G") do
-    write(graph) |> Writer.save(filename) |> Writer.compile
-    |> Writer.open
+  def graph(graph, filetype) when is_atom(filetype) do
+    graph(graph, "G", filetype)
+  end
+  def graph(graph, filename \\ "G", filetype \\ :pdf) do
+    write(graph) |> Writer.save(filename) |> Writer.compile(filetype) |> Writer.open
   end
 end
