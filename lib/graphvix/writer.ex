@@ -11,33 +11,55 @@ defmodule Graphvix.Writer do
   end
 
   def save(dot, filename) do
-    File.write(filename <> ".dot", dot)
+    with dot_filename <- file_with_ext(filename, :dot) do
+      File.write(dot_filename, dot)
+    end
     filename
   end
 
   def compile(filename, filetype \\ :pdf) do
-    System.cmd("dot", ["-T#{filetype}", filename <> ".dot", "-o", filename <> ".#{filetype}"])
-    filename <> ".#{filetype}"
+    with dot_filename <- file_with_ext(filename, :dot),
+         output_filename <- file_with_ext(filename, filetype) do
+      System.cmd("dot", ["-T#{filetype}", dot_filename, "-o", output_filename])
+    end
+    {filename, filetype}
   end
 
-  def open(filename_with_ext) do
-    System.cmd("open", [filename_with_ext])
+  def open({filename, filetype}) do
+    with filename_with_ext <- file_with_ext(filename, filetype) do
+      System.cmd("open", [filename_with_ext])
+    end
   end
 
   defp node_to_dot({id, %{attrs: attrs}}) do
     [
-      "  node_#{id}",
+      "node_#{id}",
       attrs_to_dot(attrs)
-    ] |> Enum.reject(&is_nil/1) |> Enum.join(" ") |> Kernel.<>(";")
+    ] |> convert_to_indented_line
   end
 
   defp edge_to_dot({_id, %{start_node: n1_id, end_node: n2_id, attrs: attrs}}) do
     [
-      "  node_#{n1_id}",
+      "node_#{n1_id}",
       "->",
       "node_#{n2_id}",
       attrs_to_dot(attrs)
-    ] |> Enum.reject(&is_nil/1) |> Enum.join(" ") |> Kernel.<>(";")
+    ] |> convert_to_indented_line
+  end
+
+  def convert_to_indented_line(elements) do
+    elements |> Enum.reject(&is_nil/1) |> Enum.join(" ")
+    |> Kernel.<>(";") |> indent
+  end
+
+  defp file_with_ext(filename, ext) do
+    with ext_str <- ext |> to_string do
+      filename <> "." <> ext_str
+    end
+  end
+
+  defp indent(str, depth \\ 1) do
+    String.duplicate("  ", depth) <> str
   end
 
   defp attrs_to_dot(attrs) do
