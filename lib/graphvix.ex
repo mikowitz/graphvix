@@ -32,6 +32,7 @@ defmodule Graphvix do
 
   use GenServer
   use Graphvix.Callbacks
+  alias Graphvix.Writer
 
   @doc """
   Creates a new graph, and returns a PID pointing to the process managing

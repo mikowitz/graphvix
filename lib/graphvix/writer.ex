@@ -1,4 +1,4 @@
-defmodule Writer do
+defmodule Graphvix.Writer do
   @moduledoc false
   def write(%{nodes: nodes, edges: edges}) do
     [
