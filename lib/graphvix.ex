@@ -296,7 +296,7 @@ defmodule Graphvix do
   end
 
   @doc """
-  Save the graph to a DOT file, compile it to PDF, and open the PDF file.
+  Save the graph to a DOT file, compile it to the provided filetype, and open the file.
 
   ## Examples
 
@@ -313,6 +313,21 @@ defmodule Graphvix do
   def graph(graph, filetype) when is_atom(filetype) do
     graph(graph, "G", filetype)
   end
+  @doc """
+  Save the graph to a DOT file, compile it to PDF, and open the PDF file.
+
+  ## Examples
+
+      iex> graph = Graphvix.new
+      iex> ...
+      iex> ...
+      iex> Graphvix.graph(graph)
+      :ok
+
+  After running this, `G.dot` and `G.pdf` will exist in your working directory,
+  and `G.pdf` will open in your preferred PDF viewer.
+
+  """
   def graph(graph, filename \\ "G", filetype \\ :pdf) do
     write(graph) |> Writer.save(filename) |> Writer.compile(filetype) |> Writer.open
   end
