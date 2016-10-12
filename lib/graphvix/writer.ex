@@ -29,6 +29,7 @@ defmodule Graphvix.Writer do
     with filename_with_ext <- file_with_ext(filename, filetype) do
       System.cmd("open", [filename_with_ext])
     end
+    {filename, filetype}
   end
 
   defp node_to_dot({id, %{attrs: attrs}}) do
@@ -65,12 +66,17 @@ defmodule Graphvix.Writer do
   defp attrs_to_dot(attrs) do
     case attrs do
       [] -> nil
-      _ ->
-        attr_str = attrs
-        |> Enum.map(fn {k, v} ->
-          "#{k}=\"#{v}\""
-        end) |> Enum.join(",")
-        "[" <> attr_str <> "]"
+      _ -> "[" <> attributes_to_dot_format(attrs) <> "]"
     end
+  end
+
+  defp attributes_to_dot_format(attrs) do
+    attrs
+    |> Enum.map(&pair_to_dot_format/1)
+    |> Enum.join(",")
+  end
+
+  defp pair_to_dot_format({k, v}) do
+    ~s/#{k}="#{v}"/
   end
 end
