@@ -34,6 +34,8 @@ defmodule Graphvix do
   use Graphvix.Callbacks
   alias Graphvix.Writer
 
+  @type node_or_id :: map | pos_integer
+
   @doc """
   Creates a new graph, and returns a PID pointing to the process managing
   the graph.
@@ -44,6 +46,7 @@ defmodule Graphvix do
       #PID<0.522.0>
 
   """
+  @spec new :: pid
   def new do
     {:ok, pid} = GenServer.start(__MODULE__, %{nodes: %{}, edges: %{}, clusters: %{}})
     pid
@@ -60,6 +63,7 @@ defmodule Graphvix do
       %{ nodes: %{}, edges: %{} }
 
   """
+  @spec get(pid) :: map
   def get(graph) do
     GenServer.call(graph, :get)
   end
@@ -76,6 +80,7 @@ defmodule Graphvix do
       %{ id: 1, attrs: [label: "First Node", color: "red"] }
 
   """
+  @spec add_node(pid, Keyword.t) :: map
   def add_node(graph, attrs \\ []) do
     GenServer.call(graph, {:add_node, attrs})
   end
@@ -104,6 +109,7 @@ defmodule Graphvix do
       %{ id: 3, start_node: 1, end_node: 2, attrs: [] }
 
   """
+  @spec add_edge(pid, node_or_id, node_or_id, Keyword.t) :: map
   def add_edge(graph, n1, n2, attrs \\ [])
   def add_edge(graph, %{id: id}, n2, attrs) do
     add_edge(graph, id, n2, attrs)
@@ -133,6 +139,7 @@ defmodule Graphvix do
       iex> cluster = Graphvix.add_cluster(graph, [node1.id, node2.id])
 
   """
+  @spec add_cluster(pid, list) :: map
   def add_cluster(graph, nodes \\ []) do
     GenServer.call(graph, {:add_cluster, extract_ids(nodes)})
   end
@@ -152,6 +159,7 @@ defmodule Graphvix do
       iex> Graphvix.add_to_cluster(graph, cluster.id, node3.id)
 
   """
+  @spec add_to_cluster(pid, pos_integer, list(node_or_id) | node_or_id) :: map
   def add_to_cluster(graph, cluster_id, node_ids) when is_list(node_ids) do
     GenServer.call(graph, {:add_to_cluster, cluster_id, extract_ids(node_ids)})
   end
@@ -174,6 +182,7 @@ defmodule Graphvix do
       iex> Graphvix.remove_from_cluster(graph, cluster.id, [node1.id, node3.id])
 
   """
+  @spec remove_from_cluster(pid, pos_integer, list(node_or_id) | node_or_id) :: map
   def remove_from_cluster(graph, cluster_id, node_ids) when is_list(node_ids) do
     GenServer.call(graph, {:remove_from_cluster, cluster_id, extract_ids(node_ids)})
   end
@@ -198,6 +207,7 @@ defmodule Graphvix do
       nil
 
   """
+  @spec find(pid, pos_integer) :: map
   def find(graph, id) do
     GenServer.call(graph, {:find, id})
   end
@@ -214,6 +224,7 @@ defmodule Graphvix do
       %{ id: 1, attrs: [label: "Start", color: "blue"] }
 
   """
+  @spec update(pid, pos_integer, Keyword.t) :: :ok
   def update(graph, id, attrs) do
     GenServer.cast(graph, {:update, id, attrs})
   end
@@ -226,6 +237,7 @@ defmodule Graphvix do
       iex> Graphvix.remove(graph, node1.id)
 
   """
+  @spec remove(pid, pos_integer) :: :ok
   def remove(graph, id) do
     GenServer.cast(graph, {:remove, id})
   end
@@ -242,6 +254,7 @@ defmodule Graphvix do
       "digraph G { ... }"
 
   """
+  @spec write(pid) :: String.t
   def write(graph) do
     get(graph) |> Writer.write
   end
@@ -260,6 +273,7 @@ defmodule Graphvix do
   After running this, `G.dot` will exist in your working directory.
 
   """
+  @spec save(pid, String.t | nil) :: String.t
   def save(graph, filename \\ "G") do
     write(graph) |> Writer.save(filename)
   end
@@ -275,6 +289,7 @@ defmodule Graphvix do
       iex> Graphvix.compile(graph)
 
   """
+  @spec compile(pid, atom) :: {String.t, atom}
   def compile(graph, filetype) when is_atom(filetype) do
     compile(graph, "G", filetype)
   end
@@ -291,6 +306,7 @@ defmodule Graphvix do
       iex> Graphvix.compile(graph)
 
   """
+  @spec compile(pid, String.t | nil, atom | nil) :: {String.t, atom}
   def compile(graph, filename \\ "G", filetype \\ :pdf) do
     write(graph) |> Writer.save(filename) |> Writer.compile(filetype)
   end
@@ -310,6 +326,7 @@ defmodule Graphvix do
   and `G.pdf` will open in your preferred PDF viewer.
 
   """
+  @spec graph(pid, atom) :: {String.t, atom}
   def graph(graph, filetype) when is_atom(filetype) do
     graph(graph, "G", filetype)
   end
@@ -328,6 +345,7 @@ defmodule Graphvix do
   and `G.pdf` will open in your preferred PDF viewer.
 
   """
+  @spec graph(pid, String.to | nil, atom | nil) :: {String.t, atom}
   def graph(graph, filename \\ "G", filetype \\ :pdf) do
     write(graph) |> Writer.save(filename) |> Writer.compile(filetype) |> Writer.open
   end
