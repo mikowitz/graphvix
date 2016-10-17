@@ -2,6 +2,22 @@ defmodule Graphvix.Callbacks do
   @moduledoc false
   defmacro __using__(_) do
     quote do
+      @empty_graph %{nodes: %{}, edges: %{}, clusters: %{}}
+
+      def handle_cast({:load, new_graph}, _graph) do
+        {:noreply, new_graph}
+      end
+      def handle_cast(:reset, _graph) do
+        {:noreply, @empty_graph}
+      end
+      def handle_cast({:save, filename, :txt}, graph) do
+        File.write(filename <> ".txt", inspect(graph))
+        {:noreply, graph}
+      end
+      def handle_cast({:save, filename, :dot}, graph) do
+        File.write(filename <> ".dot", Graphvix.Writer.write(graph))
+        {:noreply, graph}
+      end
       def handle_cast({:update, id, attrs}, graph) do
         new_graph = case kind_of_element(graph, id) do
           :node -> update_attrs_for_element_in_graph(graph, Map.get(graph.nodes, id), :nodes, attrs)
@@ -19,6 +35,7 @@ defmodule Graphvix.Callbacks do
           :node ->
             graph
             |> remove_edges_attached_to_node(id)
+            |> remove_node_from_clusters(id)
             |> update_graph_with_element_removed(:nodes, id)
         end
         {:noreply, new_graph}
@@ -88,8 +105,15 @@ defmodule Graphvix.Callbacks do
       defp remove_edges_attached_to_node(graph, node_id) do
         new_edges = Enum.reject(graph.edges, fn {_, %{start_node: s_id, end_node: e_id}} ->
           s_id == node_id || e_id == node_id
-        end)
+        end) |> Enum.into(Map.new)
         %{ graph | edges: new_edges }
+      end
+
+      def remove_node_from_clusters(graph, node_id) do
+        new_clusters = Enum.map(graph.clusters, fn {id, cluster} ->
+          {id, %{ cluster | node_ids: cluster.node_ids -- [node_id] }}
+        end) |> Enum.into(Map.new)
+        %{ graph | clusters: new_clusters }
       end
 
       defp find_element(graph, id) do
