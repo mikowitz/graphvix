@@ -41,6 +41,14 @@ defmodule Graphvix.ClusterSpec do
       Cluster.delete(c.id)
       expect Cluster.find(c.id) |> to(be_nil)
     end
+
+    it "can delete based on cluster rather than id" do
+      Graph.restart
+      c = Cluster.new
+
+      Cluster.delete(c)
+      expect Cluster.find(c.id) |> to(be_nil)
+    end
   end
 
   describe ".find" do
@@ -52,4 +60,3 @@ defmodule Graphvix.ClusterSpec do
     end
   end
 end
-

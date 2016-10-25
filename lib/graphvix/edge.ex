@@ -1,5 +1,6 @@
 defmodule Graphvix.Edge do
   @type node_or_id :: map | pos_integer
+  @type edge_or_id :: map | pos_integer
 
   @doc """
   Adds an edge to the graph connecting `node1` and `node2`.
@@ -36,8 +37,13 @@ defmodule Graphvix.Edge do
       iex> e = Edge.new(n1, n2, color: "blue")
       iex> Edge.update(e.id, color: nil, label: "Connection")
 
+  An edge can be passed in place of its id for ease of use.
+
+      iex> Edge.update(e, color: nil, label: "Connection")
+
   """
-  @spec update(pos_integer, Keyword.t) :: :ok
+  @spec update(edge_or_id, Keyword.t) :: :ok
+  def update(%{id: id}=edge, attrs), do: update(id, attrs)
   def update(edge_id, attrs) do
     GenServer.cast(Graphvix.Graph, {:update, edge_id, attrs})
   end
@@ -49,6 +55,10 @@ defmodule Graphvix.Edge do
 
       iex> e = Edge.new(n1, n2)
       iex> Edge.delete(e.id)
+
+  An edge can be passed in place of its id for ease of use.
+
+      iex> Edge.delete(e)
 
   """
   @spec delete(pos_integer) :: :ok

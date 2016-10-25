@@ -69,7 +69,7 @@ defmodule Graphvix.Graph do
   use Graphvix.Callbacks
   alias Graphvix.Writer
 
-  @empty_graph %{nodes: %{}, edges: %{}, clusters: %{}}
+  @empty_graph %{nodes: %{}, edges: %{}, clusters: %{}, attrs: []}
 
   @doc """
   Start up the graph state process with an empty graph.
@@ -144,6 +144,17 @@ defmodule Graphvix.Graph do
   @spec remove(pos_integer) :: :ok
   def remove(id) do
     GenServer.cast(__MODULE__, {:remove, id})
+  end
+
+  @doc """
+  Update graph-level settings
+
+      iex> Graph.update(size: "4,4")
+
+  """
+  @spec update(Keyword.t) :: :ok
+  def update(attrs) do
+    GenServer.cast(__MODULE__, {:update, attrs})
   end
 
   @doc """

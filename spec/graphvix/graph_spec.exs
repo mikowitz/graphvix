@@ -28,6 +28,18 @@ defmodule Graphvix.GraphSpec do
     end
   end
 
+  describe ".update" do
+    it "sets graph-wide settings" do
+      Graph.restart
+      Graph.update(size: "4, 4")
+      expect Graph.write |> to(eq """
+digraph G {
+  size="4, 4";
+}
+""" |> String.strip)
+    end
+  end
+
   describe ".remove" do
     it "removes a node, edge, or cluster from the graph entirely" do
       Graph.restart
@@ -71,7 +83,6 @@ digraph G {
   node_#{n2.id} [label="End"];
 
   node_#{n1.id} -> node_#{n2.id};
-
 }
 """ |> String.strip)
 
@@ -95,7 +106,7 @@ digraph G {
   describe ".write" do
     it "returns a dot representation of the graph" do
       Graph.restart
-      expect Graph.write |> to(eq "digraph G {\n\n\n}")
+      expect Graph.write |> to(eq "digraph G {\n\n}")
     end
 
     it "returns nodes and edges correctly" do
@@ -141,6 +152,8 @@ digraph G {
 
       Graph.compile("my_graph", :png)
 
+      :timer.sleep 125
+
       expect File.rm("my_graph.dot") |> to(eq :ok)
       expect File.rm("my_graph.png") |> to(eq :ok)
       expect File.rm("my_graph.pdf") |> to(eq {:error, :enoent})
@@ -150,6 +163,8 @@ digraph G {
       Graph.restart
 
       Graph.compile(:png)
+
+      :timer.sleep 125
 
       expect File.rm("G.dot") |> to(eq :ok)
       expect File.rm("G.png") |> to(eq :ok)

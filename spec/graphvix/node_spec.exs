@@ -17,6 +17,14 @@ defmodule Graphvix.NodeSpec do
 
       expect Graph.find(n.id) |> Map.get(:attrs) |> Keyword.get(:color) |> to(eq "blue")
     end
+
+    it "can take the node instead of id as the argument" do
+      Graph.restart
+      n = Node.new(label: "Start", color: "red")
+      Node.update(n, color: "blue")
+
+      expect Graph.find(n.id) |> Map.get(:attrs) |> Keyword.get(:color) |> to(eq "blue")
+    end
   end
 
   describe ".delete" do
@@ -44,6 +52,19 @@ defmodule Graphvix.NodeSpec do
       expect Node.find(n.id) |> to(be_map)
       expect Node.find(n2.id) |> to(be_nil)
       expect Cluster.find(c.id) |>  Map.get(:node_ids) |> to(eq [n.id])
+    end
+
+    it "removes based on the node rather than the node id" do
+      Graph.restart
+      n = Node.new
+      n2 = Node.new
+      e = Edge.new(n.id, n2.id)
+
+      Node.delete(n2)
+
+      expect Node.find(n.id) |> to(be_map)
+      expect Node.find(n2.id) |> to(be_nil)
+      expect Edge.find(e.id) |> to(be_nil)
     end
   end
 

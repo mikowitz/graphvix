@@ -46,6 +46,16 @@ defmodule Graphvix.EdgeSpec do
 
       expect Graph.find(edge.id) |> Map.get(:attrs) |> Keyword.get(:color) |> to(eq "blue")
     end
+
+    it "can take an edge instead of an id as an argument" do
+      node1 = Node.new(label: "Start")
+      node2 = Node.new(label: "End")
+
+      edge = Edge.new(node1.id, node2.id)
+      Edge.update(edge, color: "blue")
+
+      expect Graph.find(edge.id) |> Map.get(:attrs) |> Keyword.get(:color) |> to(eq "blue")
+    end
   end
 
   describe ".delete" do

@@ -1,0 +1,13 @@
+digraph G {
+  size="4,4";
+
+  node_34 [label="a",shape="polygon",sides="5",peripheries="3",color="lightblue",style="filled"];
+  node_35 [label="b"];
+  node_36 [label="hello world",shape="polygon",sides="4",skew=".4"];
+  node_37 [label="d",shape="invtriangle"];
+  node_38 [label="e",shape="polygon",sides="4",distortion=".7"];
+
+  node_34 -> node_35;
+  node_35 -> node_36;
+  node_35 -> node_37;
+}

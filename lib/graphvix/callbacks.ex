@@ -2,7 +2,7 @@ defmodule Graphvix.Callbacks do
   @moduledoc false
   defmacro __using__(_) do
     quote do
-      @empty_graph %{nodes: %{}, edges: %{}, clusters: %{}}
+      @empty_graph %{nodes: %{}, edges: %{}, clusters: %{}, attrs: []}
 
       def handle_cast({:load, new_graph}, _graph) do
         {:noreply, new_graph}
@@ -24,6 +24,10 @@ defmodule Graphvix.Callbacks do
           :edge -> update_attrs_for_element_in_graph(graph, Map.get(graph.edges, id), :edges, attrs)
           _ -> graph
         end
+        {:noreply, new_graph}
+      end
+      def handle_cast({:update, attrs}, graph) do
+        new_graph = %{ graph | attrs: merge_without_nils(graph.attrs, attrs) }
         {:noreply, new_graph}
       end
 
