@@ -24,6 +24,8 @@ end
 
 # Usage
 
+See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
+
 1. Alias the included modules for ease of use
 
     ```elixir
