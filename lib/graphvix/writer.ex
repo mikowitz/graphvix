@@ -1,15 +1,13 @@
 defmodule Graphvix.Writer do
   @moduledoc false
-  def write(%{nodes: nodes, edges: edges, clusters: clusters}) do
-    [
-      "digraph G {",
-      (nodes |> Enum.map(&node_to_dot/1)),
-      "",
-      (edges |> Enum.map(&edge_to_dot/1)),
-      "",
-      (clusters |> Enum.map(&cluster_to_dot/1)),
-      "}"
-    ] |> List.flatten |> Enum.join("\n")
+  def write(%{nodes: nodes, edges: edges, clusters: clusters, attrs: attrs}) do
+    contents = [
+       graph_attrs_to_dot(attrs),
+       collection_to_dot(nodes, &node_to_dot/1),
+       collection_to_dot(edges, &edge_to_dot/1),
+       collection_to_dot(clusters, &cluster_to_dot/1)
+   ] |> List.flatten |> Enum.reject(&(&1 == "")) |> Enum.join("\n\n")
+   "digraph G {\n" <> contents <> "\n}"
   end
 
   def save(dot, filename) do
@@ -32,6 +30,10 @@ defmodule Graphvix.Writer do
       System.cmd("open", [filename_with_ext])
     end
     {filename, filetype}
+  end
+
+  defp collection_to_dot(coll, to_dot_fun) do
+    coll |> Enum.map(to_dot_fun) |> Enum.join("\n")
   end
 
   defp node_to_dot({id, %{attrs: attrs}}) do
@@ -90,6 +92,13 @@ defmodule Graphvix.Writer do
     attrs
     |> Enum.map(&pair_to_dot_format/1)
     |> Enum.join(",")
+  end
+
+  defp graph_attrs_to_dot(attrs) do
+    attrs
+    |> Enum.map(fn kv -> pair_to_dot_format(kv) <> ";" end)
+    |> Enum.map(&indent/1)
+    |> Enum.join("\n")
   end
 
   defp pair_to_dot_format({k, v}) do
