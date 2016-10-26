@@ -1,6 +1,6 @@
 defmodule Graphvix.Graph do
   @moduledoc """
-  This module manages starting, restarting, saving, and presenting the state
+  `Graphvix.Graph` manages saving, loading, and presenting the state
   of a graph.
 
   NB. All examples below assume you have run
@@ -28,22 +28,22 @@ defmodule Graphvix.Graph do
   Elements are added and removed from the graph using the `Node`, `Edge`,
   and `Cluster` modules.
 
-      iex> node1 = Node.new(label: "Start", color: "blue")
-      iex> node2 = Node.new(label: "End", color: "red")
-      iex> edge1 = Edge.new(node1, node2, color: "green")
-      iex> cluster1 = Cluster.new([node1, node2])
+      iex> {n_id, node} = Node.new(label: "Start", color: "blue")
+      iex> {n2_id, node2} = Node.new(label: "End", color: "red")
+      iex> {e_id, edge} = Edge.new(n_id, n2_id, color: "green")
+      iex> {c_id, cluster} = Cluster.new([n_id, n2_id])
 
   Settings can be added to an element. Setting an attribute's value to `nil`
   will remove the attribute.
 
-      iex> Node.update(node1.id, shape: "triangle")
-      iex> Node.update(node2.id, color: nil) # Removes the key `color` from the node`s attributes keyword map
+      iex> Node.update(n_id, shape: "triangle")
+      iex> Node.update(n2_id, color: nil) # Removes the key `color` from the node`s attributes keyword map
 
   A cluster's contents can be updated using `add` and `remove`
 
-      iex> node3 = Node.new(label: "Something else")
-      iex> Cluster.add(cluster1.id, node3)
-      iex> Cluster.remove(cluster1.id, node1)
+      iex> {n3_id, node3} = Node.new(label: "Something else")
+      iex> Cluster.add(c_id, n3_id)
+      iex> Cluster.remove(c_id, n_id)
 
   In addition to saving the graph to a text file, it can be rendered in .dot
   format and saved
@@ -118,32 +118,6 @@ defmodule Graphvix.Graph do
   @spec get :: map
   def get do
     GenServer.call(__MODULE__, :get)
-  end
-
-  @doc """
-  Return the node, edge, or cluster with the provided id
-
-      iex> Graph.find(3)
-
-  NB. Prefer `Graphvix.Node.find/1`, `Graphvix.Edge.find/1`, or `Graphvix.Cluster.find/1` when possible.
-
-  """
-  @spec find(pos_integer) :: map | nil
-  def find(id) do
-    GenServer.call(__MODULE__, {:find, id})
-  end
-
-  @doc """
-  Remove the node, edge, or cluster with the provided id from the graph
-
-      iex> Graph.remove(2)
-
-  NB. Prefer `Graphvix.Node.delete/1`, `Graphvix.Edge.delete/1`, or `Graphvix.Cluster.delete/1` when possible.
-
-  """
-  @spec remove(pos_integer) :: :ok
-  def remove(id) do
-    GenServer.cast(__MODULE__, {:remove, id})
   end
 
   @doc """

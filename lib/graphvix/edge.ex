@@ -1,22 +1,21 @@
 defmodule Graphvix.Edge do
-  @type node_or_id :: map | pos_integer
-  @type edge_or_id :: map | pos_integer
+  @moduledoc """
+  `Graphvix.Edge` provides functions for adding, updating, and deleting edges in a graph.
+  """
 
   @doc """
-  Adds an edge to the graph connecting `node1` and `node2`.
+  Adds an edge to the graph.
 
-  The edge sets its starting attributes to `attrs`.
+  The edge connects the two nodes with ids matching the first two parameters,
+  and sets its starting attributes to `attrs`.
 
-  Edges can be created by passing node ids or nodes themselves.
-
-      iex> n1 = Node.new
-      iex> n2 = Node.new
-      iex> n3 = Node.new
-      iex> Edge.new(n1.id, n2.id) # or
-      iex> Edge.new(n2, n3)
+      iex> {n1_id, n1} = Node.new
+      iex> {n2_id, n2} = Node.new
+      iex> Edge.new(n1_id, n2_id)
+      {3, %{ start_node: 1, end_node: 2, attrs: [] }}
 
   """
-  @spec new(node_or_id, node_or_id, Keyword.t | nil) :: map
+  @spec new(pos_integer, pos_integer, Keyword.t | nil) :: {pos_integer, map}
   def new(node1, node2, attrs \\ [])
   def new(%{id: n1_id}, node2, attrs) do
     new(n1_id, node2, attrs)
@@ -34,16 +33,11 @@ defmodule Graphvix.Edge do
   If `nil` is passed as a value in the `attrs` keyword list, it will remove
   the key entirely from the edge's attributes.
 
-      iex> e = Edge.new(n1, n2, color: "blue")
-      iex> Edge.update(e.id, color: nil, label: "Connection")
-
-  An edge can be passed in place of its id for ease of use.
-
-      iex> Edge.update(e, color: nil, label: "Connection")
+      iex> {e_id, e} = Edge.new(n1, n2, color: "blue")
+      iex> Edge.update(e_id, color: nil, label: "Connection")
 
   """
-  @spec update(edge_or_id, Keyword.t) :: :ok
-  def update(%{id: id}=edge, attrs), do: update(id, attrs)
+  @spec update(pos_integer, Keyword.t) :: :ok
   def update(edge_id, attrs) do
     GenServer.cast(Graphvix.Graph, {:update, edge_id, attrs})
   end
@@ -53,12 +47,8 @@ defmodule Graphvix.Edge do
 
   Does nothing if the edge does not exist.
 
-      iex> e = Edge.new(n1, n2)
-      iex> Edge.delete(e.id)
-
-  An edge can be passed in place of its id for ease of use.
-
-      iex> Edge.delete(e)
+      iex> {e_id, e} = Edge.new(n1, n2)
+      iex> Edge.delete(e_id)
 
   """
   @spec delete(pos_integer) :: :ok
@@ -71,8 +61,8 @@ defmodule Graphvix.Edge do
 
   Returns the edge, or `nil` if it is not found.
 
-      iex> e = Edge.new(n1, n2)
-      iex> Edge.find(e.id) #=> returns `e`
+      iex> {e_id, e} = Edge.new(n1, n2)
+      iex> Edge.find(e_id) #=> returns `e`
 
   """
   @spec find(pos_integer) :: map | nil

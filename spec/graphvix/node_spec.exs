@@ -3,76 +3,55 @@ defmodule Graphvix.NodeSpec do
   alias Graphvix.{Graph, Node, Edge, Cluster}
 
   describe ".new" do
-    it "returns a map with a unique id" do
+    it "returns a tuple of {`id`, `node_map`}" do
       Graph.restart
-      expect Node.new(label: "Start", color: "red") |> to(be_map)
+      expect Node.new(label: "Start", color: "red") |> to(be_tuple)
     end
   end
 
   describe ".update" do
     it "updates the correct node" do
       Graph.restart
-      n = Node.new(label: "Start", color: "red")
-      Node.update(n.id, color: "blue")
+      {n_id, _} = Node.new(label: "Start", color: "red")
+      Node.update(n_id, color: "blue")
 
-      expect Graph.find(n.id) |> Map.get(:attrs) |> Keyword.get(:color) |> to(eq "blue")
-    end
-
-    it "can take the node instead of id as the argument" do
-      Graph.restart
-      n = Node.new(label: "Start", color: "red")
-      Node.update(n, color: "blue")
-
-      expect Graph.find(n.id) |> Map.get(:attrs) |> Keyword.get(:color) |> to(eq "blue")
+      expect Node.find(n_id) |> Map.get(:attrs) |> Keyword.get(:color) |> to(eq "blue")
     end
   end
 
   describe ".delete" do
     it "removes the node and all associated edges" do
       Graph.restart
-      n = Node.new
-      n2 = Node.new
-      e = Edge.new(n.id, n2.id)
+      {n_id, _n} = Node.new
+      {n2_id, _n2} = Node.new
+      {e_id, _e} = Edge.new(n_id, n2_id)
 
-      Node.delete(n2.id)
+      Node.delete(n2_id)
 
-      expect Node.find(n.id) |> to(be_map)
-      expect Node.find(n2.id) |> to(be_nil)
-      expect Edge.find(e.id) |> to(be_nil)
+      expect Node.find(n_id) |> to(be_map)
+      expect Node.find(n2_id) |> to(be_nil)
+      expect Edge.find(e_id) |> to(be_nil)
     end
 
     it "removes the node from any clusters that contain it" do
       Graph.restart
-      n = Node.new
-      n2 = Node.new
-      c = Cluster.new([n.id, n2.id])
+      {n_id, _n} = Node.new
+      {n2_id, _n2} = Node.new
+      {c_id, _c} = Cluster.new([n_id, n2_id])
 
-      Node.delete(n2.id)
+      Node.delete(n2_id)
 
-      expect Node.find(n.id) |> to(be_map)
-      expect Node.find(n2.id) |> to(be_nil)
-      expect Cluster.find(c.id) |>  Map.get(:node_ids) |> to(eq [n.id])
-    end
-
-    it "removes based on the node rather than the node id" do
-      Graph.restart
-      n = Node.new
-      n2 = Node.new
-      e = Edge.new(n.id, n2.id)
-
-      Node.delete(n2)
-
-      expect Node.find(n.id) |> to(be_map)
-      expect Node.find(n2.id) |> to(be_nil)
-      expect Edge.find(e.id) |> to(be_nil)
+      expect Node.find(n_id) |> to(be_map)
+      expect Node.find(n2_id) |> to(be_nil)
+      expect Cluster.find(c_id) |>  Map.get(:node_ids) |> to(eq [n_id])
     end
   end
 
   describe ".find" do
     it "finds the correct node" do
       Graph.restart
-      n = Node.new(label: "Start", color: "red")
-      expect Node.find(n.id) |> to(eq n)
+      {n_id, n} = Node.new(label: "Start", color: "red")
+      expect Node.find(n_id) |> to(eq n)
     end
   end
 end

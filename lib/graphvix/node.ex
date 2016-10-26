@@ -1,16 +1,18 @@
 defmodule Graphvix.Node do
-  @type node_or_id :: map | pos_integer
+  @moduledoc """
+  `Graphvix.Node` provides functions for adding, updating, and deleting nodes in a graph.
+  """
 
   @doc """
   Create a new node with the given `attrs` and attach it to the active graph.
 
-  Returns the map of the node with a unique id.
+  Returns a tuple containing the new node's id and its map representation.
 
       iex> Node.new(label: "Start")
-      %{ id: 1, attrs: [label: "Start"] }
+      {1, %{ attrs: [label: "Start"] }}
 
   """
-  @spec new(Keyword.t | nil) :: map
+  @spec new(Keyword.t | nil) :: {pos_integer, map}
   def new(attrs \\ []) do
     GenServer.call(Graphvix.Graph, {:add_node, attrs})
   end
@@ -24,14 +26,8 @@ defmodule Graphvix.Node do
       iex> n = Node.new(label: "Start")
       iex> Node.update(n.id, color: "blue", label: nil)
 
-  A node can be passed in place of its id for ease of use.
-
-      iex> Node.update(n, color: "blue", label: nil)
-
-
   """
-  @spec update(node_or_id, Keyword.t) :: :ok
-  def update(%{id: id}=node, attrs), do: update(id, attrs)
+  @spec update(pos_integer, Keyword.t) :: :ok
   def update(node_id, attrs) do
     GenServer.cast(Graphvix.Graph, {:update, node_id, attrs})
   end
@@ -42,16 +38,11 @@ defmodule Graphvix.Node do
   This will also remove any edges attached to the node, and remove it from
   any clusters it belongs to.
 
-      iex> n = Node.new(label: "Start")
-      iex> Node.delete(n.id)
-
-  A node can be passed in place of its id for ease of use.
-
-      iex> Node.delete(n)
+      iex> {n_id, n} = Node.new(label: "Start")
+      iex> Node.delete(n_id)
 
   """
-  @spec delete(node_or_id) :: :ok
-  def delete(node) when is_map(node), do: delete(node.id)
+  @spec delete(pos_integer) :: :ok
   def delete(node_id) do
     GenServer.cast(Graphvix.Graph, {:remove, node_id})
   end

@@ -14,14 +14,6 @@ def deps do
 end
 ```
 
-2. Ensure `graphvix` is started before your application:
-
-```elixir
-def application do
-  [applications: [:graphvix]]
-end
-```
-
 # Usage
 
 See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
@@ -29,7 +21,7 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
 1. Alias the included modules for ease of use
 
     ```elixir
-    iex> alias Graphvix.{Graph, Node, Edge, Cluster}
+     alias Graphvix.{Graph, Node, Edge, Cluster}
     ```
 
 1. Start up the graph state process. Currently only one graph can be active
@@ -37,44 +29,51 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
     working with multiple graphs.
 
     ```elixir
-    iex> Graph.start
+     Graph.start
     ```
 
 1. Add a single node
 
     ```elixir
-    iex> Node.new(label: "Start")
+     Node.new(label: "Start")
     ```
 
 1. Add an edge between two existing nodes
 
     ```elixir
-    iex> node1 = Node.new(label: "Start")
-    iex> node2 = Node.new(label: "End")
-    iex> edge = Edge.new(node1, node2, color: "blue")
+     {node1_id, _node} = Node.new(label: "Start")
+     {node2_id, _node} = Node.new(label: "End")
+     {edge_id, _edge} = Edge.new(node1_id, node2_id, color: "blue")
+    ```
+
+1. Add a cluster containing one or more nodes
+
+    ```elixir
+     {cluster_id, _cluster} = Cluster.new([node1_id, node2_id])
     ```
 
 1. Update settings to nodes and edges
 
     ```elixir
-    iex> Node.update(node1.id, color: "red")
-    iex> Edge.update(edge.id, label: "My connector")
+     Node.update(node1_id, color: "red")
+     Edge.update(edge_id, label: "My connector")
     ```
 
 1. Show the internal structure of the graph
 
     ```elixir
-    iex> Graph.get
+     Graph.get
     %{
        nodes: %{ ... },
        edges: %{ ... },
-       clusters: %{ ... }
+       clusters: %{ ... },
+       attrs: [ ... ]
     }
     ```
 1. Convert the graph to DOT format
 
     ```elixir
-    iex> Graph.write(graph)
+     Graph.write(graph)
     'digraph G {
       node_1 [label="Start",color="red"];
       node_2 [label="End"];
@@ -85,43 +84,43 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
 1. Save the graph to a .dot file, with an optional filename
 
     ```elixir
-    iex> Graph.save(:dot) #=> creates G.dot
-    iex> Graph.save(:dot, "my_graph") #=> creates my_graph.dot
+     Graph.save(:dot) #=> creates G.dot
+     Graph.save(:dot, "my_graph") #=> creates my_graph.dot
     ```
 
 1. Or save the Elixir form of the graph to a .txt file
 
     ```elixir
-    iex> Graph.save(:txt) #=> creates G.txt
-    iex> Graph.save(:txt, "my_graph") #=> creates my_graph.txt
+     Graph.save(:txt) #=> creates G.txt
+     Graph.save(:txt, "my_graph") #=> creates my_graph.txt
     ```
 
 1. Compile the graph to a PDF or PNG
 
     ```elixir
-    iex> Graph.compile #=> creates G.dot and G.pdf
-    iex> Graph.compile(:png) #=> creates G.dot and G.png
-    iex> Graph.compile("my_graph", :png) #=> creates my_graph.dot and my_graph.png
+     Graph.compile #=> creates G.dot and G.pdf
+     Graph.compile(:png) #=> creates G.dot and G.png
+     Graph.compile("my_graph", :png) #=> creates my_graph.dot and my_graph.png
     ```
 
 1. Compile and open the graph as a PDF/PNG from IEx
 
     ```elixir
-    iex> Graph.graph #=> creates G.dot and G.pdf; opens G.pdf
-    iex> Graph.graph("my_graph") #=> creates my_graph.dot and my_graph.pdf; opens my_graph.pdf
-    iex> Graph.graph("G2", :png) #=> creates G2.dot and G2.png; opens G2.png
+     Graph.graph #=> creates G.dot and G.pdf; opens G.pdf
+     Graph.graph("my_graph") #=> creates my_graph.dot and my_graph.pdf; opens my_graph.pdf
+     Graph.graph("G2", :png) #=> creates G2.dot and G2.png; opens G2.png
     ```
 
 1. Reload a graph that had been saved as a .txt file. This updates the
   state of the graph process.
 
     ```elixir
-    iex> Graph.load("my_graph.txt")
+     Graph.load("my_graph.txt")
     ```
 
 1. Reset the state of the graph process to an empty graph.
 
     ```elixir
-    iex> Graph.restart
+     Graph.restart
     ```
 
