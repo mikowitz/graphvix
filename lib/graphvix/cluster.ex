@@ -1,6 +1,9 @@
 defmodule Graphvix.Cluster do
-  @type node_or_nodes :: pos_integer | [pos_integer]
-  @type cluster_or_id :: pos_integer | map
+  @moduledoc """
+  `Graphvix.Cluster` provides functions for adding, updating, and deleting clusters in a graph.
+  """
+
+  @type node_id_or_ids :: pos_integer | [pos_integer]
 
   @doc """
   Create a new cluster.
@@ -8,40 +11,61 @@ defmodule Graphvix.Cluster do
   The cluster is empty by default, but can be provided with `nodes`
   already part of it.
 
-      iex> n = Node.new
-      iex> n2 = Node.new
-      iex> Cluster.new # or
-      iex> Cluster.new(n) # or
-      iex> Cluster.new([n, n2])
+      iex> {n_id, n} = Node.new
+      iex> {n2_id, n2} = Node.new
+
+      # Passing no node ids
+      iex> Cluster.new
+      {3, %{ node_ids: [] }
+
+      # Passing a single node id
+      iex> Cluster.new(n_id)
+      {3, %{ node_ids: [1] }
+
+      # Passing multiple node ids
+      iex> Cluster.new([n_id, n2_id])
+      {3, %{ node_ids: [1, 2] }
 
   """
-  @spec new(node_or_nodes | nil) :: map
+  @spec new(node_id_or_ids | nil) :: {pos_integer, map}
   def new(nodes \\ []) do
     GenServer.call(Graphvix.Graph, {:add_cluster, extract_ids(nodes)})
   end
 
   @doc """
-  Adds a node or nodes to an existing cluster identified by `cluster_id`
+  Adds a node or nodes to an existing cluster.
 
-      iex> c = Cluster.new
-      iex> n = Node.new
-      iex> Cluster.add(c.id, n)
+      iex> {c_id, c} = Cluster.new
+      iex> {n_id, n} = Node.new
+      iex> {n2_id, n2} = Node.new
+
+      # Adding a single node
+      iex> Cluster.add(c_id, n_id)
+
+      # Adding multiple nodes
+      iex> Cluster.add(c_id, [n_id, n2_id])
 
   """
-  @spec add(pos_integer, node_or_nodes) :: map
+  @spec add(pos_integer, node_id_or_ids) :: map
   def add(cluster_id, nodes) do
     GenServer.call(Graphvix.Graph, {:add_to_cluster, cluster_id, extract_ids(nodes)})
   end
 
   @doc """
-  Removes a node or nodes from an existing cluster identified by `cluster_id`
+  Removes a node or nodes from an existing cluster.
 
-  iex> n = Node.new
-  iex> c = Cluster.new(n)
-  iex> Cluster.remove(c.id, n)
+      iex> {n_id, n} = Node.new
+      iex> {n2_id, n2} = Node.new
+      iex> {c_id, c} = Cluster.new([n_id, n2_id])
+
+      # Removing a single node
+      iex> Cluster.remove(c_id, n_id)
+
+      # Removing multiple nodes
+      iex> Cluster.remove(c_id, [n_id, n2_id])
 
   """
-  @spec remove(pos_integer, node_or_nodes) :: map
+  @spec remove(pos_integer, node_id_or_ids) :: map
   def remove(cluster_id, nodes) do
     GenServer.call(Graphvix.Graph, {:remove_from_cluster, cluster_id, extract_ids(nodes)})
   end
@@ -49,16 +73,11 @@ defmodule Graphvix.Cluster do
   @doc """
   Deletes the cluster with the provided `cluster_id`.
 
-      iex> c = Cluster.new
-      iex> Cluster.delete(c.id)
-
-  A cluster can be passed in place of its id for ease of use.
-
-      iex> Cluster.delete(c)
+      iex> {c_id, c} = Cluster.new
+      iex> Cluster.delete(c_id)
 
   """
-  @spec delete(cluster_or_id) :: :ok
-  def delete(%{id: id}=cluster), do: delete(id)
+  @spec delete(pos_integer) :: :ok
   def delete(cluster_id) do
     GenServer.cast(Graphvix.Graph, {:remove, cluster_id})
   end
@@ -68,8 +87,8 @@ defmodule Graphvix.Cluster do
 
   Returns the cluster, or `nil` if it is not found.
 
-  iex> c = Cluster.new
-  iex> Cluster.find(c.id) #=> returns `c`
+      iex> {c_id, c} = Cluster.new
+      iex> Cluster.find(c_id) #=> returns `c`
 
   """
   @spec find(pos_integer) :: map | nil
@@ -78,9 +97,6 @@ defmodule Graphvix.Cluster do
   end
 
   defp extract_ids([]), do: []
-  defp extract_ids([%{id: id}|nodes]) do
-    [id|extract_ids(nodes)]
-  end
   defp extract_ids([id|nodes]) do
     [id|extract_ids(nodes)]
   end

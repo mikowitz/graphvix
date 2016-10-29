@@ -20,8 +20,8 @@ defmodule Graphvix.Callbacks do
       end
       def handle_cast({:update, id, attrs}, graph) do
         new_graph = case kind_of_element(graph, id) do
-          :node -> update_attrs_for_element_in_graph(graph, Map.get(graph.nodes, id), :nodes, attrs)
-          :edge -> update_attrs_for_element_in_graph(graph, Map.get(graph.edges, id), :edges, attrs)
+          :node -> update_attrs_for_element_in_graph(graph, id, Map.get(graph.nodes, id), :nodes, attrs)
+          :edge -> update_attrs_for_element_in_graph(graph, id, Map.get(graph.edges, id), :edges, attrs)
           _ -> graph
         end
         {:noreply, new_graph}
@@ -51,30 +51,30 @@ defmodule Graphvix.Callbacks do
 
       def handle_call({:add_node, attrs}, _from, graph) do
         id = get_id
-        new_node = %{id: id, attrs: attrs}
+        new_node = %{ attrs: attrs }
         new_nodes = Map.put(graph.nodes, id, new_node)
-        {:reply, new_node, %{ graph | nodes: new_nodes }}
+        {:reply, {id, new_node}, %{ graph | nodes: new_nodes }}
       end
 
       def handle_call({:add_edge, start_id, end_id, attrs}, _from, graph) do
         id = get_id
-        new_edge = %{ id: id, start_node: start_id, end_node: end_id, attrs: attrs }
+        new_edge = %{ start_node: start_id, end_node: end_id, attrs: attrs }
         new_edges = Map.put(graph.edges, id, new_edge)
-        {:reply, new_edge, %{ graph | edges: new_edges }}
+        {:reply, {id, new_edge}, %{ graph | edges: new_edges }}
       end
 
       def handle_call({:add_cluster, node_ids}, _from, graph) do
         id = get_id
-        new_cluster = %{ id: id, node_ids: node_ids }
+        new_cluster = %{ node_ids: node_ids }
         new_clusters = Map.put(graph.clusters, id, new_cluster)
-        {:reply, new_cluster, %{ graph | clusters: new_clusters }}
+        {:reply, {id, new_cluster}, %{ graph | clusters: new_clusters }}
       end
 
       def handle_call({:add_to_cluster, cluster_id, node_ids}, _from, graph) do
         cluster = Map.get(graph.clusters, cluster_id)
         new_node_ids = (cluster.node_ids ++ node_ids) |> Enum.uniq
         new_cluster = %{ cluster | node_ids: new_node_ids }
-        new_clusters = %{ graph.clusters | cluster.id => new_cluster }
+        new_clusters = %{ graph.clusters | cluster_id => new_cluster }
         {:reply, new_cluster, %{ graph | clusters: new_clusters }}
       end
 
@@ -82,7 +82,7 @@ defmodule Graphvix.Callbacks do
         cluster = Map.get(graph.clusters, cluster_id)
         new_node_ids = (cluster.node_ids -- node_ids) |> Enum.uniq
         new_cluster = %{ cluster | node_ids: new_node_ids }
-        new_clusters = %{ graph.clusters | cluster.id => new_cluster }
+        new_clusters = %{ graph.clusters | cluster_id => new_cluster }
         {:reply, new_cluster, %{ graph | clusters: new_clusters }}
       end
 
@@ -90,10 +90,10 @@ defmodule Graphvix.Callbacks do
         {:reply, find_element(graph, id), graph}
       end
 
-      defp update_attrs_for_element_in_graph(graph, element, key, attrs) do
+      defp update_attrs_for_element_in_graph(graph, id, element, key, attrs) do
         new_attrs = merge_without_nils(element.attrs, attrs)
         new_element = %{ element | attrs: new_attrs }
-        %{ graph | key => %{ Map.get(graph, key) | new_element.id => new_element } }
+        %{ graph | key => %{ Map.get(graph, key) | id => new_element } }
       end
 
       defp merge_without_nils(original, changes) do

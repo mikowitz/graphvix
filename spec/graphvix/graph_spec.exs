@@ -40,16 +40,6 @@ digraph G {
     end
   end
 
-  describe ".remove" do
-    it "removes a node, edge, or cluster from the graph entirely" do
-      Graph.restart
-      n = Node.new(label: "Start")
-      Graph.remove(n.id)
-
-      expect Graph.get |> Map.get(:nodes) |> to(be_empty)
-    end
-  end
-
   describe ".save" do
     it "saves a raw Elixir representation of the graph to a txt file" do
       Graph.start
@@ -70,19 +60,19 @@ digraph G {
 
     it "saves to DOT format" do
       Graph.restart
-      n1 = Node.new(label: "Start")
-      n2 = Node.new(label: "End")
-      Edge.new(n1, n2)
+      {n1_id, _n1} = Node.new(label: "Start")
+      {n2_id, _n2} = Node.new(label: "End")
+      Edge.new(n1_id, n2_id)
       Graph.save(:dot)
 
       :timer.sleep(125)
       {:ok, file_content} = File.read("G.dot")
       expect file_content |> to(eq """
 digraph G {
-  node_#{n1.id} [label="Start"];
-  node_#{n2.id} [label="End"];
+  node_#{n1_id} [label="Start"];
+  node_#{n2_id} [label="End"];
 
-  node_#{n1.id} -> node_#{n2.id};
+  node_#{n1_id} -> node_#{n2_id};
 }
 """ |> String.strip)
 
@@ -111,27 +101,27 @@ digraph G {
 
     it "returns nodes and edges correctly" do
       Graph.restart
-      n1 = Node.new(label: "Start")
-      n2 = Node.new(label: "End")
-      n3 = Node.new(label: "Epilogue")
-      _e1 = Edge.new(n1, n2)
-      _e2 = Edge.new(n1, n3)
+      {n1_id, _n1} = Node.new(label: "Start")
+      {n2_id, _n2} = Node.new(label: "End")
+      {n3_id, _n3} = Node.new(label: "Epilogue")
+      _e1 = Edge.new(n1_id, n2_id)
+      _e2 = Edge.new(n1_id, n3_id)
 
-      cluster = Cluster.new([n1, n2])
+      {c_id, _c} = Cluster.new([n1_id, n2_id])
 
       expect Graph.write |> to(
       eq ~s/
 digraph G {
-  node_#{n1.id} [label="Start"];
-  node_#{n2.id} [label="End"];
-  node_#{n3.id} [label="Epilogue"];
+  node_#{n1_id} [label="Start"];
+  node_#{n2_id} [label="End"];
+  node_#{n3_id} [label="Epilogue"];
 
-  node_#{n1.id} -> node_#{n2.id};
-  node_#{n1.id} -> node_#{n3.id};
+  node_#{n1_id} -> node_#{n2_id};
+  node_#{n1_id} -> node_#{n3_id};
 
-  subgraph cluster_#{cluster.id} {
-    node_#{n1.id} -> node_#{n2.id} [style=invis];
-    { rank = "same"; node_#{n1.id}; node_#{n2.id}; }
+  subgraph cluster_#{c_id} {
+    node_#{n1_id} -> node_#{n2_id} [style=invis];
+    { rank = "same"; node_#{n1_id}; node_#{n2_id}; }
   }
 }/ |> String.strip)
     end
