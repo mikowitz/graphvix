@@ -12,8 +12,15 @@ defmodule Graphvix.Node do
       {1, %{ attrs: [label: "Start"] }}
 
   """
-  @spec new(Keyword.t | nil) :: {pos_integer, map}
-  def new(attrs \\ []) do
+  @spec new(Keyword.t | String.t | atom | nil) :: {pos_integer, map}
+  def new(attrs \\ [])
+  def new(label) when is_atom(label) do
+    label |> to_string |> new
+  end
+  def new(label) when is_bitstring(label) do
+    new(label: label)
+  end
+  def new(attrs) do
     GenServer.call(Graphvix.Graph, {:add_node, attrs})
   end
 
