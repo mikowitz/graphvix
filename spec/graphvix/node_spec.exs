@@ -7,6 +7,20 @@ defmodule Graphvix.NodeSpec do
       Graph.restart
       expect Node.new(label: "Start", color: "red") |> to(be_tuple)
     end
+
+    it "returns a node with only a label by passing a string" do
+      Graph.restart
+
+      {_id, %{attrs: attrs}} = Node.new("a")
+      expect Keyword.get(attrs, :label) |> to(eq "a")
+    end
+
+    it "returns a node with only a label by passing a symbol" do
+      Graph.restart
+
+      {_id, %{attrs: attrs}} = Node.new(:a)
+      expect Keyword.get(attrs, :label) |> to(eq "a")
+    end
   end
 
   describe ".update" do

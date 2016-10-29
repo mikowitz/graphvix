@@ -1,4 +1,8 @@
 defmodule Graphvix.Edge do
+  alias Graphvix.Node
+
+  @type node_id_or_label :: pos_integer | String.t | atom
+
   @moduledoc """
   `Graphvix.Edge` provides functions for adding, updating, and deleting edges in a graph.
   """
@@ -15,16 +19,32 @@ defmodule Graphvix.Edge do
       {3, %{ start_node: 1, end_node: 2, attrs: [] }}
 
   """
-  @spec new(pos_integer, pos_integer, Keyword.t | nil) :: {pos_integer, map}
-  def new(node1, node2, attrs \\ [])
-  def new(%{id: n1_id}, node2, attrs) do
-    new(n1_id, node2, attrs)
+  @spec new(node_id_or_label, node_id_or_label | [node_id_or_label], Keyword.t | nil) :: {pos_integer, map}
+  def new(n1, n2, attrs \\ [])
+  def new(n1, nodes, attrs) when is_list(nodes) do
+    Enum.map(nodes, fn n2 ->
+      new(n1, n2, attrs)
+    end)
   end
-  def new(node1, %{id: n2_id}, attrs) do
-    new(node1, n2_id, attrs)
+  def new(n1_label, n2, attrs) when is_atom(n1_label) or is_bitstring(n1_label) do
+    with {n1_id, _} <- Node.new(n1_label) do
+      new(n1_id, n2, attrs)
+    end
+  end
+  def new(n1, n2_label, attrs) when is_atom(n2_label) or is_bitstring(n2_label) do
+    with {n2_id, _} <- Node.new(n2_label) do
+      new(n1, n2_id, attrs)
+    end
   end
   def new(n1_id, n2_id, attrs) do
     GenServer.call(Graphvix.Graph, {:add_edge, n1_id, n2_id, attrs})
+  end
+
+  def chain(node_chain), do: do_chain(node_chain, [])
+
+  defp do_chain([_], edges), do: Enum.reverse(edges)
+  defp do_chain([start_node,end_node|nodes], edges) do
+    do_chain([end_node|nodes], [new(start_node, end_node)|edges])
   end
 
   @doc """
