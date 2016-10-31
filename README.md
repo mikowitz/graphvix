@@ -10,7 +10,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 ```elixir
 def deps do
-  [{:graphvix, "~> 0.3.0"}]
+  [{:graphvix, "~> 0.4.0"}]
 end
 ```
 
