@@ -67,7 +67,7 @@ defmodule Graphvix.EdgeSpec do
       {e_id, _e} = Edge.new(n1, n2)
       Edge.delete(e_id)
 
-      expect Edge.find(e_id) |> to(be_nil)
+      expect Edge.find(e_id) |> to(eq {:error, {:enotfound, :edge}})
     end
   end
 

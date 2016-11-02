@@ -43,8 +43,8 @@ defmodule Graphvix.NodeSpec do
       Node.delete(n2_id)
 
       expect Node.find(n_id) |> to(be_map)
-      expect Node.find(n2_id) |> to(be_nil)
-      expect Edge.find(e_id) |> to(be_nil)
+      expect Node.find(n2_id) |> to(eq {:error, {:enotfound, :node}})
+      expect Edge.find(e_id) |> to(eq {:error, {:enotfound, :edge}})
     end
 
     it "removes the node from any clusters that contain it" do
@@ -56,8 +56,17 @@ defmodule Graphvix.NodeSpec do
       Node.delete(n2_id)
 
       expect Node.find(n_id) |> to(be_map)
-      expect Node.find(n2_id) |> to(be_nil)
+      expect Node.find(n2_id) |> to(eq {:error, {:enotfound, :node}})
       expect Cluster.find(c_id) |>  Map.get(:node_ids) |> to(eq [n_id])
+    end
+
+    it "can only delete a node" do
+      Graph.restart
+      {n_id, _n} = Node.new
+      {n2_id, _n2} = Node.new
+      {e_id, _e} = Edge.new(n_id, n2_id)
+
+      expect Node.delete(e_id) |> to(eq {:error, {:enotfound, :node}})
     end
   end
 
@@ -66,6 +75,14 @@ defmodule Graphvix.NodeSpec do
       Graph.restart
       {n_id, n} = Node.new(label: "Start", color: "red")
       expect Node.find(n_id) |> to(eq n)
+    end
+
+    it "can only find a node" do
+      {n_id, _n} = Node.new
+      {n2_id, _n2} = Node.new
+      {e_id, _e} = Edge.new(n_id, n2_id)
+
+      expect Node.find(e_id) |> to(eq {:error, {:enotfound, :node}})
     end
   end
 end

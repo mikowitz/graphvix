@@ -51,7 +51,8 @@ defmodule Graphvix.Node do
   """
   @spec delete(pos_integer) :: :ok
   def delete(node_id) do
-    GenServer.cast(Graphvix.Graph, {:remove, node_id})
+    #GenServer.cast(Graphvix.Graph, {:remove, node_id})
+    GenServer.call(Graphvix.Graph, {:delete, node_id, :node})
   end
 
   @doc """
@@ -65,6 +66,6 @@ defmodule Graphvix.Node do
   """
   @spec find(pos_integer) :: map | nil
   def find(node_id) do
-    GenServer.call(Graphvix.Graph, {:find, node_id})
+    GenServer.call(Graphvix.Graph, {:find, node_id, :node})
   end
 end
