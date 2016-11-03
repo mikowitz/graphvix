@@ -59,7 +59,7 @@ defmodule Graphvix.Edge do
   """
   @spec update(pos_integer, Keyword.t) :: :ok
   def update(edge_id, attrs) do
-    GenServer.cast(Graphvix.Graph, {:update, edge_id, attrs})
+    GenServer.cast(Graphvix.Graph, {:update, :edge, edge_id, attrs})
   end
 
   @doc """

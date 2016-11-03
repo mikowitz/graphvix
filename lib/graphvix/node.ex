@@ -36,7 +36,7 @@ defmodule Graphvix.Node do
   """
   @spec update(pos_integer, Keyword.t) :: :ok
   def update(node_id, attrs) do
-    GenServer.cast(Graphvix.Graph, {:update, node_id, attrs})
+    GenServer.cast(Graphvix.Graph, {:update, :node, node_id, attrs})
   end
 
   @doc """
@@ -51,7 +51,6 @@ defmodule Graphvix.Node do
   """
   @spec delete(pos_integer) :: :ok
   def delete(node_id) do
-    #GenServer.cast(Graphvix.Graph, {:remove, node_id})
     GenServer.call(Graphvix.Graph, {:delete, node_id, :node})
   end
 
