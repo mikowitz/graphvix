@@ -39,7 +39,7 @@ defmodule Graphvix.ClusterSpec do
       {c_id, _c} = Cluster.new
 
       Cluster.delete(c_id)
-      expect Cluster.find(c_id) |> to(be_nil)
+      expect Cluster.find(c_id) |> to(eq {:error, {:enotfound, :cluster}})
     end
   end
 
