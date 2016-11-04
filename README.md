@@ -1,4 +1,6 @@
-# Graphvix
+# Graphvix 
+
+[![Build Status](https://travis-ci.org/mikowitz/graphvix.svg?branch=master)](https://travis-ci.org/mikowitz/graphvix)
 
 Graphviz in Elixir
 
