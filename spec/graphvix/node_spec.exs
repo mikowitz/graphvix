@@ -78,6 +78,8 @@ defmodule Graphvix.NodeSpec do
     end
 
     it "can only find a node" do
+      Graph.restart
+
       {n_id, _n} = Node.new
       {n2_id, _n2} = Node.new
       {e_id, _e} = Edge.new(n_id, n2_id)
