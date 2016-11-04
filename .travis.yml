@@ -4,3 +4,5 @@ elixir:
 script: mix espec
 env:
   - MIX_ENV=test
+before_install:
+  - sudo apt-get install graphviz
