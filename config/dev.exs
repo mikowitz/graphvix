@@ -5,3 +5,6 @@ config :mix_test_watch,
   tasks: [
     "espec",
   ]
+
+config :graphvix,
+  file_storage_location: "/tmp/"
