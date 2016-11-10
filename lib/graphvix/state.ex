@@ -1,54 +1,99 @@
 defmodule Graphvix.State do
-  defstruct graphs: [], current_graph: nil
+  defstruct graphs: %{}, current_graph: nil
 
-  @file_storage_location Application.get_env(:graphvix, :file_storage_location)
-  @default_file_location "/tmp"
-  @storage_file_name "graphvix.store"
+  @file_store_path Application.get_env(:graphvix, :file_storage_location)
+  @default_file_store_path "/tmp"
+  @file_store_name "graphvix.store"
   @empty_graph %{nodes: %{}, edges: %{}, clusters: %{}, attrs: []}
 
   use GenServer
   alias __MODULE__
 
   def start_link do
-    GenServer.start_link(__MODULE__, %State{}, name: __MODULE__)
+    state = case File.read(storage_location) do
+      {:ok, content} ->
+        {state, _} = Code.eval_string(content)
+        state
+      _ ->
+        %State{}
+    end
+    GenServer.start_link(__MODULE__, state)
   end
 
-  def save do
-    GenServer.cast(__MODULE__, :save)
-  end
-  def load do
-    GenServer.cast(__MODULE__, :load)
+  def current_graph(pid) do
+    GenServer.call(pid, :current_graph)
   end
 
-  def ls do
-    GenServer.call(__MODULE__, :ls)
+  def ls(pid) do
+    GenServer.call(pid, :ls)
   end
-  def new_graph(_pid, name) do
-    GenServer.cast(__MODULE__, {:new, name})
+  def new_graph(pid, name) do
+    GenServer.call(pid, {:new, name})
   end
   def clear(pid) do
     GenServer.cast(pid, :clear)
   end
 
-  def handle_call(:ls, _from, state=%State{ graphs: graphs }) do
-    {:reply, Keyword.keys(graphs), state}
+  def load(pid, name) do
+    GenServer.call(pid, {:load, name})
   end
 
-  def handle_cast({:new, name}, state) do
-    new_graphs = [{name, @empty_graph}|state.graphs]
-    {:noreply, %State{ state | graphs: new_graphs}}
+  def save(pid, name, graph) do
+    GenServer.cast(pid, {:save, name, graph})
   end
+
+  def init(state) do
+    schedule_save()
+    {:ok, state}
+  end
+
+  def handle_call(:ls, _from, state=%State{ graphs: graphs }) do
+    {:reply, Map.keys(graphs), state}
+  end
+  def handle_call({:new, name}, _from, state) do
+    new_graphs = Map.put(state.graphs, name, @empty_graph)
+    {:reply, {name, @empty_graph}, %State{ state | graphs: new_graphs}}
+  end
+  def handle_call({:load, name}, _from, state) do
+    graph = case Map.get(state.graphs, name) do
+      nil -> @empty_graph
+      g -> g
+    end
+    {:reply, {name, graph}, state}
+  end
+
   def handle_cast(:clear, _state) do
     {:noreply, %State{}}
   end
   def handle_cast(:save, state) do
-    File.write(@file_storage_location <> @storage_file_name, inspect(state))
-    #IO.inspect state
+    File.write(storage_location, inspect(state))
     {:noreply, state}
   end
   def handle_cast(:load, _state) do
-    {new_state, _} = Code.eval_file(@file_storage_location <> @storage_file_name)
-    #IO.inspect new_state
+    {new_state, _} = Code.eval_file(storage_location)
     {:noreply, new_state}
+  end
+  def handle_cast({:save, name, graph}, state) do
+    new_graphs = Map.update(state.graphs, name, @empty_graph, fn _ -> graph end)
+    new_state = %State{ state | graphs: new_graphs }
+    {:noreply, new_state}
+  end
+
+  def handle_info(:save, state) do
+    File.write(storage_location, inspect(state))
+    schedule_save()
+    {:noreply, state}
+  end
+
+  defp storage_location do
+    file_store_path <> @file_store_name
+  end
+
+  defp file_store_path do
+    @file_store_path || @default_file_store_path
+  end
+
+  defp schedule_save do
+    Process.send_after(self(), :save, 60_000)
   end
 end
