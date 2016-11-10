@@ -55,9 +55,8 @@ defmodule Graphvix.GraphServer do
     {:noreply, {state_pid, new_graph}}
   end
 
-  def terminate(_reason, {state_pid, current_graph}) do
-    IO.inspect state_pid
-    IO.inspect current_graph
+  def terminate(_reason, {state_pid, {current_name, current_graph}}) do
+    Graphvix.State.save(state_pid, current_name, current_graph)
   end
 end
 
