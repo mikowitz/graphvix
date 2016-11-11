@@ -29,7 +29,7 @@ defmodule Graphvix.Cluster do
   """
   @spec new(node_id_or_ids | nil) :: {pos_integer, map}
   def new(nodes \\ []) do
-    GenServer.call(Graphvix.Graph, {:add_cluster, extract_ids(nodes)})
+    GenServer.call(Graphvix.GraphServer, {:add_cluster, extract_ids(nodes)})
   end
 
   @doc """
@@ -48,7 +48,7 @@ defmodule Graphvix.Cluster do
   """
   @spec add(pos_integer, node_id_or_ids) :: map
   def add(cluster_id, nodes) do
-    GenServer.call(Graphvix.Graph, {:add_to_cluster, cluster_id, extract_ids(nodes)})
+    GenServer.call(Graphvix.GraphServer, {:add_to_cluster, cluster_id, extract_ids(nodes)})
   end
 
   @doc """
@@ -67,7 +67,7 @@ defmodule Graphvix.Cluster do
   """
   @spec remove(pos_integer, node_id_or_ids) :: map
   def remove(cluster_id, nodes) do
-    GenServer.call(Graphvix.Graph, {:remove_from_cluster, cluster_id, extract_ids(nodes)})
+    GenServer.call(Graphvix.GraphServer, {:remove_from_cluster, cluster_id, extract_ids(nodes)})
   end
 
   @doc """
@@ -79,7 +79,7 @@ defmodule Graphvix.Cluster do
   """
   @spec delete(pos_integer) :: :ok
   def delete(cluster_id) do
-    GenServer.call(Graphvix.Graph, {:delete, cluster_id, :cluster})
+    GenServer.call(Graphvix.GraphServer, {:delete, cluster_id, :cluster})
   end
 
   @doc """
@@ -93,7 +93,7 @@ defmodule Graphvix.Cluster do
   """
   @spec find(pos_integer) :: map | nil
   def find(cluster_id) do
-    GenServer.call(Graphvix.Graph, {:find, cluster_id, :cluster})
+    GenServer.call(Graphvix.GraphServer, {:find, cluster_id, :cluster})
   end
 
   defp extract_ids([]), do: []

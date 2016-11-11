@@ -41,25 +41,26 @@ defmodule Graphvix.GraphServerSpec do
 
       GraphServer.switch(:second)
 
+      expect GraphServer.ls |> to(eq [:first, :second])
       {graph_name, _graph} = GraphServer.current_graph
       expect graph_name |> to(eq :second)
     end
   end
 
-  describe "reloading state on restart" do
-    it "should return the existing state/current graph" do
-      # TODO: call/cast to non-existent handler to trigger the termination
-      GraphServer.new(:first)
+  #describe "reloading state on restart" do
+    #it "should return the existing state/current graph" do
+      ## TODO: call/cast to non-existent handler to trigger the termination
+      #GraphServer.new(:first)
 
-      GraphServer.switch(:second)
+      #GraphServer.switch(:second)
 
-      GenServer.cast(GraphServer, :bad_call)
+      #GenServer.cast(GraphServer, :bad_call)
 
-      :timer.sleep 10
+      #:timer.sleep 10
 
-      {graph_name, _graph} = GraphServer.current_graph
-      expect graph_name |> to(eq :second)
-    end
-  end
+      #{graph_name, _graph} = GraphServer.current_graph
+      #expect graph_name |> to(eq :second)
+    #end
+  #end
 end
 
