@@ -29,8 +29,9 @@ defmodule Graphvix.GraphServer do
 
   ## CALLBACKS
 
-  def init(state) do
-    {:ok, state}
+  def init(state={state_pid, _}) do
+    new_state = {state_pid, Graphvix.State.current_graph(state_pid)}
+    {:ok, new_state}
   end
 
   def handle_call(:current_graph, _from, state={_, graph}) do

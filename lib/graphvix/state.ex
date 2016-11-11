@@ -47,19 +47,24 @@ defmodule Graphvix.State do
     {:ok, state}
   end
 
+  def handle_call(:current_graph, _from, state=%State{ current_graph: current_graph}) do
+    {:reply, current_graph, state}
+  end
   def handle_call(:ls, _from, state=%State{ graphs: graphs }) do
     {:reply, Map.keys(graphs), state}
   end
   def handle_call({:new, name}, _from, state) do
     new_graphs = Map.put(state.graphs, name, @empty_graph)
-    {:reply, {name, @empty_graph}, %State{ state | graphs: new_graphs}}
+    new_state = %State{ state | graphs: new_graphs, current_graph: {name, @empty_graph}}
+    {:reply, {name, @empty_graph}, new_state}
   end
   def handle_call({:load, name}, _from, state) do
     graph = case Map.get(state.graphs, name) do
       nil -> @empty_graph
       g -> g
     end
-    {:reply, {name, graph}, state}
+    new_state = %State{ state | current_graph: {name, graph} }
+    {:reply, {name, graph}, new_state}
   end
 
   def handle_cast(:clear, _state) do
