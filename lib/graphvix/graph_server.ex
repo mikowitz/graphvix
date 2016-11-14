@@ -31,6 +31,7 @@ defmodule Graphvix.GraphServer do
 
   def init({state_pid, _}) do
     new_state = {state_pid, Graphvix.State.current_graph(state_pid)}
+    schedule_save()
     {:ok, new_state}
   end
 
@@ -205,6 +206,16 @@ defmodule Graphvix.GraphServer do
     with {_, results} <- Map.pop(map, id) do
       results
     end
+  end
+
+  def handle_info(:save_state, state={state_pid, {name, graph}}) do
+    Graphvix.State.save(state_pid, name, graph)
+    schedule_save
+    {:noreply, state}
+  end
+
+  defp schedule_save do
+    Process.send_after(self(), :save_state, 60_000)
   end
 end
 
