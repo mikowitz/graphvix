@@ -21,7 +21,7 @@ defmodule Graphvix.Node do
     new(label: label)
   end
   def new(attrs) do
-    GenServer.call(Graphvix.GraphServer, {:add_node, attrs})
+    GenServer.call(Graphvix.Graph, {:add_node, attrs})
   end
 
   @doc """
@@ -36,7 +36,7 @@ defmodule Graphvix.Node do
   """
   @spec update(pos_integer, Keyword.t) :: :ok
   def update(node_id, attrs) do
-    GenServer.cast(Graphvix.GraphServer, {:update, :node, node_id, attrs})
+    GenServer.cast(Graphvix.Graph, {:update, :node, node_id, attrs})
   end
 
   @doc """
@@ -51,7 +51,7 @@ defmodule Graphvix.Node do
   """
   @spec delete(pos_integer) :: :ok
   def delete(node_id) do
-    GenServer.call(Graphvix.GraphServer, {:delete, node_id, :node})
+    GenServer.call(Graphvix.Graph, {:delete, node_id, :node})
   end
 
   @doc """
@@ -65,6 +65,6 @@ defmodule Graphvix.Node do
   """
   @spec find(pos_integer) :: map | nil
   def find(node_id) do
-    GenServer.call(Graphvix.GraphServer, {:find, node_id, :node})
+    GenServer.call(Graphvix.Graph, {:find, node_id, :node})
   end
 end

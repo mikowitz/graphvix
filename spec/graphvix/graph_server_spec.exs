@@ -1,9 +1,9 @@
-defmodule Graphvix.GraphServerSpec do
+defmodule Graphvix.GraphSpec do
   use ESpec
-  alias Graphvix.GraphServer
+  alias Graphvix.Graph
 
   before do
-    GraphServer.clear
+    Graph.clear
   end
 
   finally do
@@ -12,37 +12,37 @@ defmodule Graphvix.GraphServerSpec do
 
   describe ".ls" do
     it "returns a list of graphs loaded in the state" do
-      expect GraphServer.ls |> to(be_empty)
+      expect Graph.ls |> to(be_empty)
 
-      GraphServer.new(:first)
+      Graph.new(:first)
 
-      expect GraphServer.ls |> to(eq [:first])
+      expect Graph.ls |> to(eq [:first])
     end
   end
 
   describe ".new" do
     it "creates a new graph in the state" do
-      GraphServer.new(:first)
+      Graph.new(:first)
 
-      expect GraphServer.ls |> to(eq [:first])
+      expect Graph.ls |> to(eq [:first])
     end
 
     it "sets the current graph" do
-      GraphServer.new(:first)
+      Graph.new(:first)
 
-      {graph_name, _graph} = GraphServer.current_graph
+      {graph_name, _graph} = Graph.current_graph
       expect graph_name |> to(eq :first)
     end
   end
 
   describe ".switch" do
     it "switches to a different, possibly new, named graph" do
-      GraphServer.new(:first)
+      Graph.new(:first)
 
-      GraphServer.switch(:second)
+      Graph.switch(:second)
 
-      expect GraphServer.ls |> to(eq [:first, :second])
-      {graph_name, _graph} = GraphServer.current_graph
+      expect Graph.ls |> to(eq [:first, :second])
+      {graph_name, _graph} = Graph.current_graph
       expect graph_name |> to(eq :second)
     end
   end
@@ -50,15 +50,15 @@ defmodule Graphvix.GraphServerSpec do
   #describe "reloading state on restart" do
     #it "should return the existing state/current graph" do
       ## TODO: call/cast to non-existent handler to trigger the termination
-      #GraphServer.new(:first)
+      #Graph.new(:first)
 
-      #GraphServer.switch(:second)
+      #Graph.switch(:second)
 
-      #GenServer.cast(GraphServer, :bad_call)
+      #GenServer.cast(Graph, :bad_call)
 
       #:timer.sleep 10
 
-      #{graph_name, _graph} = GraphServer.current_graph
+      #{graph_name, _graph} = Graph.current_graph
       #expect graph_name |> to(eq :second)
     #end
   #end

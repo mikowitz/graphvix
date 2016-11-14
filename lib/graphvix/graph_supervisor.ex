@@ -6,7 +6,7 @@ defmodule Graphvix.GraphSupervisor do
   end
 
   def init(state_pid) do
-    children = [worker(Graphvix.GraphServer, state_pid)]
+    children = [worker(Graphvix.Graph, state_pid)]
     supervise(children, strategy: :one_for_one)
   end
 end

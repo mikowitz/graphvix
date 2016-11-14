@@ -37,7 +37,7 @@ defmodule Graphvix.Edge do
     end
   end
   def new(n1_id, n2_id, attrs) do
-    GenServer.call(Graphvix.GraphServer, {:add_edge, n1_id, n2_id, attrs})
+    GenServer.call(Graphvix.Graph, {:add_edge, n1_id, n2_id, attrs})
   end
 
   def chain(node_chain), do: do_chain(node_chain, [])
@@ -59,7 +59,7 @@ defmodule Graphvix.Edge do
   """
   @spec update(pos_integer, Keyword.t) :: :ok
   def update(edge_id, attrs) do
-    GenServer.cast(Graphvix.GraphServer, {:update, :edge, edge_id, attrs})
+    GenServer.cast(Graphvix.Graph, {:update, :edge, edge_id, attrs})
   end
 
   @doc """
@@ -73,7 +73,7 @@ defmodule Graphvix.Edge do
   """
   @spec delete(pos_integer) :: :ok
   def delete(edge_id) do
-    GenServer.call(Graphvix.GraphServer, {:delete, edge_id, :edge})
+    GenServer.call(Graphvix.Graph, {:delete, edge_id, :edge})
   end
 
   @doc """
@@ -87,6 +87,6 @@ defmodule Graphvix.Edge do
   """
   @spec find(pos_integer) :: map | nil
   def find(edge_id) do
-    GenServer.call(Graphvix.GraphServer, {:find, edge_id, :edge})
+    GenServer.call(Graphvix.Graph, {:find, edge_id, :edge})
   end
 end
