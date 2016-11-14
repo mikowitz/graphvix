@@ -91,6 +91,10 @@ defmodule Graphvix.State do
     {:noreply, state}
   end
 
+  def terminate(_reason, state) do
+    File.write(storage_location, inspect(state))
+  end
+
   defp storage_location do
     file_store_path <> @file_store_name
   end
