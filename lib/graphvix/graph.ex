@@ -1,28 +1,53 @@
 defmodule Graphvix.Graph do
   use GenServer
 
+  @doc false
   def start_link(state_pid) do
     GenServer.start_link(__MODULE__, {state_pid, nil}, name: __MODULE__)
   end
 
   ## API
 
+  @doc """
+  Returns a list of graphs currently stored by Graphvix
+  """
+  @spec ls :: [atom]
   def ls do
     GenServer.call(__MODULE__, :ls)
   end
 
+  @doc """
+  Creates a new graph named `name` and sets it to the current graph
+  """
+  @spec new(atom) :: :ok
   def new(name) do
     GenServer.cast(__MODULE__, {:new, name})
   end
 
+  @doc """
+  Switches the current graph to the graph named `name`.
+
+  Creates a new graph if it doesn't exist.
+  """
+  @spec switch(atom) :: :ok
   def switch(name) do
     GenServer.cast(__MODULE__, {:switch, name})
   end
 
+  @doc """
+  Returns a tuple of the current graph's name and contents
+  """
+  @spec current_graph :: {atom, map}
   def current_graph do
     GenServer.call(__MODULE__, :current_graph)
   end
 
+  @doc """
+  Empties the stored state of Graphvix.
+
+  Caution: Will delete all stored data from disk.
+  """
+  @spec clear :: :ok
   def clear do
     GenServer.cast(__MODULE__, :clear)
   end
@@ -195,7 +220,7 @@ defmodule Graphvix.Graph do
     s_id == n_id || e_id == n_id
   end
 
-  def remove_node_from_clusters(graph, node_id) do
+  defp remove_node_from_clusters(graph, node_id) do
     new_clusters = Enum.map(graph.clusters, fn {id, cluster} ->
       {id, %{ cluster | node_ids: cluster.node_ids -- [node_id] }}
     end) |> Enum.into(Map.new)
