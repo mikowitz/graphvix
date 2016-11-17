@@ -1,4 +1,5 @@
 defmodule Graphvix.GraphSupervisor do
+  @moduledoc false
   use Supervisor
 
   def start_link(state_pid) do

@@ -129,26 +129,54 @@ defmodule Graphvix.Graph do
     GenServer.cast(__MODULE__, :clear)
   end
 
+  @doc """
+  Updates a graph-wide setting.
+  """
+  @spec update(Keyword.t) :: :ok
   def update(attrs) do
     GenServer.cast(__MODULE__, {:update, attrs})
   end
 
+  @doc """
+  Returns a string of the current graph in .dot format.
+  """
+  @spec write :: String.t
   def write do
-    get |> Writer.write
+    GenServer.call(__MODULE__, :write)
   end
 
+  @doc """
+  Returns the Elixir map form of the current graph.
+  """
+  @spec compile :: map
   def get do
     GenServer.call(__MODULE__, :get)
   end
 
+  @doc """
+  Writes the current graph to a .dot file and compiles it.
+
+  Defaults to `pdf`.
+  """
+  @spec compile(atom | nil) :: :ok
   def compile(filetype \\ :pdf) do
     GenServer.cast(__MODULE__, {:compile, filetype})
   end
 
+  @doc """
+  Saves the current graph to a .dot file.
+  """
+  @spec save :: :ok
   def save do
     GenServer.cast(__MODULE__, :save)
   end
 
+  @doc """
+  Writes the current graph to a .dot file, compiles it, and opens the compiled graph.
+
+  Defaults to `pdf`.
+  """
+  @spec graph(atom | nil) :: :ok
   def graph(filetype \\ :pdf) do
     GenServer.cast(__MODULE__, {:graph, filetype})
   end

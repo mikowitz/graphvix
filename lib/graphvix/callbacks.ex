@@ -77,6 +77,9 @@ defmodule Graphvix.Callbacks do
       def handle_call(:get, _from, {_, {_, graph}} = state) do
         {:reply, graph, state}
       end
+      def handle_call(:write, _from, {_, {_, graph}} = state) do
+        {:reply, Writer.write(graph), state}
+      end
 
       def handle_cast({:update, type, id, attrs}, {state_pid, {name, graph}}) do
         new_graph = case find_element(graph, id, type) do

@@ -1,4 +1,5 @@
 defmodule Graphvix.State do
+  @moduledoc false
   defstruct graphs: %{}, current_graph: nil
 
   @file_store_path Application.get_env(:graphvix, :file_storage_location)
