@@ -135,6 +135,10 @@ defmodule Graphvix.Graph do
   def save do
     GenServer.cast(__MODULE__, :save)
   end
+
+  def graph(filetype \\ :pdf) do
+    GenServer.cast(__MODULE__, {:graph, filetype})
+  end
 end
 
 

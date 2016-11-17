@@ -2,6 +2,7 @@ defmodule Graphvix.Callbacks do
   @moduledoc false
   defmacro __using__(_) do
     quote do
+      alias Graphvix.Writer
       import Graphvix.Graph.Helpers
 
       ## CALLBACKS
@@ -107,14 +108,24 @@ defmodule Graphvix.Callbacks do
         {:noreply, {state_pid, {name, new_graph}}}
       end
       def handle_cast(:save, {_, {name, graph}} = state) do
-        File.write(to_string(name) <> ".dot", Graphvix.Writer.write(graph))
+        graph
+        |> Writer.write
+        |> Writer.save(to_string(name))
         {:noreply, state}
       end
       def handle_cast({:compile, filetype}, {_, {name, graph}} = state) do
         graph
-        |> Graphvix.Writer.write
-        |> Graphvix.Writer.save(to_string(name))
-        |> Graphvix.Writer.compile(filetype)
+        |> Writer.write
+        |> Writer.save(to_string(name))
+        |> Writer.compile(filetype)
+        {:noreply, state}
+      end
+      def handle_cast({:graph, filetype}, {_, {name, graph}} = state) do
+        graph
+        |> Writer.write
+        |> Writer.save(to_string(name))
+        |> Writer.compile(filetype)
+        |> Writer.open
         {:noreply, state}
       end
 
