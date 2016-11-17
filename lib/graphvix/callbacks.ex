@@ -106,6 +106,17 @@ defmodule Graphvix.Callbacks do
         new_graph = %{ graph | attrs: merge_without_nils(graph.attrs, attrs) }
         {:noreply, {state_pid, {name, new_graph}}}
       end
+      def handle_cast(:save, {_, {name, graph}} = state) do
+        File.write(to_string(name) <> ".dot", Graphvix.Writer.write(graph))
+        {:noreply, state}
+      end
+      def handle_cast({:compile, filetype}, {_, {name, graph}} = state) do
+        graph
+        |> Graphvix.Writer.write
+        |> Graphvix.Writer.save(to_string(name))
+        |> Graphvix.Writer.compile(filetype)
+        {:noreply, state}
+      end
 
       def terminate(_reason, {state_pid, {current_name, current_graph}}) do
         Graphvix.State.save(state_pid, current_name, current_graph)
