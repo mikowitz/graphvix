@@ -3,31 +3,6 @@
 
   #alias Graphvix.{Graph, Node, Edge, Cluster}
 
-  #describe ".start" do
-    #it "creates a named process to contain the current graph" do
-      #Graph.start
-
-      #expect Graphvix.Graph |> Process.whereis |> Process.alive? |> to(be_true)
-    #end
-  #end
-
-  #describe ".restart" do
-    #it "starts the named process if it has not been started" do
-      #Graph.restart
-
-      #expect Graphvix.Graph |> Process.whereis |> Process.alive? |> to(be_true)
-    #end
-
-    #it "clears the named process state if it has been started" do
-      #Graph.start
-      #Node.new(label: "Start")
-      #Graph.restart
-
-      #expect Graphvix.Graph |> Process.whereis |> Process.alive? |> to(be_true)
-      #expect Graph.get |> Map.get(:nodes) |> to(be_empty)
-    #end
-  #end
-
   #describe ".update" do
     #it "sets graph-wide settings" do
       #Graph.restart

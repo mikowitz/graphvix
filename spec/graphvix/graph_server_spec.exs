@@ -47,6 +47,18 @@ defmodule Graphvix.GraphSpec do
     end
   end
 
+  describe ".update" do
+    it "sets graph-wide settings" do
+      Graph.new(:first)
+      Graph.update(size: "4, 4")
+      expect Graph.write |> to(eq """
+digraph G {
+  size="4, 4";
+}
+""" |> String.strip)
+    end
+  end
+
   #describe "reloading state on restart" do
     #it "should return the existing state/current graph" do
       ## TODO: call/cast to non-existent handler to trigger the termination

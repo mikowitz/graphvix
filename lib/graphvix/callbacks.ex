@@ -73,6 +73,9 @@ defmodule Graphvix.Callbacks do
         end
         {:reply, res, {state_pid, {name, new_graph}}}
       end
+      def handle_call(:get, _from, {_, {_, graph}} = state) do
+        {:reply, graph, state}
+      end
 
       def handle_cast({:update, type, id, attrs}, {state_pid, {name, graph}}) do
         new_graph = case find_element(graph, id, type) do
@@ -98,6 +101,10 @@ defmodule Graphvix.Callbacks do
         Graphvix.State.save(state_pid, current_name, current_graph)
         new_graph = Graphvix.State.load(state_pid, name)
         {:noreply, {state_pid, new_graph}}
+      end
+      def handle_cast({:update, attrs}, {state_pid, {name, graph}}) do
+        new_graph = %{ graph | attrs: merge_without_nils(graph.attrs, attrs) }
+        {:noreply, {state_pid, {name, new_graph}}}
       end
 
       def terminate(_reason, {state_pid, {current_name, current_graph}}) do

@@ -63,6 +63,7 @@ defmodule Graphvix.Graph do
   """
   use GenServer
   use Graphvix.Callbacks
+  alias Graphvix.Writer
 
   @doc false
   def start_link(state_pid) do
@@ -115,5 +116,16 @@ defmodule Graphvix.Graph do
     GenServer.cast(__MODULE__, :clear)
   end
 
+  def update(attrs) do
+    GenServer.cast(__MODULE__, {:update, attrs})
+  end
+
+  def write do
+    get |> Writer.write
+  end
+
+  def get do
+    GenServer.call(__MODULE__, :get)
+  end
 end
 
