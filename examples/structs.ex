@@ -1,6 +1,6 @@
 alias Graphvix.{Graph, Node, Edge, Cluster}
 
-Graph.restart
+Graph.new(:structs)
 
 {top, _} = Node.new(label: "<f0> left|<f1> mid\ dle|<f2> right", shape: "record")
 {onetwo, _} = Node.new(label: "<f0> one|<f1> two", shape: "record")
