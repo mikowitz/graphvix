@@ -72,12 +72,14 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
 
     ```elixir
      Graph.write
-    "digraph G {
+    """
+    digraph G {
       node_1 [label="Start",color="red"];
       node_2 [label="End"];
 
       node_1 -> node_2 [color="blue",label="My connector"];
-    }"
+    }
+    """
     ```
 1. Save the graph to a .dot file, with an optional filename
 
