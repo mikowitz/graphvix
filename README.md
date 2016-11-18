@@ -26,12 +26,10 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
      alias Graphvix.{Graph, Node, Edge, Cluster}
     ```
 
-1. Start up the graph state process. Currently only one graph can be active
-    at a time. See `Graph.save` and `Graph.load` below for information about
-    working with multiple graphs.
+1. Create a new graph.
 
     ```elixir
-     Graph.start
+    Graph.new(:first_graph)
     ```
 
 1. Add a single node
@@ -75,54 +73,38 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
 1. Convert the graph to DOT format
 
     ```elixir
-     Graph.write(graph)
-    'digraph G {
+     Graph.write
+    """
+    digraph G {
       node_1 [label="Start",color="red"];
       node_2 [label="End"];
 
       node_1 -> node_2 [color="blue",label="My connector"];
-    }'
+    }
+    """
     ```
 1. Save the graph to a .dot file, with an optional filename
 
     ```elixir
-     Graph.save(:dot) #=> creates G.dot
-     Graph.save(:dot, "my_graph") #=> creates my_graph.dot
-    ```
-
-1. Or save the Elixir form of the graph to a .txt file
-
-    ```elixir
-     Graph.save(:txt) #=> creates G.txt
-     Graph.save(:txt, "my_graph") #=> creates my_graph.txt
+     Graph.save #=> creates "first_graph.dot"
     ```
 
 1. Compile the graph to a PDF or PNG
 
     ```elixir
-     Graph.compile #=> creates G.dot and G.pdf
-     Graph.compile(:png) #=> creates G.dot and G.png
-     Graph.compile("my_graph", :png) #=> creates my_graph.dot and my_graph.png
+     Graph.compile #=> creates first_graph.dot and first_graph.pdf
+     Graph.compile(:png) #=> creates first_graph.dot and first_graph.png
     ```
 
 1. Compile and open the graph as a PDF/PNG from IEx
 
     ```elixir
-     Graph.graph #=> creates G.dot and G.pdf; opens G.pdf
-     Graph.graph("my_graph") #=> creates my_graph.dot and my_graph.pdf; opens my_graph.pdf
-     Graph.graph("G2", :png) #=> creates G2.dot and G2.png; opens G2.png
+     Graph.graph #=> creates first_graph.dot and first_graph.pdf; opens first_graph.pdf
+     Graph.graph(:png) #=> creates first_graph.dot and first_graph.png; opens first_graph.png
     ```
 
-1. Reload a graph that had been saved as a .txt file. This updates the
-  state of the graph process.
+1. Load a previously created graph.
 
     ```elixir
-     Graph.load("my_graph.txt")
+     Graph.switch(:old_graph)
     ```
-
-1. Reset the state of the graph process to an empty graph.
-
-    ```elixir
-     Graph.restart
-    ```
-

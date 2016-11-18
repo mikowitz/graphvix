@@ -1,6 +1,7 @@
 alias Graphvix.{Graph, Node, Edge, Cluster}
 
-Graph.restart
+Graph.new(:shapes)
+
 Graph.update(size: "4,4")
 
 {a, _} = Node.new(label: "a", shape: "polygon", sides: 5, peripheries: 3, color: "lightblue", style: "filled")

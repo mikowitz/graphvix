@@ -7,23 +7,34 @@ defmodule Graphvix.Graph do
 
       iex> alias Graphvix.{Graph, Node, Edge, Cluster}
 
+  ## Overview
+
   To reduce user effort, the module keeps only a single graph in state
   at any given time. Graphs can be saved and reloaded to switch between working
   with several different graphs at a time.
 
-      iex> Graph.start
+      iex> Graph.new(:first_graph)
 
       iex> ... # Add some data to the first graph
 
-      iex> Graph.save(:txt, "graph1")
-
-      iex> Graph.restart # Clear the current state of the graph process
+      iex> Graph.switch(:second_graph) # Creates a new graph and loads it, saving the old graph at the same time.
 
       iex> ... # Add some data to the second graph
 
-      iex> Graph.save(:txt, "graph2")
+      iex> Graph.switch(:first_graph) # Saves `:second_graph` and reloads `first_graph`
 
-      iex> Graph.load("graph1.txt") # Sets the process state to the last state of the first graph
+
+  ## State
+
+  State is managed by the `Graphvix.State` module. This module is responsible for maintaining in memory
+  the state of any created graphs, as well as persisting the data to disk and loading it back into memory.
+  The `State` module should never be accessed directly. All interaction with it occurs through functions
+  availabel on `Graph`.
+
+  In the event of a process crash, the supervision tree managing `State` and `Graph` will make sure that the
+  most current state of a graph is saved and reloaded when the `Graph` process restarts.
+
+  ## Modifying graphs
 
   Elements are added and removed from the graph using the `Node`, `Edge`,
   and `Cluster` modules.
@@ -45,73 +56,140 @@ defmodule Graphvix.Graph do
       iex> Cluster.add(c_id, n3_id)
       iex> Cluster.remove(c_id, n_id)
 
-  In addition to saving the graph to a text file, it can be rendered in .dot
-  format and saved
+  ## Saving and viewing graphs
 
-      iex> Graph.save(:dot) # Saves the current state of the graph as a .dot file
+  Graphs can be easily saved in .dot format
+
+      iex> Graph.save # Saves the current state of the graph as a .dot file
 
   These files can then be compiled to .pdf/.png/etc at the command line,
   or via additional helper functions on the `Graph` module
 
-      iex> Graph.compile # Generates files "G.dot" and "G.pdf"
-      iex> Graph.compile(:png) # Generates files "G.dot" and "G.png"
-      iex> Graph.compile("my_graph") # Generates files "my_graph.dot" and "my_graph.pdf"
-      iex> Graph.compile("my_graph", :png) # Generates files "my_graph.dot" and "my_graph.png"
+      iex> Graph.compile # Generates dot and pdf files named for the graph
+      iex> Graph.compile(:png) # Generates dot and png files named for the graph
 
   To immediately view the current state of a graph, there is `Graph.graph`
 
-      iex> Graph.graph # Generates "G.dot" and "G.pdf", and opens "G.pdf" in your OS's default viewer
+      iex> Graph.graph # Generates dot and pdf files named for the graph, and opens the PDF in your OS's default viewer
       iex> Graph.graph(:png) # Same as above, but generates and opens a .png file
-      iex> Graph.graph("my_graph", :png) Same as above, but generates and opens files named "my_graph"
 
   """
   use GenServer
   use Graphvix.Callbacks
   alias Graphvix.Writer
 
-  @empty_graph %{nodes: %{}, edges: %{}, clusters: %{}, attrs: []}
+  @doc false
+  def start_link(state_pid) do
+    GenServer.start_link(__MODULE__, {state_pid, nil}, name: __MODULE__)
+  end
+
+  ## API
 
   @doc """
-  Start up the graph state process with an empty graph.
+  Returns a list of graphs currently stored by Graphvix
 
-      iex> Graph.start
+      iex> Graph.new(:first)
+      iex> Graph.ls
+      [:first]
 
   """
-  @spec start :: :ok
-  def start do
-    GenServer.start_link(
-      __MODULE__,
-      @empty_graph,
-      name: __MODULE__
-    )
+  @spec ls :: [atom]
+  def ls do
+    GenServer.call(__MODULE__, :ls)
   end
 
   @doc """
-  Resets the state of the graph state process
+  Creates a new graph named `name` and sets it to the current graph
 
-      iex> Graph.restart
+      iex> Graph.new(:first)
+      :ok
 
   """
-  @spec restart :: :ok
-  def restart do
-    case Process.whereis(__MODULE__) do
-      nil -> start
-      process ->
-        case Process.alive?(process) do
-          true -> GenServer.cast(__MODULE__, :reset)
-          false -> start
-        end
-    end
+  @spec new(atom) :: :ok
+  def new(name) do
+    GenServer.cast(__MODULE__, {:new, name})
   end
 
   @doc """
-  Returns the current state of the graph as a map.
+  Switches the current graph to the graph named `name`.
 
+  Creates a new graph if it doesn't exist.
+
+      iex> Graph.new(:first)
+      iex> Graph.switch(:second) # creates a graph named `:second`
+      iex> Graph.switch(:first) # loads the existing graph named `:first`
+
+  """
+  @spec switch(atom) :: :ok
+  def switch(name) do
+    GenServer.cast(__MODULE__, {:switch, name})
+  end
+
+  @doc """
+  Returns the name of the current graph.
+
+      iex> Graph.new(:first)
+      iex> Graph.current_graph
+      :first
+
+  """
+  @spec current_graph :: {atom, map}
+  def current_graph do
+    GenServer.call(__MODULE__, :current_graph)
+  end
+
+  @doc """
+  Empties the stored state of Graphvix.
+
+  Caution: Will delete all stored data from disk.
+
+      iex> Graph.clear
+      iex> Graph.ls
+      []
+
+  """
+  @spec clear :: :ok
+  def clear do
+    GenServer.cast(__MODULE__, :clear)
+  end
+
+  @doc """
+  Updates a graph-wide setting.
+
+      iex> Graph.new(:first)
+      iex> Graph.update(size: "4, 4")
+      :ok
+
+  """
+  @spec update(Keyword.t) :: :ok
+  def update(attrs) do
+    GenServer.cast(__MODULE__, {:update, attrs})
+  end
+
+  @doc """
+  Returns a string of the current graph in .dot format.
+
+      iex> Graph.new(:first)
+      iex> Graph.write
+      "digraph G {
+      }"
+
+  """
+  @spec write :: String.t
+  def write do
+    GenServer.call(__MODULE__, :write)
+  end
+
+  @doc """
+  Returns the Elixir map form of the current graph.
+
+      iex> Graph.new(:first)
       iex> Graph.get
       %{
-        nodes: %{ ... },
-        edges: %{ ... },
-        clusters: %{ ... }
+        nodes: %{},
+        edges: %{},
+        clusters: %{},
+        attrs: []
       }
 
   """
@@ -121,104 +199,49 @@ defmodule Graphvix.Graph do
   end
 
   @doc """
-  Update graph-level settings
+  Writes the current graph to a .dot file and compiles it.
 
-      iex> Graph.update(size: "4,4")
+  Defaults to `pdf`.
+
+      iex> Graph.new(:first)
+      iex> Graph.compile
+      :ok #=> creates "first.dot" and "first.pdf"
+      iex> Graph.compile(:png)
+      :ok #=> creates "first.dot" and "first.png"
 
   """
-  @spec update(Keyword.t) :: :ok
-  def update(attrs) do
-    GenServer.cast(__MODULE__, {:update, attrs})
+  @spec compile(atom | nil) :: :ok
+  def compile(filetype \\ :pdf) do
+    GenServer.cast(__MODULE__, {:compile, filetype})
   end
 
   @doc """
-  Load a graph state from a text file
+  Saves the current graph to a .dot file.
 
-      iex> Graph.load("my_graph.txt")
-
-  NB. This reads and evals the provided file as a string. *Please* be sure
-  you know what is in the file before loading it!
+      iex> Graph.new(:first)
+      iex> Graph.save
+      :ok #=> creates "first.dot"
 
   """
-  @spec load(String.t) :: :ok
-  def load(filename) do
-    with {:ok, graph_str} = File.read(filename) do
-      {graph_map, _} = Code.eval_string(graph_str)
-      GenServer.cast(__MODULE__, {:load, graph_map})
-    end
+  @spec save :: :ok
+  def save do
+    GenServer.cast(__MODULE__, :save)
   end
 
   @doc """
-  Saves the file with the provided format and filename (defaults to "G")
+  Writes the current graph to a .dot file, compiles it, and opens the compiled graph.
 
-  Saving as a .txt file saves the inspected Elixir format of the graph
-  to a text file, for use with `Graphvix.Graph.load/1`.
+  Defaults to `pdf`.
 
-      iex> Graph.save(:txt)
-
-  Saving as a .dot file renders the current state of the graph into dot format,
-  ready to be compiled to an output format at the command line
-
-      iex> Graph.save(:dot, "my_graph")
+      iex> Graph.new(:first)
+      iex> Graph.graph
+      :ok #=> creates "first.dot" and "first.pdf"; opens "first.pdf"
+      iex> Graph.graph(:png)
+      :ok #=> creates "first.dot" and "first.png"; opens "first.png"
 
   """
-  @spec save(atom, String.t | nil) :: :ok
-  def save(filetype, filename \\ "G") do
-    GenServer.cast(__MODULE__, {:save, filename, filetype})
-  end
-
-  @doc """
-  Convert the graph to .dot format and return the .dot string
-
-      iex> Graph.write
-      "digraph G {
-        ...
-      }"
-
-  """
-  @spec write :: String.t
-  def write do
-    get |> Writer.write
-  end
-
-  @doc """
-  Saves the graph in .dot format and generates a viewable version of the graph
-  in the output format provided
-
-      iex> Graph.compile(:pdf) # Generates "G.dot" and "G.pdf"
-
-  """
-  @spec compile(atom) :: :ok
-  def compile(filetype) when is_atom(filetype) do
-    compile("G", filetype)
-  end
-  @doc """
-  Saves the graph in .dot format and generates a viewable version of the graph
-  in the output format provided, with the filename given
-
-      iex> Graph.compile("my_graph") # Generates "my_graph.dot" and "my_graph.pdf"
-      iex> Graph.compile("my_graph", :png) # Generates "my_graph.dot" and "my_graph.png"
-
-  """
-  @spec compile(String.t | nil, atom | nil) :: :ok
-  def compile(filename \\ "G", filetype \\ :pdf) do
-    write |> Writer.save(filename) |> Writer.compile(filetype)
-  end
-
-  @doc """
-  Saves, compiles, and opens a viewable version of the graph.
-
-  Accepts optional parameters for filename (defaults to "G") and filetype
-  (defaults to :pdf), and opens a file of the provided filetype in your OS's
-  default viewer.
-
-      iex> Graph.graph # Creates "G.dot" and "G.pdf"; opens "G.pdf"
-      iex> Graph.graph("my_graph")
-      iex> Graph.graph("graph2", :png)
-
-  """
-  @spec graph(String.t | nil, atom | nil) :: :ok
-  def graph(filename \\ "G", filetype \\ :pdf) do
-    write |> Writer.save(filename) |> Writer.compile(filetype) |> Writer.open
+  @spec graph(atom | nil) :: :ok
+  def graph(filetype \\ :pdf) do
+    GenServer.cast(__MODULE__, {:graph, filetype})
   end
 end

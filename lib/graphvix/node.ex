@@ -1,4 +1,6 @@
 defmodule Graphvix.Node do
+  @type label :: atom | String.t
+
   @moduledoc """
   `Graphvix.Node` provides functions for adding, updating, and deleting nodes in a graph.
   """
@@ -12,8 +14,8 @@ defmodule Graphvix.Node do
       {1, %{ attrs: [label: "Start"] }}
 
   """
-  @spec new(Keyword.t | String.t | atom | nil) :: {pos_integer, map}
-  def new(attrs \\ [])
+  @spec new(label | Keyword.t | nil) :: {pos_integer, map}
+  def new(label_or_attrs \\ [])
   def new(label) when is_atom(label) do
     label |> to_string |> new
   end

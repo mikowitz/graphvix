@@ -1,23 +1,26 @@
 defmodule Graphvix.NodeSpec do
   use ESpec
-  alias Graphvix.{Graph, Node, Edge, Cluster}
+  alias Graphvix.{Node, Edge, Cluster}
+
+  before do
+    Graphvix.Graph.new(:test)
+  end
+
+  finally do
+    Graphvix.Graph.clear
+  end
 
   describe ".new" do
     it "returns a tuple of {`id`, `node_map`}" do
-      Graph.restart
       expect Node.new(label: "Start", color: "red") |> to(be_tuple)
     end
 
     it "returns a node with only a label by passing a string" do
-      Graph.restart
-
       {_id, %{attrs: attrs}} = Node.new("a")
       expect Keyword.get(attrs, :label) |> to(eq "a")
     end
 
     it "returns a node with only a label by passing a symbol" do
-      Graph.restart
-
       {_id, %{attrs: attrs}} = Node.new(:a)
       expect Keyword.get(attrs, :label) |> to(eq "a")
     end
@@ -25,7 +28,6 @@ defmodule Graphvix.NodeSpec do
 
   describe ".update" do
     it "updates the correct node" do
-      Graph.restart
       {n_id, _} = Node.new(label: "Start", color: "red")
       Node.update(n_id, color: "blue")
 
@@ -35,7 +37,6 @@ defmodule Graphvix.NodeSpec do
 
   describe ".delete" do
     it "removes the node and all associated edges" do
-      Graph.restart
       {n_id, _n} = Node.new
       {n2_id, _n2} = Node.new
       {e_id, _e} = Edge.new(n_id, n2_id)
@@ -48,7 +49,6 @@ defmodule Graphvix.NodeSpec do
     end
 
     it "removes the node from any clusters that contain it" do
-      Graph.restart
       {n_id, _n} = Node.new
       {n2_id, _n2} = Node.new
       {c_id, _c} = Cluster.new([n_id, n2_id])
@@ -61,7 +61,6 @@ defmodule Graphvix.NodeSpec do
     end
 
     it "can only delete a node" do
-      Graph.restart
       {n_id, _n} = Node.new
       {n2_id, _n2} = Node.new
       {e_id, _e} = Edge.new(n_id, n2_id)
@@ -72,14 +71,11 @@ defmodule Graphvix.NodeSpec do
 
   describe ".find" do
     it "finds the correct node" do
-      Graph.restart
       {n_id, n} = Node.new(label: "Start", color: "red")
       expect Node.find(n_id) |> to(eq n)
     end
 
     it "can only find a node" do
-      Graph.restart
-
       {n_id, _n} = Node.new
       {n2_id, _n2} = Node.new
       {e_id, _e} = Edge.new(n_id, n2_id)

@@ -1,10 +1,15 @@
 defmodule Graphvix.EdgeSpec do
   use ESpec
-  alias Graphvix.{Graph, Edge, Node}
+  alias Graphvix.{Edge, Node}
 
   before do
-    Graph.restart
+    Graphvix.Graph.new(:test)
   end
+
+  finally do
+    Graphvix.Graph.clear
+  end
+
 
   describe ".new" do
     it "can create an edge from node ids" do
@@ -32,7 +37,6 @@ defmodule Graphvix.EdgeSpec do
 
   describe ".chain" do
     it "adds a chain of connected nodes" do
-      Graph.restart
       {n_id, _n} = Node.new
       {n2_id, _n2} = Node.new
       {n3_id, _n3} = Node.new
@@ -47,8 +51,6 @@ defmodule Graphvix.EdgeSpec do
 
   describe ".update" do
     it "updates the correct edge" do
-      Graph.restart
-
       {n1_id, _n1} = Node.new(label: "Start")
       {n2_id, _n2} = Node.new(label: "End")
       {e_id, _e} = Edge.new(n1_id, n2_id)
@@ -73,8 +75,6 @@ defmodule Graphvix.EdgeSpec do
 
   describe ".find" do
     it "finds the correct edge" do
-      Graph.restart
-
       {_n1_id, n1} = Node.new(label: "Start")
       {_n2_id, n2} = Node.new(label: "End")
 
@@ -84,4 +84,3 @@ defmodule Graphvix.EdgeSpec do
     end
   end
 end
-
