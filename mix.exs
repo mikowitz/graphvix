@@ -3,7 +3,7 @@ defmodule Graphvix.Mixfile do
 
   def project do
     [app: :graphvix,
-     version: "0.4.0",
+     version: "0.5.0",
      description: "Graphviz in Elixir",
      package: [
        licenses: ["MIT"],

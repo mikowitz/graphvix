@@ -1,4 +1,4 @@
-# Graphvix 
+# Graphvix
 
 [![Build Status](https://travis-ci.org/mikowitz/graphvix.svg?branch=master)](https://travis-ci.org/mikowitz/graphvix)
 
@@ -12,7 +12,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 ```elixir
 def deps do
-  [{:graphvix, "~> 0.4.0"}]
+  [{:graphvix, "~> 0.5.0"}]
 end
 ```
 
