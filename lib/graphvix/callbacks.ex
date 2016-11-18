@@ -13,8 +13,8 @@ defmodule Graphvix.Callbacks do
         {:ok, new_state}
       end
 
-      def handle_call(:current_graph, _from, state={_, graph}) do
-        {:reply, graph, state}
+      def handle_call(:current_graph, _from, state={_, {name, _}}) do
+        {:reply, name, state}
       end
       def handle_call(:ls, _from, state={state_pid, _}) do
         graph_names = Graphvix.State.ls(state_pid)

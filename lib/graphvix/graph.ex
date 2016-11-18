@@ -87,6 +87,11 @@ defmodule Graphvix.Graph do
 
   @doc """
   Returns a list of graphs currently stored by Graphvix
+
+      iex> Graph.new(:first)
+      iex> Graph.ls
+      [:first]
+
   """
   @spec ls :: [atom]
   def ls do
@@ -95,6 +100,10 @@ defmodule Graphvix.Graph do
 
   @doc """
   Creates a new graph named `name` and sets it to the current graph
+
+      iex> Graph.new(:first)
+      :ok
+
   """
   @spec new(atom) :: :ok
   def new(name) do
@@ -105,6 +114,11 @@ defmodule Graphvix.Graph do
   Switches the current graph to the graph named `name`.
 
   Creates a new graph if it doesn't exist.
+
+      iex> Graph.new(:first)
+      iex> Graph.switch(:second) # creates a graph named `:second`
+      iex> Graph.switch(:first) # loads the existing graph named `:first`
+
   """
   @spec switch(atom) :: :ok
   def switch(name) do
@@ -112,7 +126,12 @@ defmodule Graphvix.Graph do
   end
 
   @doc """
-  Returns a tuple of the current graph's name and contents
+  Returns the name of the current graph.
+
+      iex> Graph.new(:first)
+      iex> Graph.current_graph
+      :first
+
   """
   @spec current_graph :: {atom, map}
   def current_graph do
@@ -123,6 +142,11 @@ defmodule Graphvix.Graph do
   Empties the stored state of Graphvix.
 
   Caution: Will delete all stored data from disk.
+
+      iex> Graph.clear
+      iex> Graph.ls
+      []
+
   """
   @spec clear :: :ok
   def clear do
@@ -131,6 +155,11 @@ defmodule Graphvix.Graph do
 
   @doc """
   Updates a graph-wide setting.
+
+      iex> Graph.new(:first)
+      iex> Graph.update(size: "4, 4")
+      :ok
+
   """
   @spec update(Keyword.t) :: :ok
   def update(attrs) do
@@ -139,6 +168,12 @@ defmodule Graphvix.Graph do
 
   @doc """
   Returns a string of the current graph in .dot format.
+
+      iex> Graph.new(:first)
+      iex> Graph.write
+      "digraph G {
+      }"
+
   """
   @spec write :: String.t
   def write do
@@ -147,8 +182,18 @@ defmodule Graphvix.Graph do
 
   @doc """
   Returns the Elixir map form of the current graph.
+
+      iex> Graph.new(:first)
+      iex> Graph.get
+      %{
+        nodes: %{},
+        edges: %{},
+        clusters: %{},
+        attrs: []
+      }
+
   """
-  @spec compile :: map
+  @spec get :: map
   def get do
     GenServer.call(__MODULE__, :get)
   end
@@ -157,6 +202,13 @@ defmodule Graphvix.Graph do
   Writes the current graph to a .dot file and compiles it.
 
   Defaults to `pdf`.
+
+      iex> Graph.new(:first)
+      iex> Graph.compile
+      :ok #=> creates "first.dot" and "first.pdf"
+      iex> Graph.compile(:png)
+      :ok #=> creates "first.dot" and "first.png"
+
   """
   @spec compile(atom | nil) :: :ok
   def compile(filetype \\ :pdf) do
@@ -165,6 +217,11 @@ defmodule Graphvix.Graph do
 
   @doc """
   Saves the current graph to a .dot file.
+
+      iex> Graph.new(:first)
+      iex> Graph.save
+      :ok #=> creates "first.dot"
+
   """
   @spec save :: :ok
   def save do
@@ -175,11 +232,16 @@ defmodule Graphvix.Graph do
   Writes the current graph to a .dot file, compiles it, and opens the compiled graph.
 
   Defaults to `pdf`.
+
+      iex> Graph.new(:first)
+      iex> Graph.graph
+      :ok #=> creates "first.dot" and "first.pdf"; opens "first.pdf"
+      iex> Graph.graph(:png)
+      :ok #=> creates "first.dot" and "first.png"; opens "first.png"
+
   """
   @spec graph(atom | nil) :: :ok
   def graph(filetype \\ :pdf) do
     GenServer.cast(__MODULE__, {:graph, filetype})
   end
 end
-
-

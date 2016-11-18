@@ -30,8 +30,7 @@ defmodule Graphvix.GraphSpec do
     it "sets the current graph" do
       Graph.new(:first)
 
-      {graph_name, _graph} = Graph.current_graph
-      expect graph_name |> to(eq :first)
+      expect Graph.current_graph |> to(eq :first)
     end
   end
 
@@ -42,8 +41,7 @@ defmodule Graphvix.GraphSpec do
       Graph.switch(:second)
 
       expect Graph.ls |> to(eq [:first, :second])
-      {graph_name, _graph} = Graph.current_graph
-      expect graph_name |> to(eq :second)
+      expect Graph.current_graph |> to(eq :second)
     end
   end
 
