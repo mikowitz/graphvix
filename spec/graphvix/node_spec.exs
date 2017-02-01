@@ -3,7 +3,7 @@ defmodule Graphvix.NodeSpec do
   alias Graphvix.{Node, Edge, Cluster}
 
   before do
-    Graphvix.Graph.new(:test)
+    Graphvix.Graph.new("test")
   end
 
   finally do

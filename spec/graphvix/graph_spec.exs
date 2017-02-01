@@ -14,40 +14,40 @@ defmodule Graphvix.GraphSpec do
     it "returns a list of graphs loaded in the state" do
       expect Graph.ls |> to(be_empty)
 
-      Graph.new(:first)
+      Graph.new("first")
 
-      expect Graph.ls |> to(eq [:first])
+      expect Graph.ls |> to(eq ["first"])
     end
   end
 
   describe ".new" do
     it "creates a new graph in the state" do
-      Graph.new(:first)
+      Graph.new("first")
 
-      expect Graph.ls |> to(eq [:first])
+      expect Graph.ls |> to(eq ["first"])
     end
 
     it "sets the current graph" do
-      Graph.new(:first)
+      Graph.new("first")
 
-      expect Graph.current_graph |> to(eq :first)
+      expect Graph.current_graph |> to(eq "first")
     end
   end
 
   describe ".switch" do
     it "switches to a different, possibly new, named graph" do
-      Graph.new(:first)
+      Graph.new("first")
 
-      Graph.switch(:second)
+      Graph.switch("second")
 
-      expect Graph.ls |> to(eq [:first, :second])
-      expect Graph.current_graph |> to(eq :second)
+      expect Graph.ls |> to(eq ["first", "second"])
+      expect Graph.current_graph |> to(eq "second")
     end
   end
 
   describe ".update" do
     it "sets graph-wide settings" do
-      Graph.new(:first)
+      Graph.new("first")
       Graph.update(size: "4, 4")
       expect Graph.write |> to(eq """
 digraph G {
@@ -59,7 +59,7 @@ digraph G {
 
   describe ".save" do
     it "saves to DOT format" do
-      Graph.new(:first)
+      Graph.new("first")
       {n1_id, _n1} = Node.new(label: "Start")
       {n2_id, _n2} = Node.new(label: "End")
       Edge.new(n1_id, n2_id)
@@ -84,12 +84,12 @@ digraph G {
 
   describe ".write" do
     it "returns a dot representation of the graph" do
-      Graph.new(:test)
+      Graph.new("test")
       expect Graph.write |> to(eq "digraph G {\n\n}")
     end
 
     it "returns nodes and edges correctly" do
-      Graph.new(:test)
+      Graph.new("test")
       {n1_id, _n1} = Node.new(label: "Start")
       {n2_id, _n2} = Node.new(label: "End")
       {n3_id, _n3} = Node.new(label: "Epilogue")
@@ -118,7 +118,7 @@ digraph G {
 
   describe ".compile" do
     it "saves at a default file location and compiles to PDF" do
-      Graph.new(:first)
+      Graph.new("first")
 
       Graph.compile
 
@@ -129,7 +129,7 @@ digraph G {
     end
 
     it "saves at a default file location and compiles to PNG if that option is passed in" do
-      Graph.new(:first)
+      Graph.new("first")
 
       Graph.compile(:png)
 

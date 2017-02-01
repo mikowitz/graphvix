@@ -13,15 +13,15 @@ defmodule Graphvix.Graph do
   at any given time. Graphs can be saved and reloaded to switch between working
   with several different graphs at a time.
 
-      iex> Graph.new(:first_graph)
+      iex> Graph.new("first_graph")
 
       iex> ... # Add some data to the first graph
 
-      iex> Graph.switch(:second_graph) # Creates a new graph and loads it, saving the old graph at the same time.
+      iex> Graph.switch("second_graph") # Creates a new graph and loads it, saving the old graph at the same time.
 
       iex> ... # Add some data to the second graph
 
-      iex> Graph.switch(:first_graph) # Saves `:second_graph` and reloads `first_graph`
+      iex> Graph.switch("first_graph") # Saves `second_graph` and reloads `first_graph`
 
 
   ## State
@@ -88,9 +88,9 @@ defmodule Graphvix.Graph do
   @doc """
   Returns a list of graphs currently stored by Graphvix
 
-      iex> Graph.new(:first)
+      iex> Graph.new("first")
       iex> Graph.ls
-      [:first]
+      ["first"]
 
   """
   @spec ls :: [atom]
@@ -101,12 +101,12 @@ defmodule Graphvix.Graph do
   @doc """
   Creates a new graph named `name` and sets it to the current graph
 
-      iex> Graph.new(:first)
+      iex> Graph.new("first")
       :ok
 
   """
-  @spec new(atom) :: :ok
-  def new(name) do
+  @spec new(String.t) :: :ok
+  def new(name) when is_bitstring(name) do
     GenServer.cast(__MODULE__, {:new, name})
   end
 
@@ -115,25 +115,25 @@ defmodule Graphvix.Graph do
 
   Creates a new graph if it doesn't exist.
 
-      iex> Graph.new(:first)
-      iex> Graph.switch(:second) # creates a graph named `:second`
-      iex> Graph.switch(:first) # loads the existing graph named `:first`
+      iex> Graph.new("first")
+      iex> Graph.switch("second") # creates a graph named `second`
+      iex> Graph.switch("first") # loads the existing graph named `first`
 
   """
-  @spec switch(atom) :: :ok
-  def switch(name) do
+  @spec switch(String.t) :: :ok
+  def switch(name) when is_bitstring(name) do
     GenServer.cast(__MODULE__, {:switch, name})
   end
 
   @doc """
   Returns the name of the current graph.
 
-      iex> Graph.new(:first)
+      iex> Graph.new("first")
       iex> Graph.current_graph
-      :first
+      "first"
 
   """
-  @spec current_graph :: {atom, map}
+  @spec current_graph :: {String.t, map}
   def current_graph do
     GenServer.call(__MODULE__, :current_graph)
   end
@@ -156,7 +156,7 @@ defmodule Graphvix.Graph do
   @doc """
   Updates a graph-wide setting.
 
-      iex> Graph.new(:first)
+      iex> Graph.new("first")
       iex> Graph.update(size: "4, 4")
       :ok
 
@@ -169,7 +169,7 @@ defmodule Graphvix.Graph do
   @doc """
   Returns a string of the current graph in .dot format.
 
-      iex> Graph.new(:first)
+      iex> Graph.new("first")
       iex> Graph.write
       "digraph G {
       }"
@@ -183,7 +183,7 @@ defmodule Graphvix.Graph do
   @doc """
   Returns the Elixir map form of the current graph.
 
-      iex> Graph.new(:first)
+      iex> Graph.new("first")
       iex> Graph.get
       %{
         nodes: %{},
@@ -203,7 +203,7 @@ defmodule Graphvix.Graph do
 
   Defaults to `pdf`.
 
-      iex> Graph.new(:first)
+      iex> Graph.new("first")
       iex> Graph.compile
       :ok #=> creates "first.dot" and "first.pdf"
       iex> Graph.compile(:png)
@@ -233,7 +233,7 @@ defmodule Graphvix.Graph do
 
   Defaults to `pdf`.
 
-      iex> Graph.new(:first)
+      iex> Graph.new("first")
       iex> Graph.graph
       :ok #=> creates "first.dot" and "first.pdf"; opens "first.pdf"
       iex> Graph.graph(:png)
