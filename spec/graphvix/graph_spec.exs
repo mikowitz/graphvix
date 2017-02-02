@@ -12,7 +12,7 @@ defmodule Graphvix.GraphSpec do
 
   describe ".ls" do
     it "returns a list of graphs loaded in the state" do
-      expect Graph.ls |> to(be_empty)
+      expect Graph.ls |> to(be_empty())
 
       Graph.new("first")
 

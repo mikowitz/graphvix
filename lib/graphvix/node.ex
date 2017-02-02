@@ -14,11 +14,8 @@ defmodule Graphvix.Node do
       {1, %{ attrs: [label: "Start"] }}
 
   """
-  @spec new(label | Keyword.t | nil) :: {pos_integer, map}
+  @spec new(String.t | Keyword.t | nil) :: {pos_integer, map}
   def new(label_or_attrs \\ [])
-  def new(label) when is_atom(label) do
-    label |> to_string |> new
-  end
   def new(label) when is_bitstring(label) do
     new(label: label)
   end

@@ -7,7 +7,7 @@ defmodule Graphvix.Mixfile do
      description: "Graphviz in Elixir",
      package: [
        licenses: ["MIT"],
-       maintainers: maintainers,
+       maintainers: maintainers(),
        links: %{
          github: "https://github.com/mikowitz/graphvix"
        }

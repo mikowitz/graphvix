@@ -1,7 +1,7 @@
 defmodule Graphvix.Edge do
   alias Graphvix.Node
 
-  @type node_id_or_label :: pos_integer | String.t | atom
+  @type node_id_or_label :: pos_integer | String.t
 
   @moduledoc """
   `Graphvix.Edge` provides functions for adding, updating, and deleting edges in a graph.

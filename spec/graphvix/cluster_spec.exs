@@ -13,7 +13,7 @@ defmodule Graphvix.ClusterSpec do
   describe ".new" do
     it "returns a map with a unique id" do
       {_n_id, n} = Node.new(label: "Start")
-      expect Cluster.new([n]) |> to(be_tuple)
+      expect Cluster.new([n]) |> to(be_tuple())
     end
   end
 

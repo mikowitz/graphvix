@@ -12,16 +12,11 @@ defmodule Graphvix.NodeSpec do
 
   describe ".new" do
     it "returns a tuple of {`id`, `node_map`}" do
-      expect Node.new(label: "Start", color: "red") |> to(be_tuple)
+      expect Node.new(label: "Start", color: "red") |> to(be_tuple())
     end
 
     it "returns a node with only a label by passing a string" do
       {_id, %{attrs: attrs}} = Node.new("a")
-      expect Keyword.get(attrs, :label) |> to(eq "a")
-    end
-
-    it "returns a node with only a label by passing a symbol" do
-      {_id, %{attrs: attrs}} = Node.new(:a)
       expect Keyword.get(attrs, :label) |> to(eq "a")
     end
   end
@@ -43,7 +38,7 @@ defmodule Graphvix.NodeSpec do
 
       Node.delete(n2_id)
 
-      expect Node.find(n_id) |> to(be_map)
+      expect Node.find(n_id) |> to(be_map())
       expect Node.find(n2_id) |> to(eq {:error, {:enotfound, :node}})
       expect Edge.find(e_id) |> to(eq {:error, {:enotfound, :edge}})
     end
@@ -55,7 +50,7 @@ defmodule Graphvix.NodeSpec do
 
       Node.delete(n2_id)
 
-      expect Node.find(n_id) |> to(be_map)
+      expect Node.find(n_id) |> to(be_map())
       expect Node.find(n2_id) |> to(eq {:error, {:enotfound, :node}})
       expect Cluster.find(c_id) |>  Map.get(:node_ids) |> to(eq [n_id])
     end

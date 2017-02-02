@@ -11,7 +11,7 @@ defmodule Graphvix.State do
   alias __MODULE__
 
   def start_link do
-    state = case File.read(storage_location) do
+    state = case File.read(storage_location()) do
       {:ok, content} ->
         {state, _} = Code.eval_string(content)
         state
@@ -73,11 +73,11 @@ defmodule Graphvix.State do
     {:noreply, %State{}}
   end
   def handle_cast(:save, state) do
-    File.write(storage_location, inspect(state))
+    File.write(storage_location(), inspect(state))
     {:noreply, state}
   end
   def handle_cast(:load, _state) do
-    {new_state, _} = Code.eval_file(storage_location)
+    {new_state, _} = Code.eval_file(storage_location())
     {:noreply, new_state}
   end
   def handle_cast({:save, name, graph}, state) do
@@ -87,17 +87,17 @@ defmodule Graphvix.State do
   end
 
   def handle_info(:save, state) do
-    File.write(storage_location, inspect(state))
+    File.write(storage_location(), inspect(state))
     schedule_save()
     {:noreply, state}
   end
 
   def terminate(_reason, state) do
-    File.write(storage_location, inspect(state))
+    File.write(storage_location(), inspect(state))
   end
 
   defp storage_location do
-    file_store_path <> @file_store_name
+    file_store_path() <> @file_store_name
   end
 
   defp file_store_path do

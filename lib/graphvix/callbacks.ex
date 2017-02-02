@@ -25,7 +25,7 @@ defmodule Graphvix.Callbacks do
           nil ->
             {:reply, {:error, :enograph}, state}
           {name, graph} ->
-            id = get_id
+            id = get_id()
             new_node = %{ attrs: attrs }
             new_nodes = Map.put(graph.nodes, id, new_node)
             new_graph = %{ graph | nodes: new_nodes }
@@ -33,14 +33,14 @@ defmodule Graphvix.Callbacks do
         end
       end
       def handle_call({:add_edge, start_id, end_id, attrs}, _from, {state_pid, {name, graph}}) do
-        id = get_id
+        id = get_id()
         new_edge = %{ start_node: start_id, end_node: end_id, attrs: attrs }
         new_edges = Map.put(graph.edges, id, new_edge)
         new_graph = %{ graph | edges: new_edges }
         {:reply, {id, new_edge}, {state_pid, {name, new_graph}}}
       end
       def handle_call({:add_cluster, node_ids}, _from, {state_pid, {name, graph}}) do
-        id = get_id
+        id = get_id()
         new_cluster = %{ node_ids: node_ids }
         new_clusters = Map.put(graph.clusters, id, new_cluster)
         new_graph = %{ graph | clusters: new_clusters }

@@ -16,11 +16,11 @@ defmodule Graphvix.EdgeSpec do
       {n1_id, _n1}= Node.new(label: "Start")
       {n2_id, _n2} = Node.new(label: "End")
 
-      expect Edge.new(n1_id, n2_id) |> to(be_tuple)
+      expect Edge.new(n1_id, n2_id) |> to(be_tuple())
     end
 
     it "can create basic labeled nodes as part of the creation process" do
-      {_id, %{start_node: sn_id, end_node: en_id}} = Edge.new(:a, "hello")
+      {_id, %{start_node: sn_id, end_node: en_id}} = Edge.new("a", "hello")
       expect Node.find(sn_id) |> to(eq %{ attrs: [label: "a"] })
       expect Node.find(en_id) |> to(eq %{ attrs: [label: "hello"] })
     end
