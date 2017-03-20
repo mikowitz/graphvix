@@ -7,4 +7,4 @@ config :mix_test_watch,
   ]
 
 config :graphvix,
-  file_storage_location: "/tmp/"
+  data_path: "/tmp/graphvix"

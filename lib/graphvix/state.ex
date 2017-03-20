@@ -1,25 +1,47 @@
 defmodule Graphvix.State do
   @moduledoc false
-  defstruct graphs: %{}, current_graph: nil
+  defstruct [
+    graphs: %{},
+    current_graph: nil,
+    data_path: "/tmp/graphvix",
+    data_file: "graphvix.store",
+  ]
 
-  @file_store_path Application.get_env(:graphvix, :file_storage_location)
-  @default_file_store_path "/tmp"
-  @file_store_name "graphvix.store"
   @empty_graph %{nodes: %{}, edges: %{}, clusters: %{}, attrs: []}
 
   use GenServer
   alias __MODULE__
 
-  def start_link do
-    state = case File.read(storage_location) do
-      {:ok, content} ->
-        {state, _} = Code.eval_string(content)
-        state
-      _ ->
-        %State{}
-    end
-    GenServer.start_link(__MODULE__, state)
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts, [name: __MODULE__])
   end
+
+  def init(opts) do
+    # initialize state and pull in any opts
+    state = struct(%__MODULE__{}, opts)
+
+    # try to create the data_path if it doesn't already exist
+    File.mkdir_p!(state.data_path)
+
+    # load any terms saved on disk
+    data_file_path = Path.join([state.data_path, state.data_file])
+    saved_data =
+      case load_data(data_file_path) do
+        {:ok, data} -> data
+        {:error, _} -> %{}
+      end
+
+    # update state with any stored data
+    GenServer.cast(self(), :load)
+
+    # schedule a save
+    schedule_save()
+
+    # finish init
+    {:ok, state}
+  end
+
+  # API
 
   def current_graph(pid) do
     GenServer.call(pid, :current_graph)
@@ -48,6 +70,8 @@ defmodule Graphvix.State do
     {:ok, state}
   end
 
+  # Callbacks
+
   def handle_call(:current_graph, _from, state) do
     reply = {state.current_graph, Map.get(state.graphs, state.current_graph)}
     {:reply, reply, state}
@@ -73,12 +97,26 @@ defmodule Graphvix.State do
     {:noreply, %State{}}
   end
   def handle_cast(:save, state) do
-    File.write(storage_location, inspect(state))
+    data_file_path = Path.join([state.data_path, state.data_file])
+    save_data(data_file_path, state)
     {:noreply, state}
   end
-  def handle_cast(:load, _state) do
-    {new_state, _} = Code.eval_file(storage_location)
-    {:noreply, new_state}
+  def handle_cast(:load, state) do
+    # load any terms saved on disk
+    data_file_path = Path.join([state.data_path, state.data_file])
+    saved_data =
+      case load_data(data_file_path) do
+        {:ok, data} -> data
+        {:error, _} -> %{}
+      end
+
+    # update state with any stored data
+    params = %{
+      graphs: Map.get(saved_data, :graphs, %{}),
+      current_graph: Map.get(saved_data, :current_graph, nil),
+    }
+    state = struct(state, params)
+    {:noreply, state}
   end
   def handle_cast({:save, name, graph}, state) do
     new_graphs = Map.update(state.graphs, name, @empty_graph, fn _ -> graph end)
@@ -87,21 +125,23 @@ defmodule Graphvix.State do
   end
 
   def handle_info(:save, state) do
-    File.write(storage_location, inspect(state))
+    data_file_path = Path.join([state.data_path, state.data_file])
+    save_data(data_file_path, state)
     schedule_save()
     {:noreply, state}
   end
 
-  def terminate(_reason, state) do
-    File.write(storage_location, inspect(state))
+  # Helpers
+
+  defp save_data(path, data) do
+    File.write(path, :erlang.term_to_binary(data))
   end
 
-  defp storage_location do
-    file_store_path <> @file_store_name
-  end
-
-  defp file_store_path do
-    @file_store_path || @default_file_store_path
+  defp load_data(path) do
+    case File.read(path) do
+      {:ok, data_raw} -> {:ok, :erlang.binary_to_term(data_raw)}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   defp schedule_save do

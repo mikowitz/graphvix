@@ -1,0 +1,2 @@
+# start tests
+ExUnit.start()
