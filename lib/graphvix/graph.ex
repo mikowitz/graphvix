@@ -291,7 +291,6 @@ defmodule Graphvix.Graph do
     new_edge = %{ start_node: start_id, end_node: end_id, attrs: attrs }
     new_edges = Map.put(graph.edges, id, new_edge)
     new_graph = %{ graph | edges: new_edges }
-    # {:reply, {id, new_edge}, {state_pid, {name, new_graph}}}
     {:reply, {id, new_edge}, Map.put(state, :graph, {name, new_graph})}
   end
   def handle_call({:add_cluster, node_ids}, _from, state=%__MODULE__{graph: {name, graph}}) do
@@ -299,7 +298,6 @@ defmodule Graphvix.Graph do
     new_cluster = %{ node_ids: node_ids }
     new_clusters = Map.put(graph.clusters, id, new_cluster)
     new_graph = %{ graph | clusters: new_clusters }
-    # {:reply, {id, new_cluster}, {state_pid, {name, new_graph}}}
     {:reply, {id, new_cluster}, Map.put(state, :graph, {name, new_graph})}
   end
   def handle_call({:add_to_cluster, cluster_id, node_ids}, _from, state=%__MODULE__{graph: {name, graph}}) do
@@ -308,7 +306,6 @@ defmodule Graphvix.Graph do
     new_cluster = %{ cluster | node_ids: new_node_ids }
     new_clusters = %{ graph.clusters | cluster_id => new_cluster }
     new_graph = %{ graph | clusters: new_clusters }
-    # {:reply, new_cluster, {state_pid, {name, %{ graph | clusters: new_clusters }}}}
     {:reply, new_cluster, Map.put(state, :graph, {name, new_graph})}
   end
   def handle_call({:remove_from_cluster, cluster_id, node_ids}, _from, state=%__MODULE__{graph: {name, graph}}) do
@@ -317,7 +314,6 @@ defmodule Graphvix.Graph do
     new_cluster = %{ cluster | node_ids: new_node_ids }
     new_clusters = %{ graph.clusters | cluster_id => new_cluster }
     new_graph = %{ graph | clusters: new_clusters }
-    # {:reply, new_cluster, {state_pid, {name, %{ graph | clusters: new_clusters }}}}
     {:reply, new_cluster, Map.put(state, :graph, {name, new_graph})}
   end
   def handle_call({:find, id, type}, _from, state=%__MODULE__{graph: {name, graph}}) do
@@ -332,7 +328,6 @@ defmodule Graphvix.Graph do
       ^type -> {:ok, remove(type, id, graph)}
       _ -> {{:error, {:enotfound, type}}, graph}
     end
-    # {:reply, res, {state_pid, {name, new_graph}}}
     {:reply, res, Map.put(state, :graph, {name, new_graph})}
   end
   def handle_call(:get, _from, state=%__MODULE__{graph: {name, graph}}) do
@@ -352,29 +347,23 @@ defmodule Graphvix.Graph do
           _ -> graph
         end
     end
-    # {:noreply, {state_pid, {name, new_graph}}}
     {:noreply, Map.put(state, :graph, {name, new_graph})}
   end
   def handle_cast({:new, name}, state=%__MODULE__{state_pid: state_pid}) do
     {name, new_graph} = Graphvix.State.new_graph(state_pid, name)
-    # {:noreply, {state_pid, new_graph}}
     {:noreply, Map.put(state, :graph, {name, new_graph})}
   end
   def handle_cast(:clear, state=%__MODULE__{state_pid: state_pid}) do
     Graphvix.State.clear(state_pid)
-    # {:noreply, {state_pid, nil}}
     {:noreply, Map.put(state, :graph, nil)}
   end
-  # def handle_cast({:switch, name}, {state_pid, {current_name, current_graph}}) do
   def handle_cast({:switch, name}, state=%__MODULE__{state_pid: state_pid, graph: {current_name, current_graph}}) do
     Graphvix.State.save(state_pid, current_name, current_graph)
     {name, new_graph} = Graphvix.State.load(state_pid, name)
-    # {:noreply, {state_pid, new_graph}}
     {:noreply, Map.put(state, :graph, {name, new_graph})}
   end
   def handle_cast({:update, attrs}, state=%__MODULE__{graph: {name, graph}}) do
     new_graph = %{ graph | attrs: merge_without_nils(graph.attrs, attrs) }
-    # {:noreply, {state_pid, {name, new_graph}}}
     {:noreply, Map.put(state, :graph, {name, new_graph})}
   end
   def handle_cast(:save, state=%__MODULE__{graph: {name, graph}}) do
