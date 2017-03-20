@@ -7,7 +7,7 @@ defmodule Graphvix.GraphSpec do
   end
 
   finally do
-    File.rm("graphvix.store")
+    File.rm("/tmp/graphvix/graphvix.store")
   end
 
   describe ".ls" do
@@ -66,7 +66,7 @@ digraph G {
       Graph.save
 
       :timer.sleep(125)
-      {:ok, file_content} = File.read("first.dot")
+      {:ok, file_content} = File.read("/tmp/graphvix/first.dot")
 
       expect file_content |> to(eq """
 digraph G {
@@ -78,7 +78,7 @@ digraph G {
 """ |> String.strip)
 
       :timer.sleep(125)
-      expect File.rm("first.dot") |> to(eq :ok)
+      expect File.rm("/tmp/graphvix/first.dot") |> to(eq :ok)
     end
   end
 
@@ -124,8 +124,8 @@ digraph G {
 
       :timer.sleep 125
 
-      expect File.rm("first.dot") |> to(eq :ok)
-      expect File.rm("first.pdf") |> to(eq :ok)
+      expect File.rm("/tmp/graphvix/first.dot") |> to(eq :ok)
+      expect File.rm("/tmp/graphvix/first.pdf") |> to(eq :ok)
     end
 
     it "saves at a default file location and compiles to PNG if that option is passed in" do
@@ -135,9 +135,9 @@ digraph G {
 
       :timer.sleep 125
 
-      expect File.rm("first.dot") |> to(eq :ok)
-      expect File.rm("first.png") |> to(eq :ok)
-      expect File.rm("first.pdf") |> to(eq {:error, :enoent})
+      expect File.rm("/tmp/graphvix/first.dot") |> to(eq :ok)
+      expect File.rm("/tmp/graphvix/first.png") |> to(eq :ok)
+      expect File.rm("/tmp/graphvix/first.pdf") |> to(eq {:error, :enoent})
     end
   end
 
