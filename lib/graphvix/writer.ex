@@ -1,5 +1,7 @@
 defmodule Graphvix.Writer do
   @moduledoc false
+  @output_path Application.get_env(:graphvix, :output_path, "")
+
   def write(%{nodes: nodes, edges: edges, clusters: clusters, attrs: attrs}) do
     contents = [
        graph_attrs_to_dot(attrs),
@@ -72,8 +74,18 @@ defmodule Graphvix.Writer do
   end
 
   defp file_with_ext(filename, ext) do
-    with ext_str <- ext |> to_string do
-      filename <> "." <> ext_str
+    with ext_str <- ext |> to_string,
+         output_path <- get_output_path()  do
+      output_path <> filename <> "." <> ext_str
+    end
+  end
+
+  defp get_output_path do
+    case @output_path do
+      "" -> ""
+      path ->
+        File.mkdir_p!(path)
+        path
     end
   end
 
