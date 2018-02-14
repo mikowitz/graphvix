@@ -5,6 +5,10 @@ defmodule Graphvix.Graph.Helpers do
     Graphvix.IdAgent.next
   end
 
+  def clear_ids do
+    Graphvix.IdAgent.clear
+  end
+
   def find_element(graph, id) do
     Map.get(graph.nodes, id) || Map.get(graph.edges, id) || Map.get(graph.clusters, id)
   end

@@ -99,6 +99,7 @@ defmodule Graphvix.Callbacks do
       end
       def handle_cast(:clear, {state_pid, _}) do
         Graphvix.State.clear(state_pid)
+        clear_ids()
         {:noreply, {state_pid, nil}}
       end
       def handle_cast({:switch, name}, {state_pid, {current_name, current_graph}}) do
