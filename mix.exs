@@ -7,7 +7,7 @@ defmodule Graphvix.Mixfile do
      description: "Graphviz in Elixir",
      package: [
        licenses: ["MIT"],
-       maintainers: maintainers,
+       maintainers: maintainers(),
        links: %{
          github: "https://github.com/mikowitz/graphvix"
        }
@@ -22,8 +22,9 @@ defmodule Graphvix.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger],
-     mod: {Graphvix, []}]
+    [
+      applications: [:logger, :stream_data]
+    ]
   end
 
   # Dependencies can be Hex packages:
@@ -38,8 +39,8 @@ defmodule Graphvix.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.14", only: :dev},
-      {:espec, "~> 1.1.0", only: :test},
-      {:mix_test_watch, "~> 0.2", only: [:dev, :test]}
+      {:mix_test_watch, "~> 0.2", only: [:dev, :test]},
+      {:stream_data, "~> 0.1", only: [:dev, :test]}
     ]
   end
 
