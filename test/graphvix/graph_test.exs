@@ -4,31 +4,6 @@ defmodule Graphvix.GraphTest do
 
   alias Graphvix.Graph
 
-  # property "passing an atom generates a named graph" do
-  #   check all name <- atom(:alphanumeric) do
-  #     graph = Graph.new(name)
-  #     assert graph.name == to_string(name)
-  #   end
-  # end
-
-  # property "passing a string generates a node with a label" do
-  #  check all name <- string(:ascii, min_length: 1) do
-  #     graph = Graph.new(name)
-  #     assert graph.name == name
-  #   end
-  # end
-
-  # property "generating an empty dot graph" do
-  #   check all name <- string(:ascii, min_length: 3) do
-  #     graph = Graph.new(name)
-  #     assert Graph.to_dot(graph) == """
-  #     digraph "#{name}" {
-
-  #     }
-  #     """ |> String.trim
-  #   end
-  # end
-
   property "generating a graph with a vertex" do
     check all label <- string(:ascii, min_length: 3)
     do
@@ -44,6 +19,26 @@ defmodule Graphvix.GraphTest do
     end
   end
 
+  property "generating graphs with global properties" do
+    check all color <- string(:ascii, min_length: 3),
+      color2 <- string(:ascii, min_length: 3),
+      e_label <- string(:printable, min_length: 5)
+    do
+      graph = Graph.new()
+      graph = Graph.set_property(graph, :node, color: color)
+      graph = Graph.set_properties(graph, :edge, color: color2, label: e_label)
+
+      assert Graph.to_dot(graph) == """
+      digraph G {
+
+        node [color="#{color}"]
+        edge [label="#{e_label}",color="#{color2}"]
+
+      }
+      """ |> String.trim
+    end
+  end
+
   property "adding an edge" do
     check all label1 <- string(:ascii, min_length: 3),
       label2 <- string(:ascii, min_length: 3)
@@ -52,7 +47,7 @@ defmodule Graphvix.GraphTest do
       {graph, v1} = Graph.add_vertex(graph, label1)
       {graph, v2} = Graph.add_vertex(graph, label2)
       {graph, _e1} = Graph.add_edge(graph, v1, v2)
-      {_, _, etab, _, _} = graph
+      {_, _, etab, _, _} = graph.digraph
       assert length(:ets.tab2list(etab)) == 1
     end
   end

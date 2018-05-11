@@ -1,8 +1,16 @@
 defmodule Graphvix.Graph do
+  defstruct [
+    digraph: nil,
+    global_properties: [node: [], edge: []]
+  ]
+
   def new do
-    :digraph.new()
+    %__MODULE__{
+      digraph: :digraph.new()
+    }
   end
 
+  def digraph_tables(%__MODULE__{digraph: graph}), do: digraph_tables(graph)
   def digraph_tables({:digraph, vtab, etab, ntab, _}) do
     [vtab, etab, ntab]
   end
@@ -11,19 +19,20 @@ defmodule Graphvix.Graph do
     next_id = get_and_increment_vertex_id(graph)
     attributes = Keyword.put(attributes, :label, label)
     vertex_id = [:"$v" | next_id]
-    vid = :digraph.add_vertex(graph, vertex_id, attributes)
+    vid = :digraph.add_vertex(graph.digraph, vertex_id, attributes)
     {graph, vid}
   end
 
   def add_edge(graph, out_from, in_to, attributes \\ []) do
-    eid = :digraph.add_edge(graph, out_from, in_to, attributes)
+    eid = :digraph.add_edge(graph.digraph, out_from, in_to, attributes)
     {graph, eid}
   end
 
   def to_dot(graph) do
     [
       "digraph G {",
-      nodes_to_dot(graph),
+      global_properties_to_dot(graph),
+      vertices_to_dot(graph),
       edges_to_dot(graph),
       "}"
     ] |> Enum.reject(&is_nil/1) |> Enum.join("\n\n")
@@ -42,6 +51,40 @@ defmodule Graphvix.Graph do
     {_, 0} = System.cmd("open", [filename <> ".png"])
   end
 
+  def set_properties(graph, attr_for, attrs \\ []) do
+    Enum.reduce(attrs, graph, fn {k, v}, g ->
+      set_property(g, attr_for, [{k, v}])
+    end)
+  end
+
+  def set_property(graph, attr_for, [{key, value}]) do
+    properties = Keyword.get(graph.global_properties, attr_for)
+    new_props = Keyword.put(properties, key, value)
+    new_properties = Keyword.put(graph.global_properties, attr_for, new_props)
+    %{ graph | global_properties: new_properties }
+  end
+
+  defp global_properties_to_dot(graph) do
+    global_props = [
+      _global_properties_to_dot(graph, :node),
+      _global_properties_to_dot(graph, :edge)
+    ] |> Enum.reject(&is_nil/1)
+
+    case length(global_props) do
+      0 -> nil
+      _ -> Enum.join(global_props, "\n")
+    end
+  end
+
+  defp _global_properties_to_dot(%{global_properties: global_props}, key) do
+    with props <- Keyword.get(global_props, key) do
+      case length(props) do
+        0 -> nil
+        _ -> "  #{key} #{attributes_to_dot(props)}"
+      end
+    end
+  end
+
   defp elements_to_dot(table, formatting_func) do
     case :ets.tab2list(table) do
       [] -> nil
@@ -56,7 +99,7 @@ defmodule Graphvix.Graph do
     end
   end
 
-  defp nodes_to_dot(graph) do
+  defp vertices_to_dot(graph) do
     [vtab, _, _] = digraph_tables(graph)
     elements_to_dot(vtab, fn {[_ | id], attributes} ->
       "  v#{id} #{attributes_to_dot(attributes)}"
