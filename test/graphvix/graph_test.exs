@@ -19,6 +19,33 @@ defmodule Graphvix.GraphTest do
     end
   end
 
+  property "adding a subgraph" do
+    check all label <- string(:ascii, min_length: 3)
+    do
+      graph = Graph.new()
+      {graph, vid} = Graph.add_vertex(graph, label, color: "blue")
+      {graph, _cid} = Graph.add_subgraph(graph, [vid])
+
+      [subgraph] = graph.subgraphs
+      assert subgraph.id == "subgraph0"
+      assert subgraph.vertex_ids == [vid]
+    end
+
+  end
+
+  property "adding a cluster" do
+    check all label <- string(:ascii, min_length: 3)
+    do
+      graph = Graph.new()
+      {graph, vid} = Graph.add_vertex(graph, label, color: "blue")
+      {graph, _cid} = Graph.add_cluster(graph, [vid])
+
+      [cluster] = graph.subgraphs
+      assert cluster.id == "cluster0"
+      assert cluster.vertex_ids == [vid]
+    end
+  end
+
   property "generating graphs with global properties" do
     check all color <- string(:ascii, min_length: 3),
       color2 <- string(:ascii, min_length: 3),
@@ -68,6 +95,125 @@ defmodule Graphvix.GraphTest do
         v1 [label="#{label2}"]
 
         v0 -> v1 [color="blue"]
+
+      }
+      """ |> String.trim
+    end
+  end
+
+  property "dot format for a graph with a subgraph" do
+    check all label1 <- string(:ascii, min_length: 3),
+      label2 <- string(:ascii, min_length: 3)
+    do
+      graph = Graph.new()
+      {graph, v1} = Graph.add_vertex(graph, label1)
+      {graph, v2} = Graph.add_vertex(graph, label2)
+      {graph, _e1} = Graph.add_edge(graph, v1, v2, color: "blue")
+      {graph, _cid} = Graph.add_subgraph(graph, [v1], subgraph: [style: "filled", color: "blue"], node: [shape: "Msquare"])
+
+      assert Graph.to_dot(graph) == """
+      digraph G {
+
+        subgraph subgraph0 {
+
+          node [shape="Msquare"]
+
+          style="filled"
+          color="blue"
+
+          v0 [label="#{label1}"]
+
+        }
+
+        v1 [label="#{label2}"]
+
+        v0 -> v1 [color="blue"]
+
+      }
+      """ |> String.trim
+    end
+  end
+
+  property "dot format for a graph with a cluster" do
+    check all label1 <- string(:ascii, min_length: 3),
+      label2 <- string(:ascii, min_length: 3)
+    do
+      graph = Graph.new()
+      {graph, v1} = Graph.add_vertex(graph, label1)
+      {graph, v2} = Graph.add_vertex(graph, label2)
+      {graph, _e1} = Graph.add_edge(graph, v1, v2, color: "blue")
+      {graph, _cid} = Graph.add_cluster(graph, [v1], subgraph: [style: "filled", color: "blue"], node: [shape: "Msquare"])
+
+      assert Graph.to_dot(graph) == """
+      digraph G {
+
+        subgraph cluster0 {
+
+          node [shape="Msquare"]
+
+          style="filled"
+          color="blue"
+
+          v0 [label="#{label1}"]
+
+        }
+
+        v1 [label="#{label2}"]
+
+        v0 -> v1 [color="blue"]
+
+      }
+      """ |> String.trim
+    end
+  end
+
+  property "dot format for a graph with clusters and subgraphs" do
+    check all label1 <- string(:ascii, min_length: 3),
+      label2 <- string(:ascii, min_length: 3),
+      label3 <- string(:ascii, min_length: 3),
+      label4 <- string(:ascii, min_length: 3)
+    do
+      graph = Graph.new()
+      {graph, v1} = Graph.add_vertex(graph, label1)
+      {graph, v2} = Graph.add_vertex(graph, label2)
+      {graph, v3} = Graph.add_vertex(graph, label3)
+      {graph, v4} = Graph.add_vertex(graph, label4)
+      {graph, _e} = Graph.add_edge(graph, v1, v2, color: "blue")
+      {graph, _e} = Graph.add_edge(graph, v2, v3)
+      {graph, _e} = Graph.add_edge(graph, v3, v4)
+      {graph, _cid} = Graph.add_cluster(graph, [v1], subgraph: [style: "filled", color: "blue"], node: [shape: "Msquare"])
+      {graph, _cid} = Graph.add_subgraph(graph, [v2, v3], node: [shape: "square"], edge: [color: "green"])
+
+      assert Graph.to_dot(graph) == """
+      digraph G {
+
+        subgraph cluster0 {
+
+          node [shape="Msquare"]
+
+          style="filled"
+          color="blue"
+
+          v0 [label="#{label1}"]
+
+        }
+
+        subgraph subgraph1 {
+
+          node [shape="square"]
+          edge [color="green"]
+
+          v1 [label="#{label2}"]
+          v2 [label="#{label3}"]
+
+          v1 -> v2
+
+        }
+
+        v3 [label="#{label4}"]
+
+        v0 -> v1 [color="blue"]
+        v2 -> v3
 
       }
       """ |> String.trim

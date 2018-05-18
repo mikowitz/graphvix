@@ -1,12 +1,18 @@
 defmodule Graphvix.Graph do
+  import Graphvix.DotHelpers
+
   defstruct [
     digraph: nil,
-    global_properties: [node: [], edge: []]
+    global_properties: [node: [], edge: []],
+    subgraphs: []
   ]
 
   def new do
+    digraph = :digraph.new()
+    [_, _, ntab] = digraph_tables(digraph)
+    true = :ets.insert(ntab, {:"$sid", 0})
     %__MODULE__{
-      digraph: :digraph.new()
+      digraph: digraph
     }
   end
 
@@ -28,14 +34,33 @@ defmodule Graphvix.Graph do
     {graph, eid}
   end
 
+  def add_subgraph(graph, vertex_ids, properties \\ []) do
+    _add_subgraph(graph, vertex_ids, properties, false)
+  end
+
+  def add_cluster(graph, vertex_ids, properties \\ []) do
+    _add_subgraph(graph, vertex_ids, properties, true)
+  end
+
+
+  def _add_subgraph(graph, vertex_ids, properties, is_cluster) do
+    next_id = get_and_increment_subgraph_id(graph)
+    subgraph = Graphvix.Subgraph.new(next_id, vertex_ids, is_cluster, properties)
+    new_graph = %{ graph | subgraphs: graph.subgraphs ++ [subgraph]}
+    {new_graph, subgraph.id}
+  end
+
   def to_dot(graph) do
     [
       "digraph G {",
       global_properties_to_dot(graph),
+      subgraphs_to_dot(graph),
       vertices_to_dot(graph),
       edges_to_dot(graph),
       "}"
-    ] |> Enum.reject(&is_nil/1) |> Enum.join("\n\n")
+    ] |> Enum.reject(&is_nil/1)
+    |> Enum.join("\n\n")
+
   end
 
   def write(graph, filename) do
@@ -64,64 +89,41 @@ defmodule Graphvix.Graph do
     %{ graph | global_properties: new_properties }
   end
 
-  defp global_properties_to_dot(graph) do
-    global_props = [
-      _global_properties_to_dot(graph, :node),
-      _global_properties_to_dot(graph, :edge)
-    ] |> Enum.reject(&is_nil/1)
-
-    case length(global_props) do
-      0 -> nil
-      _ -> Enum.join(global_props, "\n")
-    end
-  end
-
-  defp _global_properties_to_dot(%{global_properties: global_props}, key) do
-    with props <- Keyword.get(global_props, key) do
-      case length(props) do
-        0 -> nil
-        _ -> "  #{key} #{attributes_to_dot(props)}"
-      end
-    end
-  end
-
-  defp elements_to_dot(table, formatting_func) do
-    case :ets.tab2list(table) do
+  defp subgraphs_to_dot(graph) do
+    case graph.subgraphs do
       [] -> nil
-      elements ->
-        elements
-        |> Enum.sort_by(fn entry ->
-          [[_ | id] | _] = Tuple.to_list(entry)
-          id
-        end)
-        |> Enum.map(&formatting_func.(&1))
-        |> Enum.join("\n")
+      subgraphs ->
+        subgraphs
+        |> Enum.map(&Graphvix.Subgraph.to_dot(&1, graph))
+        |> Enum.join("\n\n")
     end
   end
 
   defp vertices_to_dot(graph) do
     [vtab, _, _] = digraph_tables(graph)
-    elements_to_dot(vtab, fn {[_ | id], attributes} ->
-      "  v#{id} #{attributes_to_dot(attributes)}"
+    elements_to_dot(vtab, fn {vid = [_ | id], attributes} ->
+      case in_a_subgraph?(vid, graph) do
+        true -> nil
+        false ->
+          [
+            "v#{id}",
+            attributes_to_dot(attributes)
+          ] |> compact() |> Enum.join(" ") |> indent()
+      end
     end)
   end
 
   defp edges_to_dot(graph) do
     [_, etab, _] = digraph_tables(graph)
-    elements_to_dot(etab, fn {_, [:"$v" | v1], [:"$v" | v2], attributes} ->
-      "  v#{v1} -> v#{v2} #{attributes_to_dot(attributes)}"
+    elements_to_dot(etab, fn edge = {_, [:"$v" | v1], [:"$v" | v2], attributes} ->
+      case edge in edges_contained_in_subgraphs(graph) do
+        true -> nil
+        false ->
+          ["v#{v1} -> v#{v2}",
+           attributes_to_dot(attributes)
+          ] |> compact() |> Enum.join(" ") |> indent()
+      end
     end)
-  end
-
-  defp attributes_to_dot([]), do: nil
-  defp attributes_to_dot(attributes) do
-    [
-      "[",
-      Enum.map(attributes, fn {key, value} ->
-        ~s(#{key}="#{value}")
-      end) |> Enum.join(","),
-      "]"
-    ] |> Enum.join("")
   end
 
   def get_and_increment_vertex_id(graph) do
@@ -130,5 +132,33 @@ defmodule Graphvix.Graph do
     true = :ets.delete(ntab, :"$vid")
     true = :ets.insert(ntab, {:"$vid", next_id + 1})
     next_id
+  end
+
+  def get_and_increment_subgraph_id(graph) do
+    [_, _, ntab] = digraph_tables(graph)
+    [{:"$sid", next_id}] = :ets.lookup(ntab, :"$sid")
+    true = :ets.delete(ntab, :"$sid")
+    true = :ets.insert(ntab, {:"$sid", next_id + 1})
+    next_id
+  end
+
+  def in_a_subgraph?(vertex_id, graph) do
+    vertex_id in vertex_ids_in_subgraphs(graph)
+  end
+
+  defp vertex_ids_in_subgraphs(%__MODULE__{subgraphs: subgraphs}) do
+    Enum.reduce(subgraphs, [], fn c, acc ->
+      acc ++ c.vertex_ids
+    end)
+  end
+
+  def edges_contained_in_subgraphs(graph = %__MODULE__{subgraphs: subgraphs}) do
+    [_, etab, _] = digraph_tables(graph)
+    edges = :ets.tab2list(etab)
+    Enum.filter(edges, fn {_, vid1, vid2, _} ->
+      Enum.any?(subgraphs, fn subgraph ->
+        Graphvix.Subgraph.both_vertices_in_subgraph?(subgraph.vertex_ids, vid1, vid2)
+      end)
+    end)
   end
 end
