@@ -2,7 +2,7 @@ defmodule Graphvix.GraphTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  alias Graphvix.Graph
+  alias Graphvix.{Graph, Record}
 
   property "generating a graph with a vertex" do
     check all label <- string(:ascii, min_length: 3)
@@ -17,6 +17,51 @@ defmodule Graphvix.GraphTest do
       }
       """ |> String.trim
     end
+  end
+
+  property "generating a graph with a record node" do
+    check all labels <- list_of(string(:ascii, min_length: 3), min_length: 2, max_length: 5),
+      label <- string(:ascii, min_length: 3),
+      color <- string(:ascii, min_length: 3)
+    do
+      record = Record.new(labels, color: "blue")
+      graph = Graph.new
+      {graph, v0} = Graph.add_record(graph, record)
+      {graph, v1} = Graph.add_vertex(graph, label, color: color)
+      {graph, _eid} = Graph.add_edge(graph, v0, v1)
+      assert Graph.to_dot(graph) == """
+      digraph G {
+
+        v0 [label="#{Enum.join(labels, " | ")}",shape="record",color="blue"]
+        v1 [label="#{label}",color="#{color}"]
+
+        v0 -> v1
+
+      }
+      """ |> String.trim
+    end
+  end
+
+  property "generating a graph with edges to record ports" do
+    check all [l1, l2, p1, l3] <- list_of(string(:ascii, min_length: 3), length: 4)
+    do
+      graph = Graph.new
+      record = Record.new([l1, {p1, l2}])
+      {graph, v0} = Graph.add_record(graph, record)
+      {graph, v1} = Graph.add_vertex(graph, l3)
+      {graph, _eid} = Graph.add_edge(graph, {v0, p1}, v1)
+      assert Graph.to_dot(graph) == """
+      digraph G {
+
+        v0 [label="#{l1} | <#{p1}> #{l2}",shape="record"]
+        v1 [label="#{l3}"]
+
+        v0:#{p1} -> v1
+
+      }
+      """ |> String.trim
+    end
+
   end
 
   property "adding a subgraph" do

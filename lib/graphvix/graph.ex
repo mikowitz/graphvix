@@ -1,6 +1,8 @@
 defmodule Graphvix.Graph do
   import Graphvix.DotHelpers
 
+  alias Graphvix.Record
+
   defstruct [
     digraph: nil,
     global_properties: [node: [], edge: []],
@@ -21,6 +23,12 @@ defmodule Graphvix.Graph do
     [vtab, etab, ntab]
   end
 
+  def add_record(graph, record) do
+    label = Record.to_label(record)
+    attributes = Keyword.put(record.properties, :shape, "record")
+    add_vertex(graph, label, attributes)
+  end
+
   def add_vertex(graph, label, attributes \\ []) do
     next_id = get_and_increment_vertex_id(graph)
     attributes = Keyword.put(attributes, :label, label)
@@ -29,7 +37,14 @@ defmodule Graphvix.Graph do
     {graph, vid}
   end
 
-  def add_edge(graph, out_from, in_to, attributes \\ []) do
+  def add_edge(graph, out_from, in_to, attributes \\ [])
+  def add_edge(graph, {id = [:"$v" | _], port}, in_to, attributes) do
+    add_edge(graph, id, in_to, Keyword.put(attributes, :outport, port))
+  end
+  def add_edge(graph, out_from, {id = [:"$v" | _], port}, attributes) do
+    add_edge(graph, out_from, id, Keyword.put(attributes, :inport, port))
+  end
+  def add_edge(graph, out_from, in_to, attributes) do
     eid = :digraph.add_edge(graph.digraph, out_from, in_to, attributes)
     {graph, eid}
   end
@@ -113,13 +128,19 @@ defmodule Graphvix.Graph do
     end)
   end
 
+  defp edge_side_with_port(v_id, nil), do: "v#{v_id}"
+  defp edge_side_with_port(v_id, port), do: "v#{v_id}:#{port}"
+
   defp edges_to_dot(graph) do
     [_, etab, _] = digraph_tables(graph)
     elements_to_dot(etab, fn edge = {_, [:"$v" | v1], [:"$v" | v2], attributes} ->
       case edge in edges_contained_in_subgraphs(graph) do
         true -> nil
         false ->
-          ["v#{v1} -> v#{v2}",
+          v_out = edge_side_with_port(v1, Keyword.get(attributes, :outport))
+          v_in = edge_side_with_port(v2, Keyword.get(attributes, :inport))
+          attributes = attributes |> Keyword.delete(:outport) |> Keyword.delete(:inport)
+          ["#{v_out} -> #{v_in}",
            attributes_to_dot(attributes)
           ] |> compact() |> Enum.join(" ") |> indent()
       end
