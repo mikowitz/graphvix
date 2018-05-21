@@ -37,7 +37,7 @@ defmodule Graphvix.DotHelpers do
     Enum.map(list, fn s -> String.duplicate("  ", depth) <> s end)
   end
 
-  def elements_to_dot(table, formatting_func) when is_reference(table) do
+  def elements_to_dot(table, formatting_func) when is_reference(table) or is_integer(table) do
     :ets.tab2list(table) |> elements_to_dot(formatting_func)
   end
   def elements_to_dot(list, formatting_func) when is_list(list) do
