@@ -1,16 +1,17 @@
-alias Graphvix.{Graph, Node, Edge, Cluster}
+alias Graphvix.Graph
 
-Graph.new(:shapes)
+graph = Graph.new()
 
-Graph.update(size: "4,4")
+graph = Graph.set_graph_property(graph, :size, "4,4")
 
-{a, _} = Node.new(label: "a", shape: "polygon", sides: 5, peripheries: 3, color: "lightblue", style: "filled")
-{b, _} = Node.new("b")
-{c, _} = Node.new(label: "hello world", shape: "polygon", sides: 4, skew: ".4")
-{d, _} = Node.new(label: "d", shape: "invtriangle")
-{e, _} = Node.new(label: "e", shape: "polygon", sides: 4, distortion: ".7")
+{graph, a} = Graph.add_vertex(graph, "a", shape: "polygon", sides: 5, peripheries: 3, color: "lightblue", style: "filled")
+{graph, b} = Graph.add_vertex(graph, "b")
+{graph, c} = Graph.add_vertex(graph, "hello world", shape: "polygon", sides: 4, skew: ".4")
+{graph, d} = Graph.add_vertex(graph, "d", shape: "invtriangle")
+{graph, e} = Graph.add_vertex(graph, "e", shape: "polygon", sides: 4, distortion: ".7")
 
-Edge.chain([a, b, c])
-Edge.new(b, d)
+{graph, _} = Graph.add_edge(graph, a, b)
+{graph, _} = Graph.add_edge(graph, b, c)
+{graph, _} = Graph.add_edge(graph, b, d)
 
-Graph.graph
+Graph.write(graph, "examples/shapes.dot")

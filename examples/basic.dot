@@ -1,23 +1,25 @@
 digraph G {
-  size="4,4";
 
-  node_1 [label="main",shape="box"];
-  node_2 [label="parse"];
-  node_3 [label="execute"];
-  node_4 [label="init"];
-  node_5 [label="cleanup"];
-  node_6 [label="make a
-string"];
-  node_7 [label="printf"];
-  node_8 [label="compare",shape="box",style="filled",color=".7 .3 1.0"];
+  size="4,4"
 
-  node_1 -> node_2 [weight="8"];
-  node_2 -> node_3;
-  node_1 -> node_4 [style="dotted"];
-  node_1 -> node_5;
-  node_3 -> node_6;
-  node_3 -> node_7;
-  node_4 -> node_6;
-  node_1 -> node_7 [style="bold",label="100 times"];
-  node_3 -> node_8 [color="red"];
+  v0 [label="main",shape="box"]
+  v1 [label="parse"]
+  v2 [label="execute"]
+  v3 [label="init"]
+  v4 [label="cleanup"]
+  v5 [label="make a
+  string"]
+  v6 [label="printf"]
+  v7 [label="compare",shape="box",style="filled",color=".7 .3 1.0"]
+
+  v0 -> v1 [weight="8"]
+  v1 -> v2
+  v2 -> v7 [color="red"]
+  v0 -> v3 [style="dotted"]
+  v0 -> v6 [style="bold",label="100 times"]
+  v0 -> v4
+  v2 -> v5
+  v2 -> v6
+  v3 -> v5
+
 }

@@ -1,32 +1,26 @@
-alias Graphvix.{Graph, Node, Edge, Cluster}
+alias Graphvix.Graph
 
-Graph.new(:basic)
+graph = Graph.new
 
-Graph.update(size: "4,4")
+graph = Graph.set_graph_property(graph, :size, "4,4")
 
-{main, _} = Node.new("main")
-{parse, _} = Node.new("parse")
-{execute, _} = Node.new("execute")
-{init, _} = Node.new("init")
-{cleanup, _} = Node.new("cleanup")
-{make_string, _} = Node.new("make_string")
-{printf, _} = Node.new("printf")
-{compare, _} = Node.new("compare")
+{graph, main} = Graph.add_vertex(graph, "main", shape: "box")
+{graph, parse} = Graph.add_vertex(graph, "parse")
+{graph, execute} = Graph.add_vertex(graph, "execute")
+{graph, init} = Graph.add_vertex(graph, "init")
+{graph, cleanup} = Graph.add_vertex(graph, "cleanup")
+{graph, make_string} = Graph.add_vertex(graph, "make a\nstring")
+{graph, printf} = Graph.add_vertex(graph, "printf")
+{graph, compare} = Graph.add_vertex(graph, "compare", shape: "box", style: "filled", color: ".7 .3 1.0")
 
-Node.update(main, shape: "box")
-Node.update(make_string, label: "make a\nstring")
-Node.update(compare, shape: "box", style: "filled", color: ".7 .3 1.0")
+{graph, _} = Graph.add_edge(graph, main, parse, weight: 8)
+{graph, _} = Graph.add_edge(graph, parse, execute)
+{graph, _} = Graph.add_edge(graph, execute, compare, color: "red")
+{graph, _} = Graph.add_edge(graph, main, init, style: "dotted")
+{graph, _} = Graph.add_edge(graph, main, printf, style: "bold", label: "100 times")
+{graph, _} = Graph.add_edge(graph, main, cleanup)
+{graph, _} = Graph.add_edge(graph, execute, make_string)
+{graph, _} = Graph.add_edge(graph, execute, printf)
+{graph, _} = Graph.add_edge(graph, init, make_string)
 
-[{main_parse, _},_,{exec_compare, _}]= Edge.chain([main, parse, execute, compare])
-[{main_init, _}, {main_print, _}, _] = Edge.new(main, [init, printf, cleanup])
-Edge.new(execute, [make_string, printf])
-Edge.new(init, make_string)
-
-Edge.update(main_parse, weight: 8)
-Edge.update(main_init, style: "dotted")
-Edge.update(main_print, style: "bold", label: "100 times")
-Edge.update(exec_compare, color: "red")
-
-Graph.graph
-
-
+Graph.write(graph, "examples/basic.dot")

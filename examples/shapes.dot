@@ -1,13 +1,15 @@
 digraph G {
-  size="4,4";
 
-  node_34 [label="a",shape="polygon",sides="5",peripheries="3",color="lightblue",style="filled"];
-  node_35 [label="b"];
-  node_36 [label="hello world",shape="polygon",sides="4",skew=".4"];
-  node_37 [label="d",shape="invtriangle"];
-  node_38 [label="e",shape="polygon",sides="4",distortion=".7"];
+  size="4,4"
 
-  node_34 -> node_35;
-  node_35 -> node_36;
-  node_35 -> node_37;
+  v0 [label="a",shape="polygon",sides="5",peripheries="3",color="lightblue",style="filled"]
+  v1 [label="b"]
+  v2 [label="hello world",shape="polygon",sides="4",skew=".4"]
+  v3 [label="d",shape="invtriangle"]
+  v4 [label="e",shape="polygon",sides="4",distortion=".7"]
+
+  v0 -> v1
+  v1 -> v2
+  v1 -> v3
+
 }
