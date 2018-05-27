@@ -6,6 +6,7 @@ defmodule Graphvix.Graph do
   defstruct [
     digraph: nil,
     global_properties: [node: [], edge: []],
+    graph_properties: [],
     subgraphs: []
   ]
 
@@ -68,6 +69,7 @@ defmodule Graphvix.Graph do
   def to_dot(graph) do
     [
       "digraph G {",
+      graph_properties_to_dot(graph),
       global_properties_to_dot(graph),
       subgraphs_to_dot(graph),
       vertices_to_dot(graph),
@@ -89,6 +91,11 @@ defmodule Graphvix.Graph do
       "-o", filename <> ".png"
     ])
     {_, 0} = System.cmd("open", [filename <> ".png"])
+  end
+
+  def set_graph_property(graph, key, value) do
+    new_properties = Keyword.put(graph.graph_properties, key, value)
+    %{ graph | graph_properties: new_properties }
   end
 
   def set_properties(graph, attr_for, attrs \\ []) do
@@ -181,5 +188,13 @@ defmodule Graphvix.Graph do
         Graphvix.Subgraph.both_vertices_in_subgraph?(subgraph.vertex_ids, vid1, vid2)
       end)
     end)
+  end
+
+  def graph_properties_to_dot(%{graph_properties: []}), do: nil
+  def graph_properties_to_dot(%{graph_properties: properties}) do
+    Enum.map(properties, fn {k, v} ->
+      attribute_to_dot(k, v)
+    end)
+    |> Enum.join("\n") |> indent
   end
 end

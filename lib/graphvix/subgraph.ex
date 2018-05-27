@@ -10,9 +10,9 @@ defmodule Graphvix.Subgraph do
   ]
 
   def new(id, vertex_ids, is_cluster \\ false, properties \\ []) do
-    subgraph_properties = Keyword.get(properties, :subgraph, [])
     node_properties = Keyword.get(properties, :node, [])
     edge_properties = Keyword.get(properties, :edge, [])
+    subgraph_properties = properties |> Keyword.delete(:node) |> Keyword.delete(:edge)
     %Graphvix.Subgraph{
       id: id_prefix(is_cluster) <> "#{id}",
       is_cluster: is_cluster,

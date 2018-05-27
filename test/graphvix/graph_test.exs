@@ -154,7 +154,7 @@ defmodule Graphvix.GraphTest do
       {graph, v1} = Graph.add_vertex(graph, label1)
       {graph, v2} = Graph.add_vertex(graph, label2)
       {graph, _e1} = Graph.add_edge(graph, v1, v2, color: "blue")
-      {graph, _cid} = Graph.add_subgraph(graph, [v1], subgraph: [style: "filled", color: "blue"], node: [shape: "Msquare"])
+      {graph, _cid} = Graph.add_subgraph(graph, [v1], style: "filled", color: "blue", node: [shape: "Msquare"])
 
       assert Graph.to_dot(graph) == """
       digraph G {
@@ -187,7 +187,7 @@ defmodule Graphvix.GraphTest do
       {graph, v1} = Graph.add_vertex(graph, label1)
       {graph, v2} = Graph.add_vertex(graph, label2)
       {graph, _e1} = Graph.add_edge(graph, v1, v2, color: "blue")
-      {graph, _cid} = Graph.add_cluster(graph, [v1], subgraph: [style: "filled", color: "blue"], node: [shape: "Msquare"])
+      {graph, _cid} = Graph.add_cluster(graph, [v1], style: "filled", color: "blue", node: [shape: "Msquare"])
 
       assert Graph.to_dot(graph) == """
       digraph G {
@@ -226,7 +226,7 @@ defmodule Graphvix.GraphTest do
       {graph, _e} = Graph.add_edge(graph, v1, v2, color: "blue")
       {graph, _e} = Graph.add_edge(graph, v2, v3)
       {graph, _e} = Graph.add_edge(graph, v3, v4)
-      {graph, _cid} = Graph.add_cluster(graph, [v1], subgraph: [style: "filled", color: "blue"], node: [shape: "Msquare"])
+      {graph, _cid} = Graph.add_cluster(graph, [v1], style: "filled", color: "blue", node: [shape: "Msquare"])
       {graph, _cid} = Graph.add_subgraph(graph, [v2, v3], node: [shape: "square"], edge: [color: "green"])
 
       assert Graph.to_dot(graph) == """
