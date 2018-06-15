@@ -2,7 +2,13 @@ defmodule Graphvix.GraphTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  alias Graphvix.{Graph, Record}
+  alias Graphvix.{Graph, Record, HTMLRecord}
+  doctest Graph, except: [
+    new: 1, digraph_tables: 1, to_dot: 1, write: 2, compile: 3, show: 2,
+    set_global_properties: 3
+  ]
+  import HTMLRecord, only: [tr: 1, td: 1, td: 2]
+
 
   property "generating a graph with a vertex" do
     check all label <- string(:ascii, min_length: 3)
@@ -62,9 +68,6 @@ defmodule Graphvix.GraphTest do
       """ |> String.trim
     end
   end
-
-  alias Graphvix.HTMLRecord
-  import HTMLRecord, only: [tr: 1, td: 1, td: 2]
 
   property "generating a graph with edges to HTML record ports" do
     check all [l1, l2, p1, l3] <- list_of(string(:ascii, min_length: 3), length: 4)
@@ -132,7 +135,7 @@ defmodule Graphvix.GraphTest do
       e_label <- string(:printable, min_length: 5)
     do
       graph = Graph.new()
-      graph = Graph.set_global_property(graph, :node, color: color)
+      graph = Graph.set_global_properties(graph, :node, color: color)
       graph = Graph.set_global_properties(graph, :edge, color: color2, label: e_label)
 
       assert Graph.to_dot(graph) == """
@@ -303,11 +306,46 @@ defmodule Graphvix.GraphTest do
   test ".write/2" do
     g = Graph.new()
 
-    :ok = Graph.write(g, "g.dot")
+    :ok = Graph.write(g, "g")
 
     {:ok, content} = File.read("g.dot")
 
     :ok = File.rm("g.dot")
+
+    assert content == """
+    digraph G {
+
+    }
+    """ |> String.trim
+  end
+
+  test ".compile/2" do
+    g = Graph.new()
+
+    :ok = Graph.compile(g, "g")
+
+    {:ok, content} = File.read("g.dot")
+
+    :ok = File.rm("g.dot")
+    :ok = File.rm("g.png")
+
+    assert content == """
+    digraph G {
+
+    }
+    """ |> String.trim
+
+  end
+
+  test ".compile/3" do
+    g = Graph.new()
+
+    :ok = Graph.compile(g, "g", :pdf)
+
+    {:ok, content} = File.read("g.dot")
+
+    :ok = File.rm("g.dot")
+    :ok = File.rm("g.pdf")
 
     assert content == """
     digraph G {

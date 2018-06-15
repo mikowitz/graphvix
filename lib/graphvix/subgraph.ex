@@ -1,4 +1,15 @@
 defmodule Graphvix.Subgraph do
+  @moduledoc """
+  [Internal] Models a subgraph or cluster for inclusion in a graph.
+
+  The functions included in this module are for internal use only. See
+
+  * `Graphvix.Graph.add_subgraph/3`
+  * `Graphvix.Graph.add_cluster/3`
+
+  for the public interface for creating and including subgraphs and clusters.
+  """
+
   import Graphvix.DotHelpers
 
   defstruct [
@@ -9,6 +20,7 @@ defmodule Graphvix.Subgraph do
     is_cluster: false
   ]
 
+  @doc false
   def new(id, vertex_ids, is_cluster \\ false, properties \\ []) do
     node_properties = Keyword.get(properties, :node, [])
     edge_properties = Keyword.get(properties, :edge, [])
@@ -25,6 +37,7 @@ defmodule Graphvix.Subgraph do
     }
   end
 
+  @doc false
   def to_dot(subgraph, graph) do
     [vtab, _, _] = Graphvix.Graph.digraph_tables(graph)
     vertices_from_graph = :ets.tab2list(vtab)
@@ -41,6 +54,7 @@ defmodule Graphvix.Subgraph do
     |> Enum.join("\n\n")
   end
 
+  @doc false
   def subgraph_edges_to_dot(subgraph, graph) do
     edges_with_both_vertices_in_subgraph(subgraph, graph)
     |> sort_elements_by_id()
@@ -48,6 +62,13 @@ defmodule Graphvix.Subgraph do
       "v#{v1} -> v#{v2} #{attributes_to_dot(attributes)}" |> String.trim |> indent
     end)
   end
+
+  @doc false
+  def both_vertices_in_subgraph?(vertex_ids, vid1, vid2) do
+    vid1 in vertex_ids && vid2 in vertex_ids
+  end
+
+  ## Private
 
   defp subgraph_vertices_to_dot(subgraph_vertex_ids, vertices_from_graph) do
     vertices_in_this_subgraph(subgraph_vertex_ids, vertices_from_graph)
@@ -74,16 +95,12 @@ defmodule Graphvix.Subgraph do
     |> return_joined_list_or_nil()
   end
 
-  def edges_with_both_vertices_in_subgraph(%{vertex_ids: vertex_ids}, graph) do
+  defp edges_with_both_vertices_in_subgraph(%{vertex_ids: vertex_ids}, graph) do
     [_, etab, _] = Graphvix.Graph.digraph_tables(graph)
     edges = :ets.tab2list(etab)
     Enum.filter(edges, fn {_, vid1, vid2, _} ->
       both_vertices_in_subgraph?(vertex_ids, vid1, vid2)
     end)
-  end
-
-  def both_vertices_in_subgraph?(vertex_ids, vid1, vid2) do
-    vid1 in vertex_ids && vid2 in vertex_ids
   end
 
   defp id_prefix(_is_cluster = true), do: "cluster"

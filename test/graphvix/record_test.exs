@@ -2,8 +2,9 @@ defmodule Graphvix.RecordTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  alias Graphvix.Record
-  alias Graphvix.RecordSubset
+  alias Graphvix.{Record, RecordSubset, Graph}
+
+  doctest Record
 
   property "generating a simple record" do
     check all label <- string(:ascii, min_length: 3)

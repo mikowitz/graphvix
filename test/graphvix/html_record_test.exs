@@ -4,6 +4,7 @@ defmodule Graphvix.HTMLRecordTest do
 
   alias Graphvix.HTMLRecord
   import HTMLRecord, only: [tr: 1, td: 1, td: 2]
+  doctest HTMLRecord
 
   test "generating a basic HTML label" do
     cell1 = td("left")
@@ -14,13 +15,13 @@ defmodule Graphvix.HTMLRecordTest do
     record = HTMLRecord.new([row])
 
     assert HTMLRecord.to_label(record) == """
-    <<table>
+    <table>
       <tr>
         <td>left</td>
         <td>mid dle</td>
         <td>right</td>
       </tr>
-    </table>>
+    </table>
     """ |> String.trim
   end
 
@@ -54,7 +55,7 @@ defmodule Graphvix.HTMLRecordTest do
     record = HTMLRecord.new([row1, row2, row3])
 
     assert HTMLRecord.to_label(record) == """
-    <<table>
+    <table>
       <tr>
         <td rowspan="3">hello<br/>world</td>
         <td colspan="3">b</td>
@@ -69,12 +70,8 @@ defmodule Graphvix.HTMLRecordTest do
       <tr>
         <td colspan="3">f</td>
       </tr>
-    </table>>
+    </table>
     """ |> String.trim
-  end
-
-  test "with ports" do
-
   end
 end
 
