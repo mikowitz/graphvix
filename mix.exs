@@ -1,21 +1,29 @@
 defmodule Graphvix.Mixfile do
   use Mix.Project
 
+  @version "1.0.0"
+  @maintainers [
+    "Michael Berkowitz"
+  ]
+  @links %{
+    github: "https://github.com/mikowitz/graphvix"
+  }
+
   def project do
-    [app: :graphvix,
-     version: "1.0.0",
-     description: "Graphviz in Elixir",
-     package: [
-       licenses: ["MIT"],
-       maintainers: maintainers(),
-       links: %{
-         github: "https://github.com/mikowitz/graphvix"
-       }
-     ],
-     elixir: "~> 1.3",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps()]
+    [
+      app: :graphvix,
+      version: @version,
+      description: "Elixir interface for Graphviz",
+      package: [
+        maintainers: @maintainers,
+        licenses: ["MIT"],
+        links: @links
+      ],
+      elixir: "~> 1.3",
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      deps: deps()
+    ]
   end
 
   # Configuration for the OTP application
@@ -41,12 +49,6 @@ defmodule Graphvix.Mixfile do
       {:ex_doc, ">= 0.0.0", github: "elixir-lang/ex_doc", branch: "master", only: [:dev, :test]},
       {:mix_test_watch, "~> 0.2", only: [:dev, :test]},
       {:stream_data, "~> 0.1", only: [:dev, :test]}
-    ]
-  end
-
-  defp maintainers do
-    [
-      "Michael Berkowitz"
     ]
   end
 end
