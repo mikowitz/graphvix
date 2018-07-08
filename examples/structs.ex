@@ -1,14 +1,25 @@
-alias Graphvix.{Graph, Node, Edge, Cluster}
+alias Graphvix.{Graph, Record, RecordSubset}
 
-Graph.new(:structs)
+graph = Graph.new()
 
-{top, _} = Node.new(label: "<f0> left|<f1> mid\ dle|<f2> right", shape: "record")
-{onetwo, _} = Node.new(label: "<f0> one|<f1> two", shape: "record")
-{right, _} = Node.new(label: "hello\\nworld |{b |{c|<here> d|e}| f}| g | h", shape: "record")
+top_record = Record.new([{"f0", "left"}, {"f1", "mid\\ dle"}, {"f2", "right"}])
+one_two_record = Record.new([{"f0", "one"}, {"f1", "two"}])
+hello_record = Record.new([
+  "hello\\nworld",
+  Record.column([
+    "b",
+    Record.row(["c", {"here", "d"}, "e"]),
+    "f"
+  ]),
+  "g",
+  "h"
+])
 
-Edge.new(top, onetwo)
-Edge.new(top, right)
+{graph, top} = Graph.add_record(graph, top_record)
+{graph, one_two} = Graph.add_record(graph, one_two_record)
+{graph, hello} = Graph.add_record(graph, hello_record)
 
-Graph.graph
+{graph, _} = Graph.add_edge(graph, top, one_two)
+{graph, _} = Graph.add_edge(graph, top, hello)
 
-
+Graph.write(graph, "examples/structs.dot")

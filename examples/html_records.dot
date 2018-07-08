@@ -1,0 +1,36 @@
+digraph G {
+
+  v0 [label=<<table border="0" cellborder="1" cellspacing="0">
+    <tr>
+      <td port="f0">left</td>
+      <td port="f1">mid dle</td>
+      <td port="f2">right</td>
+    </tr>
+  </table>>,shape="plaintext"]
+  v1 [label=<<table border="0" cellborder="1" cellspacing="0">
+    <tr>
+      <td port="f0">one</td>
+      <td port="f1">two</td>
+    </tr>
+  </table>>,shape="plaintext"]
+  v2 [label=<<table border="0" cellborder="1" cellspacing="0">
+    <tr>
+      <td rowspan="3">hello<br/>world</td>
+      <td colspan="3">b</td>
+      <td rowspan="3">g</td>
+      <td rowspan="3">h</td>
+    </tr>
+    <tr>
+      <td>c</td>
+      <td port="here">d</td>
+      <td>e</td>
+    </tr>
+    <tr>
+      <td colspan="3">f</td>
+    </tr>
+  </table>>,shape="plaintext"]
+
+  v0:f1 -> v1:f0
+  v0:f2 -> v2:here
+
+}
