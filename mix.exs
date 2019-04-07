@@ -31,7 +31,7 @@ defmodule Graphvix.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :stream_data]
+      extra_applications: [:logger]
     ]
   end
 
