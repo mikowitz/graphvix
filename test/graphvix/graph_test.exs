@@ -2,13 +2,12 @@ defmodule Graphvix.GraphTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  alias Graphvix.{Graph, Record, HTMLRecord}
+  alias Graphvix.{Graph, HTMLRecord, Record}
   doctest Graph, except: [
     new: 1, digraph_tables: 1, to_dot: 1, write: 2, compile: 3, show: 2,
     set_global_properties: 3
   ]
   import HTMLRecord, only: [tr: 1, td: 1, td: 2]
-
 
   property "generating a graph with a vertex" do
     check all label <- string(:ascii, min_length: 3)
@@ -98,8 +97,6 @@ defmodule Graphvix.GraphTest do
       }
       """ |> String.trim
     end
-
-
   end
 
   property "adding a subgraph" do

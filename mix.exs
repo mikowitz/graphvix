@@ -48,7 +48,8 @@ defmodule Graphvix.Mixfile do
     [
       {:ex_doc, ">= 0.0.0", github: "elixir-lang/ex_doc", branch: "master", only: [:dev, :test]},
       {:mix_test_watch, "~> 0.2", only: [:dev, :test]},
-      {:stream_data, "~> 0.1", only: [:dev, :test]}
+      {:stream_data, "~> 0.1", only: [:dev, :test]},
+      {:credo, "~> 1.0.5", only: [:dev]}
     ]
   end
 end

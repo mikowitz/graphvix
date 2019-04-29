@@ -29,7 +29,7 @@ defmodule Graphvix.Graph do
   """
   import Graphvix.DotHelpers
 
-  alias Graphvix.{Record, HTMLRecord}
+  alias Graphvix.{HTMLRecord, Record}
 
   defstruct [
     digraph: nil,
@@ -186,7 +186,6 @@ defmodule Graphvix.Graph do
   def add_subgraph(graph, vertex_ids, properties \\ []) do
     _add_subgraph(graph, vertex_ids, properties, false)
   end
-
 
   @doc """
   Group a set of vertices into a cluster in a graph.
@@ -405,7 +404,7 @@ defmodule Graphvix.Graph do
   """
   def set_graph_property(graph, key, value) do
     new_properties = Keyword.put(graph.graph_properties, key, value)
-    %{ graph | graph_properties: new_properties }
+    %{graph | graph_properties: new_properties}
   end
 
   @doc """
@@ -458,7 +457,7 @@ defmodule Graphvix.Graph do
     properties = Keyword.get(graph.global_properties, attr_for)
     new_props = Keyword.put(properties, key, value)
     new_properties = Keyword.put(graph.global_properties, attr_for, new_props)
-    %{ graph | global_properties: new_properties }
+    %{graph | global_properties: new_properties}
   end
 
   defp subgraphs_to_dot(graph) do
@@ -542,7 +541,8 @@ defmodule Graphvix.Graph do
 
   defp graph_properties_to_dot(%{graph_properties: []}), do: nil
   defp graph_properties_to_dot(%{graph_properties: properties}) do
-    Enum.map(properties, fn {k, v} ->
+    properties
+    |> Enum.map(fn {k, v} ->
       attribute_to_dot(k, v)
     end)
     |> Enum.join("\n") |> indent
@@ -551,7 +551,7 @@ defmodule Graphvix.Graph do
   defp _add_subgraph(graph, vertex_ids, properties, is_cluster) do
     next_id = get_and_increment_subgraph_id(graph)
     subgraph = Graphvix.Subgraph.new(next_id, vertex_ids, is_cluster, properties)
-    new_graph = %{ graph | subgraphs: graph.subgraphs ++ [subgraph]}
+    new_graph = %{graph | subgraphs: graph.subgraphs ++ [subgraph]}
     {new_graph, subgraph.id}
   end
 end
