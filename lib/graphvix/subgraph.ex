@@ -56,7 +56,8 @@ defmodule Graphvix.Subgraph do
 
   @doc false
   def subgraph_edges_to_dot(subgraph, graph) do
-    edges_with_both_vertices_in_subgraph(subgraph, graph)
+    subgraph
+    |> edges_with_both_vertices_in_subgraph(graph)
     |> sort_elements_by_id()
     |> elements_to_dot(fn {_, [:"$v" | v1], [:"$v" | v2], attributes} ->
       "v#{v1} -> v#{v2} #{attributes_to_dot(attributes)}" |> String.trim |> indent
@@ -71,7 +72,8 @@ defmodule Graphvix.Subgraph do
   ## Private
 
   defp subgraph_vertices_to_dot(subgraph_vertex_ids, vertices_from_graph) do
-    vertices_in_this_subgraph(subgraph_vertex_ids, vertices_from_graph)
+    subgraph_vertex_ids
+    |> vertices_in_this_subgraph(vertices_from_graph)
     |> sort_elements_by_id()
     |> elements_to_dot(fn {[_ | id] , attributes} ->
       [
@@ -89,7 +91,7 @@ defmodule Graphvix.Subgraph do
   defp subgraph_properties_to_dot(%{subgraph_properties: properties}) do
     properties
     |> Enum.map(fn {key, value} ->
-      attribute_to_dot(key, value) |> indent
+      indent(attribute_to_dot(key, value))
     end)
     |> compact()
     |> return_joined_list_or_nil()

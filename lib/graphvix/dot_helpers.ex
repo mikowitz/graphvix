@@ -4,7 +4,6 @@ defmodule Graphvix.DotHelpers do
   into its DOT representation.
   """
 
-
   @doc """
   Convert top-level node and edge properties for a graph or subgraph into
   correct DOT notation.
@@ -40,7 +39,7 @@ defmodule Graphvix.DotHelpers do
   def attributes_to_dot(attributes) do
     [
       "[",
-      Enum.map(attributes, fn {key, value} ->
+      attributes |> Enum.map(fn {key, value} ->
         attribute_to_dot(key, value)
       end) |> Enum.join(","),
       "]"
@@ -108,7 +107,7 @@ defmodule Graphvix.DotHelpers do
   each element in the collection.
   """
   def elements_to_dot(table, formatting_func) when is_reference(table) or is_integer(table) do
-    :ets.tab2list(table) |> elements_to_dot(formatting_func)
+    table |> :ets.tab2list |> elements_to_dot(formatting_func)
   end
   def elements_to_dot(list, formatting_func) when is_list(list) do
     list

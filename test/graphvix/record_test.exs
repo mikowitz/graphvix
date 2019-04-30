@@ -2,7 +2,7 @@ defmodule Graphvix.RecordTest do
   use ExUnit.Case, async: true
   use ExUnitProperties
 
-  alias Graphvix.{Record, RecordSubset, Graph}
+  alias Graphvix.{Graph, Record, RecordSubset}
 
   doctest Record
 
@@ -75,4 +75,3 @@ defmodule Graphvix.RecordTest do
     end
   end
 end
-

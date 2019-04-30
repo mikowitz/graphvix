@@ -359,7 +359,7 @@ defmodule Graphvix.HTMLRecord do
     case attributes do
       [] -> ""
       attrs ->
-        " " <> (Enum.map(attrs, fn {k, v} ->
+        " " <> (attrs |> Enum.map(fn {k, v} ->
           ~s(#{hyphenize(k)}="#{v}")
         end) |> Enum.join(" "))
     end
@@ -370,7 +370,7 @@ defmodule Graphvix.HTMLRecord do
   end
 
   defp label_to_string(list) when is_list(list) do
-    Enum.map(list, &label_to_string/1) |> Enum.join("")
+    list |> Enum.map(&label_to_string/1) |> Enum.join("")
   end
   defp label_to_string(%{tag: :br}), do: "<br/>"
   defp label_to_string(%{tag: :font, cell: cell, attributes: attributes}) do

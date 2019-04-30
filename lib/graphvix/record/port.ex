@@ -21,5 +21,3 @@ defmodule Graphvix.Record.Port do
     "<#{port.port_name}> #{port.body}"
   end
 end
-
-

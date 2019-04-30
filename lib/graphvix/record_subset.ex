@@ -25,10 +25,10 @@ defmodule Graphvix.RecordSubset do
   @doc false
   def to_label(subset, top_level \\ false)
   def to_label(%{cells: cells, is_column: false}, _top_level = true) do
-    Enum.map(cells, &_to_label/1) |> Enum.join(" | ")
+    cells |> Enum.map(&_to_label/1) |> Enum.join(" | ")
   end
   def to_label(%{cells: cells}, _top_level) do
-    "{ " <> (Enum.map(cells, &_to_label/1) |> Enum.join(" | ")) <> " }"
+    "{ " <> (cells |> Enum.map(&_to_label/1) |> Enum.join(" | ")) <> " }"
   end
 
   defp _to_label(string) when is_bitstring(string), do: string

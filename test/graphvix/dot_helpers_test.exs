@@ -1,6 +1,6 @@
 defmodule Graphvix.DotHelpersTest do
   use ExUnit.Case, async: true
 
-  alias Graphvix.{Graph, DotHelpers}
+  alias Graphvix.{DotHelpers, Graph}
   doctest DotHelpers
 end

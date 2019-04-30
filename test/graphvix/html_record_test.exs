@@ -74,4 +74,3 @@ defmodule Graphvix.HTMLRecordTest do
     """ |> String.trim
   end
 end
-
