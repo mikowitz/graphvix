@@ -66,6 +66,7 @@ defmodule Graphvix.DotHelpers do
     ~s(label=<#{value}>)
   end
   def attribute_to_dot(key, value) do
+    value = Regex.replace(~r/"/, value, "\\\"")
     ~s(#{key}="#{value}")
   end
 
