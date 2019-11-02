@@ -17,11 +17,12 @@ defmodule Graphvix.Subgraph do
     vertex_ids: [],
     global_properties: [node: [], edge: []],
     subgraph_properties: [],
-    is_cluster: false
+    is_cluster: false,
+    subgraphs: []
   ]
 
   @doc false
-  def new(id, vertex_ids, is_cluster \\ false, properties \\ []) do
+  def new(id, vertex_ids, is_cluster \\ false, properties \\ [], subgraphs \\ []) do
     node_properties = Keyword.get(properties, :node, [])
     edge_properties = Keyword.get(properties, :edge, [])
     subgraph_properties = properties |> Keyword.delete(:node) |> Keyword.delete(:edge)
@@ -33,12 +34,14 @@ defmodule Graphvix.Subgraph do
         node: node_properties,
         edge: edge_properties
       ],
-      subgraph_properties: subgraph_properties
+      subgraph_properties: subgraph_properties,
+      subgraphs: []
     }
   end
 
   @doc false
-  def to_dot(subgraph, graph) do
+  def to_dot(subgraph, graph, levels \\ 1) 
+  def to_dot(subgraph, graph, levels) do
     [vtab, _, _] = Graphvix.Graph.digraph_tables(graph)
     vertices_from_graph = :ets.tab2list(vtab)
     [
@@ -47,10 +50,13 @@ defmodule Graphvix.Subgraph do
       subgraph_properties_to_dot(subgraph),
       subgraph_vertices_to_dot(subgraph.vertex_ids, vertices_from_graph),
       subgraph_edges_to_dot(subgraph, graph),
+      Enum.reduce(subgraph.subgraphs, "" , fn sg, acc ->
+        acc <> to_dot(sg, graph, levels + 1)
+      end),
       "}"
     ] |> List.flatten
     |> compact()
-    |> Enum.map(&indent/1)
+    |> Enum.map(fn val -> indent(val,levels) end)
     |> Enum.join("\n\n")
   end
 
