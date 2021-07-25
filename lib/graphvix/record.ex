@@ -37,13 +37,13 @@ defmodule Graphvix.Record do
 
   ## Examples
 
-  A record's can be a simple text label
+  A record's can be a simple text label:
 
       iex> record = Record.new("just a plain text record")
       iex> Record.to_label(record)
       "just a plain text record"
 
-  or it can be a single row or column of strings
+  or it can be a single row or column of strings:
 
       iex> import Record, only: [row: 1]
       iex> record = Record.new(row(["a", "b", "c"]))
@@ -55,7 +55,7 @@ defmodule Graphvix.Record do
       iex> Record.to_label(record)
       "{ a | b | c }"
 
-  or it can be a series of nested rows and columns
+  or it can be a series of nested rows and columns:
 
       iex> import Record, only: [row: 1, column: 1]
       iex> record = Record.new(
@@ -76,7 +76,7 @@ defmodule Graphvix.Record do
       iex> Record.to_label(record)
       "a | { b | c | d } | { e | f | { g | h | i } }"
 
-  passing a plain list defaults to a row
+  Passing a plain list defaults to a row:
 
       iex> record = Record.new(["a", "b", "c"])
       iex> Record.to_label(record)
@@ -84,7 +84,7 @@ defmodule Graphvix.Record do
 
   Each cell can contain a plain string, or a string with a port attached,
   allowing edges to be drawn directly to and from that cell, rather than the
-  vertex. Ports are created by passing a tuple of the form `{port_name, label}`
+  vertex. Ports are created by passing a tuple of the form `{port_name, label}`.
 
       iex> record = Record.new(["a", {"port_b", "b"}])
       iex> Record.to_label(record)

@@ -1,18 +1,23 @@
 # Graphvix
 
 [![Build Status](https://travis-ci.org/mikowitz/graphvix.svg?branch=master)](https://travis-ci.org/mikowitz/graphvix)
+[![Module Version](https://img.shields.io/hexpm/v/graphvix.svg)](https://hex.pm/packages/graphvix)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/graphvix/)
+[![Total Download](https://img.shields.io/hexpm/dt/graphvix.svg)](https://hex.pm/packages/graphvix)
+[![License](https://img.shields.io/hexpm/l/graphvix.svg)](https://github.com/mikowitz/graphvix/blob/master/LICENSE.md)
+[![Last Updated](https://img.shields.io/github/last-commit/mikowitz/graphvix.svg)](https://github.com/mikowitz/graphvix/commits/master)
 
-Graphviz in Elixir
+Graphviz in Elixir.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
-
-1. Add `graphvix` to your list of dependencies in `mix.exs`:
+Add `:graphvix` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:graphvix, "~> 1.0.0"}]
+  [
+    {:graphvix, "~> 1.0.0"}
+  ]
 end
 ```
 
@@ -70,25 +75,25 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
 
 ## Basic Usage
 
-1. Alias the necessary module for ease of use
+1. Alias the necessary module for ease of use:
 
     ```elixir
     alias Graphvix.Graph
     ```
 
-1. Create a new graph.
+2. Create a new graph:
 
     ```elixir
     graph = Graph.new()
     ```
 
-1. Add a simple vertex with a label
+3. Add a simple vertex with a label:
 
     ```elixir
     {graph, vertex_id} = Graph.add_vertex(graph, "vertex label")
     ```
 
-1. Add a vertex with a label and attributes
+4. Add a vertex with a label and attributes:
 
     ```elixir
     {graph, vertex2_id} = Graph.add_vertex(
@@ -98,7 +103,7 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
     )
     ```
 
-1. Add an edge between two existing vertices
+5. Add an edge between two existing vertices:
 
     ```elixir
     {graph, edge_id} = Graph.add_edge(
@@ -108,7 +113,7 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
     )
     ```
 
-1. Add a cluster containing one or more nodes
+6. Add a cluster containing one or more nodes:
 
     ```elixir
     {graph, cluster_id} = Graph.add_cluster(graph, [vertex_id, vertex2_id])
@@ -116,13 +121,13 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
 
 ## Records
 
-1. Alias the necessary module for ease of use
+1. Alias the necessary module for ease of use:
 
     ```elixir
     alias Graphvix.Record
     ```
 
-1. Create a simple record that contains only a row of cells
+2. Create a simple record that contains only a row of cells:
 
     ```elixir
     record = Record.new(Record.row(["a", "b", "c"]))
@@ -133,13 +138,13 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
       ```elixir
       record = Record.new(["a", "b", "c"])
       ```
-1. Create a record with a single column of cells
+3. Create a record with a single column of cells:
 
     ```elixir
     record = Record.new(Record.column(["a", "b", "c"]))
     ```
 
-1. Create a record with nested rows and columns
+4. Create a record with nested rows and columns:
 
     ```elixir
     import Graphvix.Record, only: [column: 1, row: 1]
@@ -157,7 +162,7 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
 
 ### Ports
 
-1. Ports can be attached to record cells by passing a tuple of `{port_name, label}`
+1. Ports can be attached to record cells by passing a tuple of `{port_name, label}`:
 
     ```elixir
     import Graphvix.Record, only: [column: 1, row: 1]
@@ -173,7 +178,7 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
     ])
     ```
 
-1. Edges can be drawn from specific ports on a record
+2. Edges can be drawn from specific ports on a record:
 
     ```elixir
     {graph, record_id} = Graph.add_record(graph, record)
@@ -184,13 +189,13 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
 
 ## HTML Table Records
 
-1. Alias the necessary modules for ease of use
+1. Alias the necessary modules for ease of use:
 
     ```elixir
     alias Graphvix.HTMLRecord
     ```
 
-1. Create a simple table
+2. Create a simple table:
 
     ```elixir
     record = HTMLRecord.new([
@@ -207,7 +212,7 @@ See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
     ])
     ```
 
-1. Or a more complex table
+3. Or a more complex table:
 
     ```elixir
     record = HTMLRecord.new([
@@ -231,7 +236,7 @@ the documentation for `Graphvix.HTMLRecord` for examples.
 
 ## Output
 
-1. Convert the graph to DOT format
+1. Convert the graph to DOT format:
 
     ```elixir
     Graph.to_dot(graph)
@@ -246,13 +251,13 @@ the documentation for `Graphvix.HTMLRecord` for examples.
     }
     """
     ```
-1. Save the graph to a .dot file, with an optional filename
+2. Save the graph to a `.dot` file, with an optional filename:
 
     ```elixir
     Graph.write(graph, "first_graph") #=> creates "first_graph.dot"
     ```
 
-1. Compile the graph to a .png or .pdf using the `dot` command
+3. Compile the graph to a `.png` or `.pdf` using the `dot` command:
 
     ```elixir
     ## creates first_graph.dot and first_graph.png
@@ -262,7 +267,7 @@ the documentation for `Graphvix.HTMLRecord` for examples.
     Graph.compile(graph, "first_graph", :pdf)
     ```
 
-1. Compile the graph using the `dot` command and open the resulting file
+4. Compile the graph using the `dot` command and open the resulting file:
 
     ```elixir
     ## creates first_graph.dot and first_graph.pdf; opens first_graph.png
@@ -272,3 +277,8 @@ the documentation for `Graphvix.HTMLRecord` for examples.
     Graph.graph(graph, "first_graph", :pdf)
     ```
 
+## Copyright and License
+
+Copyright (c) 2016 Michael Berkowitz
+
+This software is released under the [MIT License](./LICENSE.md).

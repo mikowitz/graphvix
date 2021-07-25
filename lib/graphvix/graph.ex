@@ -3,7 +3,7 @@ defmodule Graphvix.Graph do
   Models a directed graph that can be written to disk and displayed using
   [Graphviz](http://www.graphviz.org/) notation.
 
-  Graphs are created by
+  Graphs are created by:
 
   * adding vertices of various formats to a graph
     * `add_vertex/3`
@@ -18,7 +18,7 @@ defmodule Graphvix.Graph do
     * `set_graph_property/3`
     * `set_global_properties/3`
 
-  They can then be
+  They can then be:
 
   * written to disk in `.dot` format
     * `write/2`
