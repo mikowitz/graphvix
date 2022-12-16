@@ -21,15 +21,13 @@ defmodule Graphvix.Record do
 
   """
 
-  defstruct [
-    body: nil,
-    properties: []
-  ]
+  defstruct body: nil,
+            properties: []
 
   alias __MODULE__
   alias Graphvix.RecordSubset
 
-  @type body :: String.t | [any()] | RecordSubset.t()
+  @type body :: String.t() | [any()] | RecordSubset.t()
   @type t :: %__MODULE__{body: Record.t(), properties: keyword()}
 
   @doc """
@@ -102,12 +100,15 @@ defmodule Graphvix.Record do
 
   """
   def new(body, properties \\ [])
+
   def new(string, properties) when is_bitstring(string) do
     %__MODULE__{body: string, properties: properties}
   end
+
   def new(list, properties) when is_list(list) do
     %__MODULE__{body: Graphvix.RecordSubset.new(list), properties: properties}
   end
+
   def new(row_or_column = %Graphvix.RecordSubset{}, properties) do
     %__MODULE__{body: row_or_column, properties: properties}
   end
@@ -142,9 +143,11 @@ defmodule Graphvix.Record do
 
   @doc false
   def to_label(record)
+
   def to_label(%{body: string}) when is_bitstring(string) do
     string
   end
+
   def to_label(%{body: subset = %RecordSubset{}}) do
     RecordSubset.to_label(subset, true)
   end

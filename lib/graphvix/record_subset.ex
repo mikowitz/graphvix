@@ -6,10 +6,8 @@ defmodule Graphvix.RecordSubset do
   for `Graphvix.Record`.
   """
 
-  defstruct [
-    cells: [],
-    is_column: false
-  ]
+  defstruct cells: [],
+            is_column: false
 
   alias __MODULE__
 
@@ -24,16 +22,20 @@ defmodule Graphvix.RecordSubset do
 
   @doc false
   def to_label(subset, top_level \\ false)
+
   def to_label(%{cells: cells, is_column: false}, _top_level = true) do
-    cells |> Enum.map(&_to_label/1) |> Enum.join(" | ")
+    cells |> Enum.map_join(" | ", &_to_label/1)
   end
+
   def to_label(%{cells: cells}, _top_level) do
-    "{ " <> (cells |> Enum.map(&_to_label/1) |> Enum.join(" | ")) <> " }"
+    "{ " <> (cells |> Enum.map_join(" | ", &_to_label/1)) <> " }"
   end
 
   defp _to_label(string) when is_bitstring(string), do: string
+
   defp _to_label({port, string}) do
     "<#{port}> #{string}"
   end
+
   defp _to_label(subset = %__MODULE__{}), do: __MODULE__.to_label(subset)
 end

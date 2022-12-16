@@ -119,30 +119,29 @@ defmodule Graphvix.HTMLRecord do
 
   """
 
-  defstruct [
-    rows: [],
-    attributes: []
-  ]
+  defstruct rows: [],
+            attributes: []
 
   @type t :: %__MODULE__{
-    rows: [__MODULE__.tr],
-    attributes: keyword()
-  }
-  @type tr :: %{cells: __MODULE__.cells}
+          rows: [__MODULE__.tr()],
+          attributes: keyword()
+        }
+  @type tr :: %{cells: __MODULE__.cells()}
 
   @type br :: %{tag: :br}
-  @type font :: %{tag: :font, cell: __MODULE__.one_or_more_cells, attributes: keyword()}
-  @type td :: %{label: __MODULE__.one_or_more_cells, attributes: keyword()}
+  @type font :: %{tag: :font, cell: __MODULE__.one_or_more_cells(), attributes: keyword()}
+  @type td :: %{label: __MODULE__.one_or_more_cells(), attributes: keyword()}
 
-  @type cell :: String.t |
-    __MODULE__.br |
-    __MODULE__.font |
-    __MODULE__.td |
-    __MODULE__.t
+  @type cell ::
+          String.t()
+          | __MODULE__.br()
+          | __MODULE__.font()
+          | __MODULE__.td()
+          | __MODULE__.t()
 
-  @type cells :: [__MODULE__.cell]
+  @type cells :: [__MODULE__.cell()]
 
-  @type one_or_more_cells :: __MODULE__.cell | [__MODULE__.cell]
+  @type one_or_more_cells :: __MODULE__.cell() | [__MODULE__.cell()]
 
   alias Graphvix.HTMLRecord
   import Graphvix.DotHelpers, only: [indent: 1]
@@ -334,7 +333,9 @@ defmodule Graphvix.HTMLRecord do
       "<table#{attributes_for_label(attributes)}>",
       Enum.map(rows, &tr_to_label/1),
       "</table>"
-    ] |> List.flatten |> Enum.join("\n")
+    ]
+    |> List.flatten()
+    |> Enum.join("\n")
   end
 
   ## Private
@@ -344,7 +345,10 @@ defmodule Graphvix.HTMLRecord do
       "<tr>",
       Enum.map(cells, &td_to_label/1),
       "</tr>"
-    ] |> List.flatten |> Enum.join("\n") |> indent
+    ]
+    |> List.flatten()
+    |> Enum.join("\n")
+    |> indent
   end
 
   defp td_to_label(%{label: label, attributes: attributes}) do
@@ -352,16 +356,22 @@ defmodule Graphvix.HTMLRecord do
       "<td#{attributes_for_label(attributes)}>",
       label_to_string(label),
       "</td>"
-    ] |> Enum.join("") |> indent()
+    ]
+    |> Enum.join("")
+    |> indent()
   end
 
   defp attributes_for_label(attributes) do
     case attributes do
-      [] -> ""
+      [] ->
+        ""
+
       attrs ->
-        " " <> (attrs |> Enum.map(fn {k, v} ->
-          ~s(#{hyphenize(k)}="#{v}")
-        end) |> Enum.join(" "))
+        " " <>
+          (attrs
+           |> Enum.map_join(" ", fn {k, v} ->
+             ~s(#{hyphenize(k)}="#{v}")
+           end))
     end
   end
 
@@ -370,18 +380,23 @@ defmodule Graphvix.HTMLRecord do
   end
 
   defp label_to_string(list) when is_list(list) do
-    list |> Enum.map(&label_to_string/1) |> Enum.join("")
+    list |> Enum.map_join("", &label_to_string/1)
   end
+
   defp label_to_string(%{tag: :br}), do: "<br/>"
+
   defp label_to_string(%{tag: :font, cell: cell, attributes: attributes}) do
     [
       "<font#{attributes_for_label(attributes)}>",
       label_to_string(cell),
       "</font>"
-    ] |> Enum.join("")
+    ]
+    |> Enum.join("")
   end
+
   defp label_to_string(table = %HTMLRecord{}) do
     HTMLRecord.to_label(table)
   end
+
   defp label_to_string(string) when is_bitstring(string), do: string
 end
