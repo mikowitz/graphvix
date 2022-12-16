@@ -6,10 +6,8 @@ defmodule Graphvix.Record.Port do
   ports with cells.
   """
 
-  defstruct [
-    body: nil,
-    port_name: nil
-  ]
+  defstruct body: nil,
+            port_name: nil
 
   @doc false
   def new(body, port_name) do

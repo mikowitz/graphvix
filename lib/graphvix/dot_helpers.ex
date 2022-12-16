@@ -18,12 +18,12 @@ defmodule Graphvix.DotHelpers do
   """
   def global_properties_to_dot(graph) do
     [:node, :edge]
-      |> Enum.map(&_global_properties_to_dot(graph, &1))
-      |> compact()
-      |> case do
-        [] -> nil
-        global_props -> Enum.join(global_props, "\n")
-      end
+    |> Enum.map(&_global_properties_to_dot(graph, &1))
+    |> compact()
+    |> case do
+      [] -> nil
+      global_props -> Enum.join(global_props, "\n")
+    end
   end
 
   @doc """
@@ -36,14 +36,17 @@ defmodule Graphvix.DotHelpers do
 
   """
   def attributes_to_dot([]), do: nil
+
   def attributes_to_dot(attributes) do
     [
       "[",
-      attributes |> Enum.map(fn {key, value} ->
+      attributes
+      |> Enum.map_join(",", fn {key, value} ->
         attribute_to_dot(key, value)
-      end) |> Enum.join(","),
+      end),
       "]"
-    ] |> Enum.join("")
+    ]
+    |> Enum.join("")
   end
 
   @doc """
@@ -65,6 +68,7 @@ defmodule Graphvix.DotHelpers do
   def attribute_to_dot(:label, value = "<table" <> _) do
     ~s(label=<#{value}>)
   end
+
   def attribute_to_dot(key, value) do
     ~s(#{key}="#{value}")
   end
@@ -88,12 +92,14 @@ defmodule Graphvix.DotHelpers do
 
   """
   def indent(string, depth \\ 1)
+
   def indent(string, depth) when is_bitstring(string) do
     string
     |> String.split("\n")
     |> indent(depth)
     |> Enum.join("\n")
   end
+
   def indent(list, depth) when is_list(list) do
     Enum.map(list, fn s -> String.duplicate("  ", depth) <> s end)
   end
@@ -107,8 +113,9 @@ defmodule Graphvix.DotHelpers do
   each element in the collection.
   """
   def elements_to_dot(table, formatting_func) when is_reference(table) or is_integer(table) do
-    table |> :ets.tab2list |> elements_to_dot(formatting_func)
+    table |> :ets.tab2list() |> elements_to_dot(formatting_func)
   end
+
   def elements_to_dot(list, formatting_func) when is_list(list) do
     list
     |> sort_elements_by_id()
@@ -138,6 +145,7 @@ defmodule Graphvix.DotHelpers do
   """
   def return_joined_list_or_nil(list, joiner \\ "\n")
   def return_joined_list_or_nil([], _joiner), do: nil
+
   def return_joined_list_or_nil(list, joiner) do
     Enum.join(list, joiner)
   end

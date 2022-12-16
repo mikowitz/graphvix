@@ -31,20 +31,20 @@ defmodule Graphvix.Graph do
 
   alias Graphvix.{HTMLRecord, Record}
 
-  defstruct [
-    digraph: nil,
-    global_properties: [node: [], edge: []],
-    graph_properties: [],
-    subgraphs: []
-  ]
+  defstruct digraph: nil,
+            global_properties: [node: [], edge: []],
+            graph_properties: [],
+            subgraphs: []
 
   @type digraph :: {:digraph, reference(), reference(), reference(), boolean()}
   @type t :: %__MODULE__{
-    digraph: digraph(),
-    global_properties: keyword(),
-    graph_properties: keyword(),
-    subgraphs: list()
-  }
+          digraph: digraph(),
+          global_properties: keyword(),
+          graph_properties: keyword(),
+          subgraphs: list()
+        }
+
+  @compiler Application.compile_env(:graphvix, :compiler, "dot")
 
   @doc """
   Creates a new `Graph` struct.
@@ -75,6 +75,7 @@ defmodule Graphvix.Graph do
     digraph = :digraph.new()
     [_, _, ntab] = _digraph_tables(digraph)
     true = :ets.insert(ntab, {:"$sid", 0})
+
     %__MODULE__{
       digraph: digraph,
       global_properties: [
@@ -102,6 +103,7 @@ defmodule Graphvix.Graph do
 
   """
   def digraph_tables(%__MODULE__{digraph: graph}), do: _digraph_tables(graph)
+
   defp _digraph_tables({:digraph, vtab, etab, ntab, _}) do
     [vtab, etab, ntab]
   end
@@ -151,12 +153,15 @@ defmodule Graphvix.Graph do
 
   """
   def add_edge(graph, out_from, in_to, attributes \\ [])
+
   def add_edge(graph, {id = [:"$v" | _], port}, in_to, attributes) do
     add_edge(graph, id, in_to, Keyword.put(attributes, :outport, port))
   end
+
   def add_edge(graph, out_from, {id = [:"$v" | _], port}, attributes) do
     add_edge(graph, out_from, id, Keyword.put(attributes, :inport, port))
   end
+
   def add_edge(graph, out_from, in_to, attributes) do
     eid = :digraph.add_edge(graph.digraph, out_from, in_to, attributes)
     {graph, eid}
@@ -309,9 +314,9 @@ defmodule Graphvix.Graph do
       vertices_to_dot(graph),
       edges_to_dot(graph),
       "}"
-    ] |> Enum.reject(&is_nil/1)
+    ]
+    |> Enum.reject(&is_nil/1)
     |> Enum.join("\n\n")
-
   end
 
   @doc """
@@ -354,11 +359,17 @@ defmodule Graphvix.Graph do
   """
   def compile(graph, filename, format \\ :png) do
     :ok = write(graph, filename)
-    {_, 0} = System.cmd("dot", [
-      "-T", "#{format}", filename <> ".dot",
-      "-o", filename <> ".#{format}"
-    ])
-    :ok
+
+    {output, 0} =
+      System.cmd(@compiler, [
+        "-T",
+        "#{format}",
+        filename <> ".dot",
+        "-o",
+        filename <> ".#{format}"
+      ])
+
+    {:ok, String.trim(output)}
   end
 
   @doc """
@@ -462,24 +473,31 @@ defmodule Graphvix.Graph do
 
   defp subgraphs_to_dot(graph) do
     case graph.subgraphs do
-      [] -> nil
+      [] ->
+        nil
+
       subgraphs ->
         subgraphs
-        |> Enum.map(&Graphvix.Subgraph.to_dot(&1, graph))
-        |> Enum.join("\n\n")
+        |> Enum.map_join("\n\n", &Graphvix.Subgraph.to_dot(&1, graph))
     end
   end
 
   defp vertices_to_dot(graph) do
     [vtab, _, _] = digraph_tables(graph)
+
     elements_to_dot(vtab, fn {vid = [_ | id], attributes} ->
       case in_a_subgraph?(vid, graph) do
-        true -> nil
+        true ->
+          nil
+
         false ->
           [
             "v#{id}",
             attributes_to_dot(attributes)
-          ] |> compact() |> Enum.join(" ") |> indent()
+          ]
+          |> compact()
+          |> Enum.join(" ")
+          |> indent()
       end
     end)
   end
@@ -489,16 +507,21 @@ defmodule Graphvix.Graph do
 
   defp edges_to_dot(graph) do
     [_, etab, _] = digraph_tables(graph)
+
     elements_to_dot(etab, fn edge = {_, [:"$v" | v1], [:"$v" | v2], attributes} ->
       case edge in edges_contained_in_subgraphs(graph) do
-        true -> nil
+        true ->
+          nil
+
         false ->
           v_out = edge_side_with_port(v1, Keyword.get(attributes, :outport))
           v_in = edge_side_with_port(v2, Keyword.get(attributes, :inport))
           attributes = attributes |> Keyword.delete(:outport) |> Keyword.delete(:inport)
-          ["#{v_out} -> #{v_in}",
-           attributes_to_dot(attributes)
-          ] |> compact() |> Enum.join(" ") |> indent()
+
+          ["#{v_out} -> #{v_in}", attributes_to_dot(attributes)]
+          |> compact()
+          |> Enum.join(" ")
+          |> indent()
       end
     end)
   end
@@ -532,6 +555,7 @@ defmodule Graphvix.Graph do
   defp edges_contained_in_subgraphs(graph = %__MODULE__{subgraphs: subgraphs}) do
     [_, etab, _] = digraph_tables(graph)
     edges = :ets.tab2list(etab)
+
     Enum.filter(edges, fn {_, vid1, vid2, _} ->
       Enum.any?(subgraphs, fn subgraph ->
         Graphvix.Subgraph.both_vertices_in_subgraph?(subgraph.vertex_ids, vid1, vid2)
@@ -540,12 +564,13 @@ defmodule Graphvix.Graph do
   end
 
   defp graph_properties_to_dot(%{graph_properties: []}), do: nil
+
   defp graph_properties_to_dot(%{graph_properties: properties}) do
     properties
-    |> Enum.map(fn {k, v} ->
+    |> Enum.map_join("\n", fn {k, v} ->
       attribute_to_dot(k, v)
     end)
-    |> Enum.join("\n") |> indent
+    |> indent
   end
 
   defp _add_subgraph(graph, vertex_ids, properties, is_cluster) do
