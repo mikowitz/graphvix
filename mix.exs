@@ -1,7 +1,7 @@
 defmodule Graphvix.Mixfile do
   use Mix.Project
 
-  @version "1.1.0"
+  @version "2.0.0"
   @maintainers [
     "Michael Berkowitz"
   ]
@@ -19,7 +19,7 @@ defmodule Graphvix.Mixfile do
         licenses: ["MIT"],
         links: @links
       ],
-      elixir: "~> 1.13",
+      elixir: "~> 1.20",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -46,10 +46,10 @@ defmodule Graphvix.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.31", only: :dev, runtime: false},
-      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:stream_data, "~> 1.0", only: :test}
+      {:credo, "~> 1.7.19", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.40.4", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.4.0", only: [:dev, :test], runtime: false},
+      {:stream_data, "~> 1.4.0", only: :test}
     ]
   end
 end
