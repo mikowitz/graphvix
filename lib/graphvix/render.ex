@@ -3,15 +3,38 @@ defmodule Graphvix.Render do
   # DOT rendering for Graphvix.to_dot/1, write/2 and compile/3.
   # See contracts/graphvix/render.intent.md.
 
-  alias Graphvix.{Cluster, Edge, Graph, HTMLRecord, Node, Record, Subgraph}
+  require Logger
+
+  alias Graphvix.{Cluster, Edge, Graph, HTMLRecord, Node, Record, Subgraph, Warnings}
 
   @compass_points [:n, :ne, :e, :se, :s, :sw, :w, :nw, :c, :_]
 
   @doc false
   def compass_points, do: @compass_points
 
+  # Public entry points log every warning once (render.I13), before any
+  # output is produced; the private helpers below never log.
+
   @spec to_dot(Graph.t()) :: String.t()
   def to_dot(%Graph{} = graph) do
+    log_warnings(graph)
+    dot(graph)
+  end
+
+  @spec write(Graph.t(), Path.t()) :: :ok | {:error, File.posix()}
+  def write(%Graph{} = graph, basename) do
+    log_warnings(graph)
+    write_dot(graph, basename)
+  end
+
+  defp log_warnings(graph) do
+    for warning <- Warnings.warnings(graph), do: Logger.warning("Graphvix: #{inspect(warning)}")
+    :ok
+  end
+
+  defp write_dot(graph, basename), do: File.write(basename <> ".dot", dot(graph))
+
+  defp dot(graph) do
     header = if graph.strict, do: "strict ", else: ""
     kind = if graph.digraph, do: "digraph", else: "graph"
     op = if graph.digraph, do: "->", else: "--"
@@ -23,17 +46,13 @@ defmodule Graphvix.Render do
     Enum.join(lines, "\n") <> "\n"
   end
 
-  @spec write(Graph.t(), Path.t()) :: :ok | {:error, File.posix()}
-  def write(%Graph{} = graph, basename) do
-    File.write(basename <> ".dot", to_dot(graph))
-  end
-
   # render.I15: dot is looked up on PATH at call time; failures are returned.
   @spec compile(Graph.t(), Path.t(), atom()) :: {:ok, Path.t()} | {:error, term()}
   def compile(%Graph{} = graph, basename, format) do
     output = "#{basename}.#{format}"
+    log_warnings(graph)
 
-    with :ok <- write(graph, basename),
+    with :ok <- write_dot(graph, basename),
          dot when is_binary(dot) <- System.find_executable("dot") || {:error, :dot_not_found},
          {_, 0} <-
            System.cmd(dot, ["-T#{format}", basename <> ".dot", "-o", output],
