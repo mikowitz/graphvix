@@ -1,5 +1,10 @@
 {
   "apps": {
+    "graphvix": {
+      "active": 11,
+      "coverage": 1.0,
+      "covered": 11
+    },
     "system": {
       "active": 0,
       "coverage": null,
@@ -7,6 +12,132 @@
     }
   },
   "components": {
+    "graphvix.builder": {
+      "active": 11,
+      "app": "graphvix",
+      "coverage": 1.0,
+      "covered": 11,
+      "form": "light",
+      "obligations": {
+        "graphvix.builder.I1": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test new graph has documented defaults",
+            "test options override digraph and strict"
+          ]
+        },
+        "graphvix.builder.I10": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a node in several containers is kept in each"
+          ]
+        },
+        "graphvix.builder.I11": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test subgraphs and clusters cannot hold edges"
+          ]
+        },
+        "graphvix.builder.I2": {
+          "failing": 0,
+          "kind": "non_functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property construction never changes its input",
+            "test cluster builders never change their input"
+          ]
+        },
+        "graphvix.builder.I3": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test atom string and integer ids name the same node",
+            "test subgraph and cluster ids are stored as strings"
+          ]
+        },
+        "graphvix.builder.I4": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test re-adding a node inside a cluster merges within the cluster",
+            "test re-adding a node merges and keeps first position"
+          ]
+        },
+        "graphvix.builder.I5": {
+          "failing": 0,
+          "kind": "ordering",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property lists keep definition order"
+          ]
+        },
+        "graphvix.builder.I6": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test an edge label is an ordinary attribute",
+            "test edges normalize endpoints and allow repeats and undeclared nodes"
+          ]
+        },
+        "graphvix.builder.I7": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test atom and string keys name the same attribute across keyword lists and maps",
+            "test set_attributes targets graph node and edge maps"
+          ]
+        },
+        "graphvix.builder.I8": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test clusters and subgraphs nest and return their own type",
+            "test set_attributes on a cluster or subgraph rejects :edge"
+          ]
+        },
+        "graphvix.builder.I9": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test re-adding a cluster or subgraph id appends"
+          ]
+        }
+      }
+    },
     "system": {
       "active": 0,
       "app": "system",
@@ -19,8 +150,8 @@
   "covenant": "0.2.0",
   "mode": "static",
   "totals": {
-    "active": 0,
-    "coverage": null,
-    "covered": 0
+    "active": 11,
+    "coverage": 1.0,
+    "covered": 11
   }
 }

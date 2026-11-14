@@ -6,6 +6,7 @@
     - option: Keep :digraph as the store
       rejected: Mutable shared state; graphs cannot be compared or chained.
   evidence: Graphvix 1.x Graph.new/1 creates a :digraph and every add_* mutates it.
+  invariant: graphvix.builder.I2
   approved_by: mikowitz (2026-11-14)
 
 - id: warnings-not-errors
@@ -24,6 +25,7 @@
   alternatives:
     - option: Subgraph and Cluster get edges and add_edge
       rejected: Edge endpoints would count toward cluster membership, complicating placement and its warnings.
+  invariant: [graphvix.builder.I8, graphvix.builder.I11]
   approved_by: mikowitz (2026-11-14)
   expires: When edges inside subgraphs are wanted; adding them is additive.
 

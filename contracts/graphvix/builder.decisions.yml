@@ -1,0 +1,28 @@
+- id: same-container-merge
+  date: "2026-11-14"
+  decision: Re-adding a node id in the same container merges attributes into the first entry, later values winning, and keeps the first position.
+  driver: Graphviz merges repeated node statements the same way and places the node at its earliest statement.
+  alternatives:
+    - option: Replace the node with the later call
+      rejected: Silently drops the earlier attributes.
+    - option: Keep both entries
+      rejected: The struct no longer has one entry per node per container.
+  invariant: graphvix.builder.I4
+  approved_by: mikowitz (2026-11-14)
+
+- id: keep-cross-container-occurrences
+  date: "2026-11-14"
+  decision: Occurrences of a node id in different containers are all kept as built; conflicts are warnings, not merges.
+  driver: Graphviz resolves cross-cluster conflicts silently; the caller must be told rather than have the library pick for them.
+  invariant: graphvix.builder.I10
+  approved_by: mikowitz (2026-11-14)
+
+- id: string-attribute-keys
+  date: "2026-11-14"
+  decision: Attribute keys are stored as strings whatever form they were given in.
+  driver: Atom and string keys must merge into one attribute, and converting user strings to atoms would leak atoms.
+  alternatives:
+    - option: Store atoms
+      rejected: String.to_atom on user input; string keys would not merge with atom keys.
+  invariant: graphvix.builder.I7
+  approved_by: mikowitz (2026-11-14)
