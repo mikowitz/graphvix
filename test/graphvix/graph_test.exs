@@ -20,7 +20,7 @@ defmodule Graphvix.GraphTest do
   property "generating a graph with a vertex" do
     check all(label <- string(:ascii, min_length: 3)) do
       graph = Graph.new()
-      {graph, _vid} = Graph.add_vertex(graph, label, color: "blue")
+      {graph, _vid} = Graph.add_node(graph, label, color: "blue")
 
       assert Graph.to_dot(graph) ==
                """
@@ -43,7 +43,7 @@ defmodule Graphvix.GraphTest do
       record = Record.new(labels, color: "blue")
       graph = Graph.new()
       {graph, v0} = Graph.add_record(graph, record)
-      {graph, v1} = Graph.add_vertex(graph, label, color: color)
+      {graph, v1} = Graph.add_node(graph, label, color: color)
       {graph, _eid} = Graph.add_edge(graph, v0, v1)
 
       assert Graph.to_dot(graph) ==
@@ -66,7 +66,7 @@ defmodule Graphvix.GraphTest do
       graph = Graph.new()
       record = Record.new([l1, {p1, l2}])
       {graph, v0} = Graph.add_record(graph, record)
-      {graph, v1} = Graph.add_vertex(graph, l3)
+      {graph, v1} = Graph.add_node(graph, l3)
       {graph, _eid} = Graph.add_edge(graph, {v0, p1}, v1)
 
       assert Graph.to_dot(graph) ==
@@ -97,7 +97,7 @@ defmodule Graphvix.GraphTest do
         ])
 
       {graph, v0} = Graph.add_html_record(graph, record)
-      {graph, v1} = Graph.add_vertex(graph, l3)
+      {graph, v1} = Graph.add_node(graph, l3)
       {graph, _eid} = Graph.add_edge(graph, {v0, p1}, v1)
 
       assert Graph.to_dot(graph) ==
@@ -123,7 +123,7 @@ defmodule Graphvix.GraphTest do
   property "adding a subgraph" do
     check all(label <- string(:ascii, min_length: 3)) do
       graph = Graph.new()
-      {graph, vid} = Graph.add_vertex(graph, label, color: "blue")
+      {graph, vid} = Graph.add_node(graph, label, color: "blue")
       {graph, _cid} = Graph.add_subgraph(graph, [vid])
 
       [subgraph] = graph.subgraphs
@@ -135,7 +135,7 @@ defmodule Graphvix.GraphTest do
   property "adding a cluster" do
     check all(label <- string(:ascii, min_length: 3)) do
       graph = Graph.new()
-      {graph, vid} = Graph.add_vertex(graph, label, color: "blue")
+      {graph, vid} = Graph.add_node(graph, label, color: "blue")
       {graph, _cid} = Graph.add_cluster(graph, [vid])
 
       [cluster] = graph.subgraphs
@@ -173,8 +173,8 @@ defmodule Graphvix.GraphTest do
             label2 <- string(:ascii, min_length: 3)
           ) do
       graph = Graph.new()
-      {graph, v1} = Graph.add_vertex(graph, label1)
-      {graph, v2} = Graph.add_vertex(graph, label2)
+      {graph, v1} = Graph.add_node(graph, label1)
+      {graph, v2} = Graph.add_node(graph, label2)
       {graph, _e1} = Graph.add_edge(graph, v1, v2)
       {_, _, etab, _, _} = graph.digraph
       assert length(:ets.tab2list(etab)) == 1
@@ -187,8 +187,8 @@ defmodule Graphvix.GraphTest do
             label2 <- string(:ascii, min_length: 3)
           ) do
       graph = Graph.new()
-      {graph, v1} = Graph.add_vertex(graph, label1)
-      {graph, v2} = Graph.add_vertex(graph, label2)
+      {graph, v1} = Graph.add_node(graph, label1)
+      {graph, v2} = Graph.add_node(graph, label2)
       {graph, _e1} = Graph.add_edge(graph, v1, v2, color: "blue")
 
       assert Graph.to_dot(graph) ==
@@ -212,8 +212,8 @@ defmodule Graphvix.GraphTest do
             label2 <- string(:ascii, min_length: 3)
           ) do
       graph = Graph.new()
-      {graph, v1} = Graph.add_vertex(graph, label1)
-      {graph, v2} = Graph.add_vertex(graph, label2)
+      {graph, v1} = Graph.add_node(graph, label1)
+      {graph, v2} = Graph.add_node(graph, label2)
       {graph, _e1} = Graph.add_edge(graph, v1, v2, color: "blue")
 
       {graph, _cid} =
@@ -250,8 +250,8 @@ defmodule Graphvix.GraphTest do
             label2 <- string(:ascii, min_length: 3)
           ) do
       graph = Graph.new()
-      {graph, v1} = Graph.add_vertex(graph, label1)
-      {graph, v2} = Graph.add_vertex(graph, label2)
+      {graph, v1} = Graph.add_node(graph, label1)
+      {graph, v2} = Graph.add_node(graph, label2)
       {graph, _e1} = Graph.add_edge(graph, v1, v2, color: "blue")
 
       {graph, _cid} =
@@ -290,10 +290,10 @@ defmodule Graphvix.GraphTest do
             label4 <- string(:ascii, min_length: 3)
           ) do
       graph = Graph.new()
-      {graph, v1} = Graph.add_vertex(graph, label1)
-      {graph, v2} = Graph.add_vertex(graph, label2)
-      {graph, v3} = Graph.add_vertex(graph, label3)
-      {graph, v4} = Graph.add_vertex(graph, label4)
+      {graph, v1} = Graph.add_node(graph, label1)
+      {graph, v2} = Graph.add_node(graph, label2)
+      {graph, v3} = Graph.add_node(graph, label3)
+      {graph, v4} = Graph.add_node(graph, label4)
       {graph, _e} = Graph.add_edge(graph, v1, v2, color: "blue")
       {graph, _e} = Graph.add_edge(graph, v2, v3)
       {graph, _e} = Graph.add_edge(graph, v3, v4)

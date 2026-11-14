@@ -6,7 +6,7 @@ defmodule Graphvix.Graph do
   Graphs are created by
 
   * adding vertices of various formats to a graph
-    * `add_vertex/3`
+    * `add_node/3`
     * `add_record/2`
     * `add_html_record/2`
   * connecting them with edges
@@ -31,17 +31,23 @@ defmodule Graphvix.Graph do
 
   alias Graphvix.{HTMLRecord, Record}
 
-  defstruct digraph: nil,
+  defstruct nodes: [],
+            edges: [],
+            subgraphs: [],
+            clusters: [],
             global_properties: [node: [], edge: []],
             graph_properties: [],
-            subgraphs: []
+            digraph: nil
 
   @type digraph :: {:digraph, reference(), reference(), reference(), boolean()}
   @type t :: %__MODULE__{
-          digraph: digraph(),
+          nodes: list(),
+          edges: list(),
+          clusters: list(),
+          subgraphs: list(),
           global_properties: keyword(),
           graph_properties: keyword(),
-          subgraphs: list()
+          digraph: digraph()
         }
 
   @compiler Application.compile_env(:graphvix, :compiler, "dot")
@@ -118,12 +124,12 @@ defmodule Graphvix.Graph do
   ## Examples
 
       iex> graph = Graph.new()
-      iex> {_graph, vid} = Graph.add_vertex(graph, "hello", color: "blue")
+      iex> {_graph, vid} = Graph.add_node(graph, "hello", color: "blue")
       iex> vid
       [:"$v" | 0]
 
   """
-  def add_vertex(graph, label, attributes \\ []) do
+  def add_node(graph, label, attributes \\ []) do
     next_id = get_and_increment_vertex_id(graph)
     attributes = Keyword.put(attributes, :label, label)
     vertex_id = [:"$v" | next_id]
@@ -145,8 +151,8 @@ defmodule Graphvix.Graph do
   ## Examples
 
       iex> graph = Graph.new()
-      iex> {graph, v1id} = Graph.add_vertex(graph, "start")
-      iex> {graph, v2id} = Graph.add_vertex(graph, "end")
+      iex> {graph, v1id} = Graph.add_node(graph, "start")
+      iex> {graph, v2id} = Graph.add_node(graph, "end")
       iex> {_graph, eid} = Graph.add_edge(graph, v1id, v2id, color: "green")
       iex> eid
       [:"$e" | 0]
@@ -177,8 +183,8 @@ defmodule Graphvix.Graph do
   ## Examples
 
       iex> graph = Graph.new()
-      iex> {graph, v1id} = Graph.add_vertex(graph, "start")
-      iex> {graph, v2id} = Graph.add_vertex(graph, "end")
+      iex> {graph, v1id} = Graph.add_node(graph, "start")
+      iex> {graph, v2id} = Graph.add_node(graph, "end")
       iex> {_graph, sid} = Graph.add_subgraph(
       ...>   graph, [v1id, v2id],
       ...>   node: [shape: "triangle"],
@@ -207,8 +213,8 @@ defmodule Graphvix.Graph do
   ## Example
 
       iex> graph = Graph.new()
-      iex> {graph, v1id} = Graph.add_vertex(graph, "start")
-      iex> {graph, v2id} = Graph.add_vertex(graph, "end")
+      iex> {graph, v1id} = Graph.add_node(graph, "start")
+      iex> {graph, v2id} = Graph.add_node(graph, "end")
       iex> {_graph, cid} = Graph.add_cluster(
       ...>   graph, [v1id, v2id],
       ...>   color: "blue", label: "cluster0",
@@ -242,7 +248,7 @@ defmodule Graphvix.Graph do
   def add_record(graph, record) do
     label = Record.to_label(record)
     attributes = Keyword.put(record.properties, :shape, "record")
-    add_vertex(graph, label, attributes)
+    add_node(graph, label, attributes)
   end
 
   @doc """
@@ -266,7 +272,7 @@ defmodule Graphvix.Graph do
   def add_html_record(graph, record) do
     label = HTMLRecord.to_label(record)
     attributes = [shape: "plaintext"]
-    add_vertex(graph, label, attributes)
+    add_node(graph, label, attributes)
   end
 
   @doc """
@@ -275,9 +281,9 @@ defmodule Graphvix.Graph do
   ## Example
 
       iex> graph = Graph.new(node: [shape: "triangle"], edge: [color: "green"], graph: [size: "4x4"])
-      iex> {graph, vid} = Graph.add_vertex(graph, "a")
-      iex> {graph, vid2} = Graph.add_vertex(graph, "b")
-      iex> {graph, vid3} = Graph.add_vertex(graph, "c")
+      iex> {graph, vid} = Graph.add_node(graph, "a")
+      iex> {graph, vid2} = Graph.add_node(graph, "b")
+      iex> {graph, vid3} = Graph.add_node(graph, "c")
       iex> {graph, eid} = Graph.add_edge(graph, vid, vid2)
       iex> {graph, eid2} = Graph.add_edge(graph, vid, vid3)
       iex> {graph, clusterid} = Graph.add_cluster(graph, [vid, vid2])
@@ -389,7 +395,7 @@ defmodule Graphvix.Graph do
   """
   def show(graph, filename) do
     :ok = write(graph, filename <> ".dot")
-    :ok = compile(graph, filename)
+    {:ok, _} = compile(graph, filename)
     {_, 0} = System.cmd("open", [filename <> ".png"])
     :ok
   end
@@ -432,7 +438,7 @@ defmodule Graphvix.Graph do
 
   ```
   iex> graph = Graph.new()
-  iex> {graph, vid} = Graph.add_vertex(graph, "label")
+  iex> {graph, vid} = Graph.add_node(graph, "label")
   iex> graph = Graph.set_global_property(graph, :node, shape: "triangle")
   ```
 
@@ -452,7 +458,7 @@ defmodule Graphvix.Graph do
   property set on `graph`.
 
   ```
-  {graph, vid2} = Graph.add_vertex(graph, "this is a circle!")
+  {graph, vid2} = Graph.add_node(graph, "this is a circle!")
   ```
 
   """
