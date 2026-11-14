@@ -1,0 +1,34 @@
+- id: immutable-graph
+  date: "2026-11-14"
+  decision: A graph is an immutable struct; every construction function returns a new value and nothing is held in ETS, :digraph or a process.
+  driver: Graphvix 1.x kept graph state in :digraph ETS tables, so a graph value was a handle to shared mutable state and could not be piped, compared or safely reused.
+  alternatives:
+    - option: Keep :digraph as the store
+      rejected: Mutable shared state; graphs cannot be compared or chained.
+  evidence: Graphvix 1.x Graph.new/1 creates a :digraph and every add_* mutates it.
+  approved_by: mikowitz (2026-11-14)
+
+- id: warnings-not-errors
+  date: "2026-11-14"
+  decision: Questionable attributes and placements produce warnings from Graphvix.warnings/1, logged at render time; they never raise and never stop output.
+  driver: Graphviz itself tolerates these inputs; the library's job is to point them out, not to refuse a graph Graphviz would draw.
+  alternatives:
+    - option: Raise on unknown or unsupported attributes
+      rejected: Breaks graphs that Graphviz renders, and the attribute table may lag Graphviz.
+  approved_by: mikowitz (2026-11-14)
+
+- id: edges-root-only
+  date: "2026-11-14"
+  decision: Edges live only on the root graph; Subgraph and Cluster have no edges.
+  driver: An edge statement inside a cluster pulls both endpoints into that cluster, a third silent way for a node to change clusters.
+  alternatives:
+    - option: Subgraph and Cluster get edges and add_edge
+      rejected: Edge endpoints would count toward cluster membership, complicating placement and its warnings.
+  approved_by: mikowitz (2026-11-14)
+  expires: When edges inside subgraphs are wanted; adding them is additive.
+
+- id: contract-first
+  date: "2026-11-14"
+  decision: The 2.0 Contract is written and checked with `mix covenant.check --static` before any 2.0 implementation exists.
+  driver: 2.0 is a rewrite; the Contract is what it is built (and regenerated) from.
+  approved_by: mikowitz (2026-11-14)

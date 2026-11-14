@@ -1,0 +1,4 @@
+- name: graphvix-lib-files
+  ceiling: 20
+  counter: { kind: glob, pattern: "lib/**/*.ex" }
+  why: Small enough to regenerate one component in a sitting.

@@ -46,6 +46,7 @@ defmodule Graphvix.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
+      {:covenant, "~> 0.2", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7.19", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.40.4", only: :dev, runtime: false},
       {:mix_test_watch, "~> 1.4.0", only: [:dev, :test], runtime: false},
