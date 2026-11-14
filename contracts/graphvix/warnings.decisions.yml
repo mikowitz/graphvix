@@ -1,0 +1,49 @@
+- id: placement-model
+  date: "2026-11-14"
+  decision: A node's cluster is set by its first cluster occurrence in render order, moved deeper by a later occurrence in a descendant, and kept by a later occurrence in an ancestor or an unrelated cluster.
+  driver: Graphviz places nodes this way silently; warnings are only useful if they predict where Graphviz puts the node.
+  evidence: "`dot -Tjson` 13.0.0 on the worked example in warnings.intent.md and on `subgraph cluster_y { c; }` nested before `c;` in its parent cluster."
+  conditions:
+    - text: Graphviz 13.x placement semantics
+  invariant: [graphvix.warnings.I4, graphvix.warnings.I16]
+  depends_on: [containers-before-nodes]
+  approved_by: mikowitz (2026-11-14)
+
+- id: warn-nested-membership
+  date: "2026-11-14"
+  decision: A node listed in a cluster and in a cluster nested inside it produces a nested_clusters warning.
+  driver: Graphviz silently places it in the deepest cluster; the user judged this usually unintentional.
+  alternatives:
+    - option: Stay silent, like Graphviz
+      rejected: Hides a likely mistake.
+  invariant: graphvix.warnings.I5
+  approved_by: mikowitz (2026-11-14)
+
+- id: cluster-like-subgraphs
+  date: "2026-11-14"
+  decision: A Subgraph whose id starts with `cluster` in any case, or which sets cluster=true, counts as a cluster for placement.
+  driver: Graphviz lays these out as clusters (`dot -Tjson` gives them a `bb`), so treating them as transparent would make the model disagree with Graphviz.
+  invariant: graphvix.warnings.I7
+  approved_by: mikowitz (2026-11-14)
+
+- id: emitted-name-duplicates
+  date: "2026-11-14"
+  decision: Duplicate subgraph and cluster names are detected by comparing emitted names.
+  driver: DOT names are global and what collides is the emitted text, so Subgraph `cluster_x` and Cluster `x` collide while Subgraph `x` and Cluster `x` do not.
+  invariant: graphvix.warnings.I8
+  approved_by: mikowitz (2026-11-14)
+
+- id: conflict-winner-render-order
+  date: "2026-11-14"
+  decision: In a conflicting_attribute warning the winner is the occurrence read last in render order.
+  driver: Graphviz keeps the last value it reads; `dot -Tjson` 13.0.0 gives a node blue in a cluster and green at the root the color green.
+  invariant: graphvix.warnings.I12
+  depends_on: [containers-before-nodes]
+  approved_by: mikowitz (2026-11-14)
+
+- id: warning-tuple-shapes
+  date: "2026-11-14"
+  decision: Warnings are tagged tuples with keyword details and paths of emitted names, as listed in warnings.intent.md.
+  driver: Callers and tests pattern-match on warnings; emitted names are what the caller sees in the DOT output.
+  invariant: graphvix.warnings.I15
+  approved_by: mikowitz (2026-11-14)

@@ -1,9 +1,9 @@
 {
   "apps": {
     "graphvix": {
-      "active": 36,
+      "active": 52,
       "coverage": 1.0,
-      "covered": 36
+      "covered": 52
     },
     "system": {
       "active": 0,
@@ -435,6 +435,196 @@
         }
       }
     },
+    "graphvix.warnings": {
+      "active": 16,
+      "app": "graphvix",
+      "coverage": 1.0,
+      "covered": 16,
+      "form": "heavy",
+      "obligations": {
+        "graphvix.warnings.I1": {
+          "failing": 0,
+          "kind": "non_functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test warnings are deterministic and silent",
+            "test warnings follow render order then kind order"
+          ]
+        },
+        "graphvix.warnings.I10": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test record labels on non-record shapes are reported"
+          ]
+        },
+        "graphvix.warnings.I11": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test unknown html attributes are reported including nested tables"
+          ]
+        },
+        "graphvix.warnings.I12": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test conflicting values across blocks name the value read last",
+            "test the reported winner is the value dot uses"
+          ]
+        },
+        "graphvix.warnings.I13": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test html labels outside node labels are fine",
+            "test record labels outside node labels are reported"
+          ]
+        },
+        "graphvix.warnings.I14": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test invalid compass points are reported"
+          ]
+        },
+        "graphvix.warnings.I15": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test worked example yields exactly the two documented warnings"
+          ]
+        },
+        "graphvix.warnings.I16": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property placement agrees with dot -Tjson",
+            "test cluster-like subgraph placement matches dot",
+            "test the reported winner is the value dot uses",
+            "test worked example placement matches dot"
+          ]
+        },
+        "graphvix.warnings.I2": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test known attributes are not reported",
+            "test unknown attributes are reported for every target"
+          ]
+        },
+        "graphvix.warnings.I3": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test cluster graph attributes use C",
+            "test edge attributes and edge defaults use E",
+            "test node attributes and node defaults use N",
+            "test root graph attributes use G",
+            "test subgraph graph attributes use S"
+          ]
+        },
+        "graphvix.warnings.I4": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test first of several unrelated clusters is kept",
+            "test worked example placement matches dot",
+            "test worked example yields exactly the two documented warnings"
+          ]
+        },
+        "graphvix.warnings.I5": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a later occurrence in a nested cluster moves the node deeper",
+            "test worked example placement matches dot",
+            "test worked example yields exactly the two documented warnings"
+          ]
+        },
+        "graphvix.warnings.I6": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a node only in plain subgraphs never warns",
+            "test edges to undeclared nodes neither warn nor anchor",
+            "test root plus one cluster never warns"
+          ]
+        },
+        "graphvix.warnings.I7": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test cluster-like subgraph placement matches dot",
+            "test subgraphs named like clusters count as clusters",
+            "test subgraphs with cluster true count as clusters"
+          ]
+        },
+        "graphvix.warnings.I8": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a subgraph and a cluster with the same id do not clash",
+            "test duplicate emitted names are reported"
+          ]
+        },
+        "graphvix.warnings.I9": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a port defined in any occurrence of the node counts",
+            "test ports a node does not define are reported"
+          ]
+        }
+      }
+    },
     "system": {
       "active": 0,
       "app": "system",
@@ -447,8 +637,8 @@
   "covenant": "0.2.0",
   "mode": "static",
   "totals": {
-    "active": 36,
+    "active": 52,
     "coverage": 1.0,
-    "covered": 36
+    "covered": 52
   }
 }
