@@ -2,8 +2,8 @@
   "apps": {
     "graphvix": {
       "active": 57,
-      "coverage": 0.0702,
-      "covered": 4
+      "coverage": 1.0,
+      "covered": 57
     },
     "system": {
       "active": 0,
@@ -15,14 +15,14 @@
     "graphvix.attribute_table": {
       "active": 5,
       "app": "graphvix",
-      "coverage": 0.2,
-      "covered": 1,
+      "coverage": 1.0,
+      "covered": 5,
       "form": "light",
       "obligations": {
         "graphvix.attribute_table.I1": {
-          "failing": 3,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
@@ -32,9 +32,9 @@
           ]
         },
         "graphvix.attribute_table.I2": {
-          "failing": 1,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -42,9 +42,9 @@
           ]
         },
         "graphvix.attribute_table.I3": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -52,9 +52,9 @@
           ]
         },
         "graphvix.attribute_table.I4": {
-          "failing": 2,
+          "failing": 0,
           "kind": "non_functional",
-          "passing": 1,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
@@ -64,9 +64,9 @@
           ]
         },
         "graphvix.attribute_table.I5": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -78,14 +78,14 @@
     "graphvix.builder": {
       "active": 11,
       "app": "graphvix",
-      "coverage": 0.0,
-      "covered": 0,
+      "coverage": 1.0,
+      "covered": 11,
       "form": "light",
       "obligations": {
         "graphvix.builder.I1": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -94,9 +94,9 @@
           ]
         },
         "graphvix.builder.I10": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -104,9 +104,9 @@
           ]
         },
         "graphvix.builder.I11": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -114,9 +114,9 @@
           ]
         },
         "graphvix.builder.I2": {
-          "failing": 2,
+          "failing": 0,
           "kind": "non_functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -125,9 +125,9 @@
           ]
         },
         "graphvix.builder.I3": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -136,9 +136,9 @@
           ]
         },
         "graphvix.builder.I4": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -147,9 +147,9 @@
           ]
         },
         "graphvix.builder.I5": {
-          "failing": 1,
+          "failing": 0,
           "kind": "ordering",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -157,9 +157,9 @@
           ]
         },
         "graphvix.builder.I6": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -168,9 +168,9 @@
           ]
         },
         "graphvix.builder.I7": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -179,20 +179,21 @@
           ]
         },
         "graphvix.builder.I8": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
             "test clusters and subgraphs nest and return their own type",
+            "test clusters nest in clusters and subgraphs in subgraphs",
             "test set_attributes on a cluster or subgraph rejects :edge"
           ]
         },
         "graphvix.builder.I9": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -204,8 +205,8 @@
     "graphvix.records": {
       "active": 9,
       "app": "graphvix",
-      "coverage": 0.2222,
-      "covered": 2,
+      "coverage": 1.0,
+      "covered": 9,
       "form": "light",
       "obligations": {
         "graphvix.records.I1": {
@@ -222,9 +223,9 @@
           ]
         },
         "graphvix.records.I2": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 1,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
@@ -234,9 +235,9 @@
           ]
         },
         "graphvix.records.I3": {
-          "failing": 4,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 4,
           "status": "active",
           "testable": true,
           "tests": [
@@ -247,9 +248,9 @@
           ]
         },
         "graphvix.records.I4": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -257,9 +258,9 @@
           ]
         },
         "graphvix.records.I5": {
-          "failing": 2,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -268,9 +269,9 @@
           ]
         },
         "graphvix.records.I6": {
-          "failing": 1,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -278,9 +279,9 @@
           ]
         },
         "graphvix.records.I7": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -288,9 +289,9 @@
           ]
         },
         "graphvix.records.I8": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -298,9 +299,9 @@
           ]
         },
         "graphvix.records.I9": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -312,14 +313,14 @@
     "graphvix.render": {
       "active": 16,
       "app": "graphvix",
-      "coverage": 0.0625,
-      "covered": 1,
+      "coverage": 1.0,
+      "covered": 16,
       "form": "heavy",
       "obligations": {
         "graphvix.render.I1": {
-          "failing": 2,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -328,9 +329,9 @@
           ]
         },
         "graphvix.render.I10": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -339,9 +340,9 @@
           ]
         },
         "graphvix.render.I11": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -350,9 +351,9 @@
           ]
         },
         "graphvix.render.I12": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -360,9 +361,9 @@
           ]
         },
         "graphvix.render.I13": {
-          "failing": 3,
+          "failing": 0,
           "kind": "non_functional",
-          "passing": 0,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
@@ -372,9 +373,9 @@
           ]
         },
         "graphvix.render.I14": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -383,9 +384,9 @@
           ]
         },
         "graphvix.render.I15": {
-          "failing": 3,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
@@ -395,9 +396,9 @@
           ]
         },
         "graphvix.render.I16": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 1,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
@@ -407,9 +408,9 @@
           ]
         },
         "graphvix.render.I2": {
-          "failing": 3,
+          "failing": 0,
           "kind": "ordering",
-          "passing": 0,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
@@ -419,9 +420,9 @@
           ]
         },
         "graphvix.render.I3": {
-          "failing": 1,
+          "failing": 0,
           "kind": "ordering",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -429,9 +430,9 @@
           ]
         },
         "graphvix.render.I4": {
-          "failing": 4,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 4,
           "status": "active",
           "testable": true,
           "tests": [
@@ -442,9 +443,9 @@
           ]
         },
         "graphvix.render.I5": {
-          "failing": 2,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -453,9 +454,9 @@
           ]
         },
         "graphvix.render.I6": {
-          "failing": 3,
+          "failing": 0,
           "kind": "security",
-          "passing": 0,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
@@ -465,9 +466,9 @@
           ]
         },
         "graphvix.render.I7": {
-          "failing": 2,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -476,9 +477,9 @@
           ]
         },
         "graphvix.render.I8": {
-          "failing": 5,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 5,
           "status": "active",
           "testable": true,
           "tests": [
@@ -490,9 +491,9 @@
           ]
         },
         "graphvix.render.I9": {
-          "failing": 2,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -505,14 +506,14 @@
     "graphvix.warnings": {
       "active": 16,
       "app": "graphvix",
-      "coverage": 0.0,
-      "covered": 0,
+      "coverage": 1.0,
+      "covered": 16,
       "form": "heavy",
       "obligations": {
         "graphvix.warnings.I1": {
-          "failing": 2,
+          "failing": 0,
           "kind": "non_functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -521,9 +522,9 @@
           ]
         },
         "graphvix.warnings.I10": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -531,9 +532,9 @@
           ]
         },
         "graphvix.warnings.I11": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -541,9 +542,9 @@
           ]
         },
         "graphvix.warnings.I12": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -552,9 +553,9 @@
           ]
         },
         "graphvix.warnings.I13": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -563,9 +564,9 @@
           ]
         },
         "graphvix.warnings.I14": {
-          "failing": 1,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -573,9 +574,9 @@
           ]
         },
         "graphvix.warnings.I15": {
-          "failing": 1,
+          "failing": 0,
           "kind": "persisted_format",
-          "passing": 0,
+          "passing": 1,
           "status": "active",
           "testable": true,
           "tests": [
@@ -583,9 +584,9 @@
           ]
         },
         "graphvix.warnings.I16": {
-          "failing": 5,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 5,
           "status": "active",
           "testable": true,
           "tests": [
@@ -597,9 +598,9 @@
           ]
         },
         "graphvix.warnings.I2": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -608,9 +609,9 @@
           ]
         },
         "graphvix.warnings.I3": {
-          "failing": 6,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 6,
           "status": "active",
           "testable": true,
           "tests": [
@@ -623,9 +624,9 @@
           ]
         },
         "graphvix.warnings.I4": {
-          "failing": 9,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 9,
           "status": "active",
           "testable": true,
           "tests": [
@@ -641,9 +642,9 @@
           ]
         },
         "graphvix.warnings.I5": {
-          "failing": 3,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
@@ -653,9 +654,9 @@
           ]
         },
         "graphvix.warnings.I6": {
-          "failing": 4,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 4,
           "status": "active",
           "testable": true,
           "tests": [
@@ -666,9 +667,9 @@
           ]
         },
         "graphvix.warnings.I7": {
-          "failing": 4,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 4,
           "status": "active",
           "testable": true,
           "tests": [
@@ -679,9 +680,9 @@
           ]
         },
         "graphvix.warnings.I8": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -690,9 +691,9 @@
           ]
         },
         "graphvix.warnings.I9": {
-          "failing": 2,
+          "failing": 0,
           "kind": "functional",
-          "passing": 0,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
@@ -714,7 +715,7 @@
   "covenant": "0.2.0",
   "totals": {
     "active": 57,
-    "coverage": 0.0702,
-    "covered": 4
+    "coverage": 1.0,
+    "covered": 57
   }
 }
