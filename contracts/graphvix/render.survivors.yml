@@ -1,0 +1,11 @@
+- at: lib/graphvix/render.ex:57:53
+  operator: element_removal
+  mutation: "`basename <> \".dot\"` → `(removed)`"
+  sort: timeout
+  reason: Without the input path dot reads its standard input, which System.cmd/3 leaves open, so compile/3 blocks; the I15 compile test then hangs until the mutation timeout rather than failing. A real regression here would be just as visible.
+
+- at: lib/graphvix/render.ex:58:32
+  operator: boolean_flip
+  mutation: "`true` → `false`"
+  sort: unpromised
+  reason: Only changes whether dot's stderr text appears in the {:dot_failed, status, message} error; render.I15 promises an {:error, reason} tuple, not its message.

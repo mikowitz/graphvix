@@ -28,8 +28,7 @@ defmodule Graphvix.Render do
   end
 
   defp log_warnings(graph) do
-    for warning <- Warnings.warnings(graph), do: Logger.warning("Graphvix: #{inspect(warning)}")
-    :ok
+    Enum.each(Warnings.warnings(graph), &Logger.warning("Graphvix: #{inspect(&1)}"))
   end
 
   defp write_dot(graph, basename), do: File.write(basename <> ".dot", dot(graph))

@@ -283,6 +283,10 @@ defmodule Graphvix.RenderContractTest do
     # foo\ (odd run of one) gains a backslash; bar\\ (even run of two) is left alone
     assert dot =~ "  \"a\" [label=\"foo\\\\\"];\n"
     assert dot =~ "  \"b\" [label=\"bar\\\\\"];\n"
+
+    # baz\\\ (odd run of three) gains a fourth
+    triple = quiet_to_dot(Graphvix.add_node(Graphvix.new(), "c", label: "baz\\\\\\"))
+    assert triple =~ "  \"c\" [label=\"baz\\\\\\\\\"];\n"
   end
 
   @tag :graphviz
@@ -577,6 +581,28 @@ defmodule Graphvix.RenderLoggingContractTest do
     File.rm(base <> ".dot")
 
     assert length(Regex.scan(~r/\[warning\]/, log)) == 1
+  end
+
+  @tag obligation: "graphvix.render.I13"
+  test "compile logs each warning once even when dot is missing" do
+    base = tmp_base()
+    empty = base <> "-empty-path"
+    File.mkdir_p!(empty)
+    old_path = System.get_env("PATH")
+    g = Graphvix.add_node(Graphvix.new(), "a", colour: "red")
+
+    try do
+      System.put_env("PATH", empty)
+
+      log =
+        capture_log([level: :warning], fn -> assert {:error, _} = Graphvix.compile(g, base) end)
+
+      assert length(Regex.scan(~r/\[warning\]/, log)) == 1
+    after
+      System.put_env("PATH", old_path)
+      File.rm_rf(empty)
+      File.rm(base <> ".dot")
+    end
   end
 end
 
