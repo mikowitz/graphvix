@@ -19,7 +19,7 @@ defmodule Graphvix.RenderContractTest do
     File.write!(path, text)
 
     try do
-      System.cmd("dot", ["-T#{format}", path], stderr_to_stdout: true)
+      System.cmd("dot", ["-q", "-T#{format}", path], stderr_to_stdout: true)
     after
       File.rm(path)
     end

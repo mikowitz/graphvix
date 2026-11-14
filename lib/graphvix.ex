@@ -66,6 +66,17 @@ defmodule Graphvix do
   end
 
   @doc """
+  Renders the graph as DOT text.
+
+  Statements are emitted in a fixed order inside every block: attributes,
+  `node`/`edge` defaults, subgraphs, clusters, the block's own nodes, then
+  (at the root) edges; each kind in definition order. Ids, names, ports and
+  values are quoted, and clusters are named `cluster_<id>`.
+  """
+  @spec to_dot(Graph.t()) :: String.t()
+  defdelegate to_dot(graph), to: Graphvix.Render
+
+  @doc """
   Merges attributes into the graph's own attributes (`:graph`) or into the
   defaults for every node (`:node`) or edge (`:edge`).
   """
