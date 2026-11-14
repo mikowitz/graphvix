@@ -1,0 +1,720 @@
+{
+  "apps": {
+    "graphvix": {
+      "active": 57,
+      "coverage": 0.0702,
+      "covered": 4
+    },
+    "system": {
+      "active": 0,
+      "coverage": null,
+      "covered": 0
+    }
+  },
+  "components": {
+    "graphvix.attribute_table": {
+      "active": 5,
+      "app": "graphvix",
+      "coverage": 0.2,
+      "covered": 1,
+      "form": "light",
+      "obligations": {
+        "graphvix.attribute_table.I1": {
+          "failing": 3,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property a name is known exactly when names lists it",
+            "test every listed name is known with ordered letters",
+            "test names in another case or spelling are unknown"
+          ]
+        },
+        "graphvix.attribute_table.I2": {
+          "failing": 1,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test pinned facts from the reference"
+          ]
+        },
+        "graphvix.attribute_table.I3": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test the table names its source"
+          ]
+        },
+        "graphvix.attribute_table.I4": {
+          "failing": 2,
+          "kind": "non_functional",
+          "passing": 1,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test the generator is a hand-run mix task",
+            "test the project has no runtime dependencies",
+            "test the table is compiled from a checked-in file under lib"
+          ]
+        },
+        "graphvix.attribute_table.I5": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test parse reads the saved reference excerpt"
+          ]
+        }
+      }
+    },
+    "graphvix.builder": {
+      "active": 11,
+      "app": "graphvix",
+      "coverage": 0.0,
+      "covered": 0,
+      "form": "light",
+      "obligations": {
+        "graphvix.builder.I1": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test new graph has documented defaults",
+            "test options override digraph and strict"
+          ]
+        },
+        "graphvix.builder.I10": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a node in several containers is kept in each"
+          ]
+        },
+        "graphvix.builder.I11": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test subgraphs and clusters cannot hold edges"
+          ]
+        },
+        "graphvix.builder.I2": {
+          "failing": 2,
+          "kind": "non_functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property construction never changes its input",
+            "test cluster builders never change their input"
+          ]
+        },
+        "graphvix.builder.I3": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test atom string and integer ids name the same node",
+            "test subgraph and cluster ids are stored as strings"
+          ]
+        },
+        "graphvix.builder.I4": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test re-adding a node inside a cluster merges within the cluster",
+            "test re-adding a node merges and keeps first position"
+          ]
+        },
+        "graphvix.builder.I5": {
+          "failing": 1,
+          "kind": "ordering",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property lists keep definition order"
+          ]
+        },
+        "graphvix.builder.I6": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test an edge label is an ordinary attribute",
+            "test edges normalize endpoints and allow repeats and undeclared nodes"
+          ]
+        },
+        "graphvix.builder.I7": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test atom and string keys name the same attribute across keyword lists and maps",
+            "test set_attributes targets graph node and edge maps"
+          ]
+        },
+        "graphvix.builder.I8": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test clusters and subgraphs nest and return their own type",
+            "test set_attributes on a cluster or subgraph rejects :edge"
+          ]
+        },
+        "graphvix.builder.I9": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test re-adding a cluster or subgraph id appends"
+          ]
+        }
+      }
+    },
+    "graphvix.records": {
+      "active": 9,
+      "app": "graphvix",
+      "coverage": 0.2222,
+      "covered": 2,
+      "form": "light",
+      "obligations": {
+        "graphvix.records.I1": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 4,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property a column renders in braces",
+            "property a plain list renders as a row",
+            "property a string body renders as its text",
+            "test rows and columns nest as in 1.x"
+          ]
+        },
+        "graphvix.records.I2": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 1,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test port cells render with their port",
+            "test port names are escaped like cell text",
+            "test ports lists every port at any depth in definition order"
+          ]
+        },
+        "graphvix.records.I3": {
+          "failing": 4,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property record cell text never leaves a special character unescaped",
+            "test a backslash before a special character is escaped and others are kept",
+            "test port cell text is escaped too",
+            "test port names are escaped like cell text"
+          ]
+        },
+        "graphvix.records.I4": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test Record.new takes only a body"
+          ]
+        },
+        "graphvix.records.I5": {
+          "failing": 2,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test an html record renders as one line of table markup",
+            "test br font and nested tables render in place"
+          ]
+        },
+        "graphvix.records.I6": {
+          "failing": 1,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test attributes are hyphenated quoted and kept in order"
+          ]
+        },
+        "graphvix.records.I7": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test html text and attribute values are escaped"
+          ]
+        },
+        "graphvix.records.I8": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test td ports render and are listed including nested tables"
+          ]
+        },
+        "graphvix.records.I9": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test allowed attributes are the 1.x lists"
+          ]
+        }
+      }
+    },
+    "graphvix.render": {
+      "active": 16,
+      "app": "graphvix",
+      "coverage": 0.0625,
+      "covered": 1,
+      "form": "heavy",
+      "obligations": {
+        "graphvix.render.I1": {
+          "failing": 2,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test header reflects digraph and strict",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I10": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test pinned worked example renders exactly",
+            "test record labels set the shape unless the node sets one"
+          ]
+        },
+        "graphvix.render.I11": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test nil attribute values are omitted",
+            "test numbers atoms and booleans render as quoted text"
+          ]
+        },
+        "graphvix.render.I12": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test lhead and ltail are emitted as given"
+          ]
+        },
+        "graphvix.render.I13": {
+          "failing": 3,
+          "kind": "non_functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a graph without warnings logs nothing",
+            "test each warning is logged once per to_dot call and output is still returned",
+            "test write logs each warning once"
+          ]
+        },
+        "graphvix.render.I14": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test write returns an error when the file cannot be written",
+            "test write writes basename.dot with the to_dot text"
+          ]
+        },
+        "graphvix.render.I15": {
+          "failing": 3,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test compile returns an error when dot fails",
+            "test compile without dot on PATH returns an error",
+            "test compile writes the dot file and the compiled output"
+          ]
+        },
+        "graphvix.render.I16": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 1,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property any built graph is valid dot",
+            "test hostile ids and labels still parse in dot",
+            "test pinned worked example is valid dot"
+          ]
+        },
+        "graphvix.render.I2": {
+          "failing": 3,
+          "kind": "ordering",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test cluster node defaults reach root-declared nodes",
+            "test containers come before a block's own nodes and edges come last",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I3": {
+          "failing": 1,
+          "kind": "ordering",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property definition order survives merges and nesting"
+          ]
+        },
+        "graphvix.render.I4": {
+          "failing": 4,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test deep nesting indents two spaces per level",
+            "test empty graph and empty cluster",
+            "test every statement ends in a semicolon and there are no blank lines",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I5": {
+          "failing": 2,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test attribute keys are sorted and empty lists omitted",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I6": {
+          "failing": 3,
+          "kind": "security",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test hostile ids and labels still parse in dot",
+            "test quotes are escaped and backslashes preserved",
+            "test trailing backslash cannot escape the closing quote"
+          ]
+        },
+        "graphvix.render.I7": {
+          "failing": 2,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test clusters are always prefixed and subgraphs are not",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I8": {
+          "failing": 5,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test edge operator follows the graph kind",
+            "test endpoint forms render as ports and compass points",
+            "test every valid compass point renders",
+            "test pinned worked example renders exactly",
+            "test port and compass endpoints are accepted by dot"
+          ]
+        },
+        "graphvix.render.I9": {
+          "failing": 2,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test pinned worked example renders exactly",
+            "test record labels are quoted and html labels are bracketed on any element"
+          ]
+        }
+      }
+    },
+    "graphvix.warnings": {
+      "active": 16,
+      "app": "graphvix",
+      "coverage": 0.0,
+      "covered": 0,
+      "form": "heavy",
+      "obligations": {
+        "graphvix.warnings.I1": {
+          "failing": 2,
+          "kind": "non_functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test warnings are deterministic and silent",
+            "test warnings follow render order then kind order"
+          ]
+        },
+        "graphvix.warnings.I10": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test record labels on non-record shapes are reported"
+          ]
+        },
+        "graphvix.warnings.I11": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test unknown html attributes are reported including nested tables"
+          ]
+        },
+        "graphvix.warnings.I12": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test conflicting values across blocks name the value read last",
+            "test the reported winner is the value dot uses"
+          ]
+        },
+        "graphvix.warnings.I13": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test html labels outside node labels are fine",
+            "test record labels outside node labels are reported"
+          ]
+        },
+        "graphvix.warnings.I14": {
+          "failing": 1,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test invalid compass points are reported"
+          ]
+        },
+        "graphvix.warnings.I15": {
+          "failing": 1,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test worked example yields exactly the two documented warnings"
+          ]
+        },
+        "graphvix.warnings.I16": {
+          "failing": 5,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property placement agrees with dot -Tjson",
+            "test cluster-like subgraph placement matches dot",
+            "test root rank subgraph placement matches dot",
+            "test the reported winner is the value dot uses",
+            "test worked example placement matches dot"
+          ]
+        },
+        "graphvix.warnings.I2": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test known attributes are not reported",
+            "test unknown attributes are reported for every target"
+          ]
+        },
+        "graphvix.warnings.I3": {
+          "failing": 6,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test cluster graph attributes use C",
+            "test edge attributes and edge defaults use E",
+            "test node attributes and node defaults use N",
+            "test root graph attributes use G",
+            "test subgraph graph attributes use S",
+            "test subgraphs treated as clusters are checked against C"
+          ]
+        },
+        "graphvix.warnings.I4": {
+          "failing": 9,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a rank subgraph in a cluster is not deepened by a nested cluster",
+            "test a rank subgraph in a cluster pulls a node up from a cluster nested in it",
+            "test a root rank subgraph pins its nodes to the root",
+            "test first of several unrelated clusters is kept",
+            "test newrank turns rank pinning off",
+            "test root rank subgraph placement matches dot",
+            "test the outermost rank subgraph on a path decides",
+            "test worked example placement matches dot",
+            "test worked example yields exactly the two documented warnings"
+          ]
+        },
+        "graphvix.warnings.I5": {
+          "failing": 3,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a later occurrence in a nested cluster moves the node deeper",
+            "test worked example placement matches dot",
+            "test worked example yields exactly the two documented warnings"
+          ]
+        },
+        "graphvix.warnings.I6": {
+          "failing": 4,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a node only in plain subgraphs never warns",
+            "test a rank subgraph and its own enclosing cluster do not warn",
+            "test edges to undeclared nodes neither warn nor anchor",
+            "test root plus one cluster never warns"
+          ]
+        },
+        "graphvix.warnings.I7": {
+          "failing": 4,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test cluster-like subgraph placement matches dot",
+            "test subgraphs named like clusters count as clusters",
+            "test subgraphs treated as clusters are checked against C",
+            "test subgraphs with cluster true count as clusters"
+          ]
+        },
+        "graphvix.warnings.I8": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a subgraph and a cluster with the same id do not clash",
+            "test duplicate emitted names are reported"
+          ]
+        },
+        "graphvix.warnings.I9": {
+          "failing": 2,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a port defined in any occurrence of the node counts",
+            "test ports a node does not define are reported"
+          ]
+        }
+      }
+    },
+    "system": {
+      "active": 0,
+      "app": "system",
+      "coverage": null,
+      "covered": 0,
+      "form": "system",
+      "obligations": {}
+    }
+  },
+  "covenant": "0.2.0",
+  "totals": {
+    "active": 57,
+    "coverage": 0.0702,
+    "covered": 4
+  }
+}
