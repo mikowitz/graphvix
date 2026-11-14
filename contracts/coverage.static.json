@@ -229,6 +229,7 @@
           "testable": true,
           "tests": [
             "test port cells render with their port",
+            "test port names are escaped like cell text",
             "test ports lists every port at any depth in definition order"
           ]
         },
@@ -240,7 +241,9 @@
           "testable": true,
           "tests": [
             "property record cell text never leaves a special character unescaped",
-            "test port cell text is escaped too"
+            "test a backslash before a special character is escaped and others are kept",
+            "test port cell text is escaped too",
+            "test port names are escaped like cell text"
           ]
         },
         "graphvix.records.I4": {
@@ -588,6 +591,7 @@
           "tests": [
             "property placement agrees with dot -Tjson",
             "test cluster-like subgraph placement matches dot",
+            "test root rank subgraph placement matches dot",
             "test the reported winner is the value dot uses",
             "test worked example placement matches dot"
           ]
@@ -614,7 +618,8 @@
             "test edge attributes and edge defaults use E",
             "test node attributes and node defaults use N",
             "test root graph attributes use G",
-            "test subgraph graph attributes use S"
+            "test subgraph graph attributes use S",
+            "test subgraphs treated as clusters are checked against C"
           ]
         },
         "graphvix.warnings.I4": {
@@ -624,7 +629,13 @@
           "status": "active",
           "testable": true,
           "tests": [
+            "test a rank subgraph in a cluster is not deepened by a nested cluster",
+            "test a rank subgraph in a cluster pulls a node up from a cluster nested in it",
+            "test a root rank subgraph pins its nodes to the root",
             "test first of several unrelated clusters is kept",
+            "test newrank turns rank pinning off",
+            "test root rank subgraph placement matches dot",
+            "test the outermost rank subgraph on a path decides",
             "test worked example placement matches dot",
             "test worked example yields exactly the two documented warnings"
           ]
@@ -649,6 +660,7 @@
           "testable": true,
           "tests": [
             "test a node only in plain subgraphs never warns",
+            "test a rank subgraph and its own enclosing cluster do not warn",
             "test edges to undeclared nodes neither warn nor anchor",
             "test root plus one cluster never warns"
           ]
@@ -662,6 +674,7 @@
           "tests": [
             "test cluster-like subgraph placement matches dot",
             "test subgraphs named like clusters count as clusters",
+            "test subgraphs treated as clusters are checked against C",
             "test subgraphs with cluster true count as clusters"
           ]
         },

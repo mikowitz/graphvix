@@ -70,8 +70,11 @@ defmodule Graphvix.RecordsContractTest do
 
   @tag obligation: "graphvix.records.I3"
   property "record cell text never leaves a special character unescaped" do
-    check all(text <- string([?a, ?b, ?\s, ?{, ?}, ?|, ?<, ?>], min_length: 1)) do
-      expected = String.replace(text, ~r/([{}|<>])/, "\\\\\\1")
+    check all(text <- string([?a, ?b, ?n, ?\s, ?{, ?}, ?|, ?<, ?>, ?\\], min_length: 1)) do
+      expected =
+        ~r/(\\+)(?=[{}|<>]|$)/
+        |> Regex.replace(text, fn _, run -> run <> run end)
+        |> String.replace(~r/([{}|<>])/, "\\\\\\1")
 
       assert Record.to_label(Record.new([text, "x"])) == expected <> " | x"
       assert Record.to_label(Record.new(text)) == expected
@@ -81,6 +84,19 @@ defmodule Graphvix.RecordsContractTest do
   @tag obligation: "graphvix.records.I3"
   test "port cell text is escaped too" do
     assert Record.to_label(Record.new([{"p", "a|b"}])) == "<p> a\\|b"
+  end
+
+  @tag obligation: ["graphvix.records.I2", "graphvix.records.I3"]
+  test "port names are escaped like cell text" do
+    assert Record.to_label(Record.new([{"a>b", "x"}])) == "<a\\>b> x"
+    assert Record.to_label(Record.new([{"a{b|c", "x"}])) == "<a\\{b\\|c> x"
+  end
+
+  @tag obligation: "graphvix.records.I3"
+  test "a backslash before a special character is escaped and others are kept" do
+    assert Record.to_label(Record.new(["x\\{y"])) == "x\\\\\\{y"
+    assert Record.to_label(Record.new(["end\\", "z"])) == "end\\\\ | z"
+    assert Record.to_label(Record.new(["line\\nbreak"])) == "line\\nbreak"
   end
 
   # -- I4 -----------------------------------------------------------------------

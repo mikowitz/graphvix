@@ -7,6 +7,6 @@
       rejected: Puts the network in every build and makes builds non-reproducible.
     - option: Hand-maintain the list
       rejected: Drifts from Graphviz with no way to tell.
-  evidence: The reference page lists 176 attributes; its "Used By" column uses only the words Graphs, Subgraphs, Clusters, Nodes and Edges (checked 2026-11-14).
+  evidence: The reference page lists 177 attributes (one, nslimit1, contains a digit); its "Used By" column uses only the words Graphs, Subgraphs, Clusters, Nodes and Edges (checked 2026-11-14).
   invariant: [graphvix.attribute_table.I1, graphvix.attribute_table.I4]
   approved_by: mikowitz (2026-11-14)

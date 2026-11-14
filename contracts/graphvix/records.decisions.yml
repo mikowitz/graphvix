@@ -1,7 +1,8 @@
 - id: escape-record-text
   date: "2026-11-14"
-  decision: Record cell text escapes `{ } | < >` with a backslash.
-  driver: 1.x passed cell text through, so a `|` in user text silently split a cell.
+  decision: Record cell text and port names escape `{ } | < >` with a backslash and double any backslash run directly before one of them or at the end of the text; other backslashes are kept.
+  driver: 1.x passed cell text through, so a `|` in user text silently split a cell; a final review found that a caller's backslash before a special character (`x\{y`) and special characters in port names still produced labels dot rejects.
+  evidence: 300 random cells and ports over `a {}|<>\" n`, escaped this way and then per graphvix.render.I6, all accepted by `dot -Tcanon` 13.0.0; escaping specials alone failed 59 of them.
   alternatives:
     - option: Pass text through as 1.x did
       rejected: User text can change the record's structure.

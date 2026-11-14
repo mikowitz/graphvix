@@ -306,7 +306,13 @@ defmodule Graphvix.RenderContractTest do
       end)
       |> Graphvix.add_edge("node", {"edge", "p\"1", :n})
 
-    assert {_, 0} = run_dot(quiet_to_dot(g), "json")
+    assert {out, 0} = run_dot(quiet_to_dot(g), "json")
+
+    names = for obj <- JSON.decode!(out)["objects"], do: obj["name"]
+
+    for id <- [~s(say "hi"), "node", "edge", "graph", "strict", "subgraph", "line\nbreak"] do
+      assert id in names
+    end
   end
 
   # -- I7 -----------------------------------------------------------------------

@@ -51,7 +51,8 @@ defmodule Graphvix.AttributeTableContractTest do
     assert Attributes.lookup("rank") == {:ok, [:S]}
     assert Attributes.lookup("rankdir") == {:ok, [:G]}
     assert Attributes.lookup("shape") == {:ok, [:N]}
-    assert length(Attributes.names()) == 176
+    assert Attributes.lookup("nslimit1") == {:ok, [:G]}
+    assert length(Attributes.names()) == 177
   end
 
   # -- I3 -----------------------------------------------------------------------
@@ -112,7 +113,8 @@ defmodule Graphvix.AttributeTableContractTest do
              {"lhead", [:E]},
              {"rank", [:S]},
              {"rankdir", [:G]},
-             {"shape", [:N]}
+             {"shape", [:N]},
+             {"nslimit1", [:G]}
            ]
   end
 end

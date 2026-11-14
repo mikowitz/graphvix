@@ -43,6 +43,22 @@ All verified with Graphviz `dot` 13.0.0 (20250608.1624) and checked by the
   leaves it where it is.
 - Occurrences at the root never anchor a node: a node declared at the root
   and later in a cluster is placed in the cluster.
+- Unless the root graph sets `newrank="true"`, a subgraph that sets a
+  non-empty `rank` pins its nodes to the innermost cluster enclosing that
+  subgraph (the root if none), in whichever order the statements come: a node
+  in a root-level `rank="same"` subgraph is removed from every cluster that
+  also lists it, silently when the rank subgraph is read first. With
+  `newrank="true"` rank subgraphs do not affect placement. Inside a cluster,
+  the outermost `rank` subgraph on a node's path claims the node for its
+  enclosing cluster: it beats an earlier claim by a cluster nested inside
+  that one (pulling the node up), is not beaten by a later one, and loses to
+  an earlier unrelated cluster. The full rule is I4; it matched `dot -Tjson`
+  on 1500 random trees of clusters, cluster-like, plain and `rank` subgraphs
+  (with and without `newrank`) nested three deep.
+- `dot` 13.0.0 itself crashes (exit status 139) on some graphs where `rank`
+  subgraphs and clusters share nodes (11 of those 1500 trees), e.g. a node
+  claimed by `cluster_y` inside `cluster_x` and then listed in a `rank`
+  subgraph directly inside `cluster_x`.
 - A subgraph is a cluster when its name starts with `cluster` in any case
   (`Cluster_z`, `clusterX`) or when it sets `cluster="true"`.
 - In `dot -Tjson` output, cluster objects carry a `bb` key and plain subgraph
@@ -104,22 +120,22 @@ All verified with Graphviz `dot` 13.0.0 (20250608.1624) and checked by the
 
 ### graphvix.warnings.I3 — Attributes on elements that do not use them
 - **scope:** every known attribute key
-- **must:** report `{:unsupported_attribute, target, key}` when the key's "used by" letters do not include the target's letter: root graph attributes G, subgraph graph attributes S, cluster graph attributes C, node attributes and `node [...]` defaults N, edge attributes and `edge [...]` defaults E
+- **must:** report `{:unsupported_attribute, target, key}` when the key's "used by" letters do not include the target's letter: root graph attributes G, subgraph graph attributes S (C for a subgraph that I7 treats as a cluster; its target stays `{:subgraph, path}`), cluster graph attributes C, node attributes and `node [...]` defaults N, edge attributes and `edge [...]` defaults E
 - **why:** Graphviz ignores an attribute on an element that does not use it, without saying so
 - **kind:** functional
 - **status:** active
 
 ### graphvix.warnings.I4 — A node in clusters that do not contain each other
 - **scope:** every node id with occurrences in two or more clusters
-- **must:** compute the node's placement by walking its occurrences in render order (the first cluster occurrence sets it; an occurrence in a descendant of the current cluster moves it there; any other is ignored), and when any cluster occurrence is ignored report `{:multiple_clusters, node_id, kept: path, ignored: [path]}`, where `kept` is the path of the occurrence that set the final placement and `ignored` the paths of the ignored occurrences, in render order
-- **why:** Graphviz keeps the first cluster and silently drops the node from the others
+- **must:** compute each node's placement by walking its occurrences in render order. An occurrence is a *rank occurrence* when the root graph does not set `newrank` to `true` or `"true"` and some subgraph on its path sets a non-empty `rank`; its cluster is the innermost cluster enclosing the **outermost** such subgraph (none if that subgraph is not inside a cluster). Any other occurrence's cluster is the innermost cluster on its path; occurrences with no cluster are skipped. Starting with no placement and not pinned: (1) a rank occurrence with no cluster makes the root the final placement and ends the walk; (2) with no placement yet, the occurrence's cluster becomes the placement, pinned if it is a rank occurrence; (3) a rank occurrence whose cluster is the placement or an ancestor of it makes that cluster the placement and pins it; (4) an occurrence whose cluster is a strict descendant of an unpinned placement makes that cluster the placement, pinned if it is a rank occurrence; (5) anything else changes nothing. The occurrence that last changed the placement *set* it. Report `{:multiple_clusters, node_id, kept: path, ignored: [path]}` when some occurrence's cluster is neither the placement nor an ancestor of it (an occurrence in a descendant of the placement included), where `kept` is the path of the occurrence that set the placement and `ignored` the paths of those occurrences, in render order. "Descendant" and "ancestor" are by position in the tree, so two clusters that share an emitted name are still different clusters
+- **why:** Graphviz keeps the first cluster and silently drops the node from the others, and a `rank` subgraph silently takes its nodes out of clusters outside it
 - **kind:** functional
 - **record:** placement-model
 - **status:** active
 
 ### graphvix.warnings.I5 — A node in a cluster and a cluster nested inside it
 - **scope:** every node id with occurrences in two or more clusters on one chain of nesting
-- **must:** report `{:nested_clusters, node_id, placed: path, also: [path]}` where `placed` is the path of the occurrence that sets the final placement and `also` the paths of the other occurrences whose clusters contain it, in render order; a node can get both this warning and I4's
+- **must:** report `{:nested_clusters, node_id, placed: path, also: [path]}` when some occurrence's cluster (as defined in I4) is a strict ancestor of the placement (computed per I4), where `placed` is the path of the occurrence that set the placement and `also` the paths of those ancestor occurrences, in render order; a node can get both this warning and I4's
 - **why:** Graphviz places the node in the deepest cluster without a message; listing it in an outer cluster as well is usually a mistake
 - **kind:** functional
 - **record:** warn-nested-membership
@@ -127,8 +143,8 @@ All verified with Graphviz `dot` 13.0.0 (20250608.1624) and checked by the
 
 ### graphvix.warnings.I6 — What never warns about placement
 - **scope:** I4, I5
-- **must:** never count root occurrences, occurrences in plain subgraphs outside any cluster, or edge endpoints toward I4 or I5; a node at the root and in one cluster, a node only in plain subgraphs, and an edge to a node never added produce no warning
-- **why:** declaring every node at the root and grouping them afterwards is normal; plain subgraphs (such as `rank=same`) do not affect placement; edges live at the root and create nodes there
+- **must:** never count root occurrences, occurrences in plain subgraphs that set no `rank`, or edge endpoints toward I4 or I5; a node at the root and in one cluster, a node only in plain subgraphs, a node in a `rank` subgraph and in the cluster that encloses it, and an edge to a node never added produce no warning
+- **why:** declaring every node at the root and grouping them afterwards is normal; subgraphs without `rank` do not affect placement; edges live at the root and create nodes there
 - **kind:** functional
 - **status:** active
 
@@ -201,7 +217,7 @@ All verified with Graphviz `dot` 13.0.0 (20250608.1624) and checked by the
 
 ### graphvix.warnings.I16 — Placement agrees with Graphviz
 - **scope:** I4, I5, I6, I7
-- **must:** for every graph the builders can make, the placement implied by the warnings (a warned node's `kept` or `placed` path; otherwise the deepest cluster among its occurrences; otherwise the root) equals where `dot -Tjson` places the node
+- **must:** for every graph the builders can make, including `rank` subgraphs with and without `newrank`, the placement implied by the warnings (the innermost cluster on a warned node's `kept` or `placed` path; otherwise the deepest cluster among its occurrences; otherwise the root) equals where `dot -Tjson` places the node; graphs on which `dot` itself crashes are outside this obligation
 - **why:** the model is only useful if it matches Graphviz; the environment facts above are Graphviz behaviour, not documentation
 - **kind:** functional
 - **record:** placement-model
@@ -211,7 +227,7 @@ All verified with Graphviz `dot` 13.0.0 (20250608.1624) and checked by the
 
 | Decision | Value | Reason | Record |
 | --- | --- | --- | --- |
-| Placement model | first cluster wins; descendant moves deeper; ancestor keeps | matches `dot` 13.0.0 | placement-model |
+| Placement model | `rank` subgraph pins (unless `newrank`); else first cluster wins, descendant moves deeper, ancestor keeps | matches `dot` 13.0.0 | placement-model |
 | Nested membership | warn | Graphviz is silent; usually a mistake | warn-nested-membership |
 | Cluster-like subgraphs | `cluster*` any case, or `cluster=true` | matches `dot` | cluster-like-subgraphs |
 | Duplicate names | compare emitted names | DOT names are global | emitted-name-duplicates |
@@ -260,6 +276,8 @@ renders `cluster_3` before `cluster_2`'s own nodes, and must return exactly:
 - Attribute values are not validated (`rankdir="sideways"` does not warn).
 - Edges inside subgraphs are not modelled because they cannot be built.
 - The model is verified against Graphviz 13.0.0 only.
+- Graphs on which `dot` 13.0.0 crashes (see Environment facts) cannot be
+  checked; Graphvix still renders them and still reports its warnings.
 - `HTMLRecord` labels on non-node elements are not checked against
   `allowed_attributes/1` (only node labels are, per I11).
 
@@ -276,6 +294,10 @@ order exactly, and the checks call `Graphvix.Attributes.lookup/1`,
 Questions previous rounds asked, answered:
 
 - *Does a node at the root and in one cluster warn?* No (I6).
+- *Does a `rank="same"` subgraph affect placement?* Yes, unless the root
+  sets `newrank`: it pins its nodes at its own cluster level (I4), and a
+  cluster elsewhere that lists them loses them with a `multiple_clusters`
+  warning.
 - *Does a plain subgraph inside a cluster change a node's cluster path?* No;
   only clusters and cluster-like subgraphs (I7) count, but the plain
   subgraph's name still appears in the reported paths.

@@ -38,9 +38,23 @@ defmodule Graphvix.WarningsContractTest do
     end
   end
 
+  defp try_dot_json(text) do
+    path = Path.join(System.tmp_dir!(), "graphvix-warn-#{System.unique_integer([:positive])}.dot")
+    File.write!(path, text)
+
+    try do
+      case System.cmd("dot", ["-Tjson", path], stderr_to_stdout: false) do
+        {out, 0} -> {:ok, JSON.decode!(out)}
+        {_, status} when status >= 128 -> :crashed
+      end
+    after
+      File.rm(path)
+    end
+  end
+
   # node name => name of the deepest cluster dot placed it in (nil = root)
   defp dot_placement(json) do
-    objects = json["objects"]
+    objects = json["objects"] || []
     by_gvid = Map.new(objects, &{&1["_gvid"], &1})
 
     depth =
@@ -199,6 +213,19 @@ defmodule Graphvix.WarningsContractTest do
            ]
   end
 
+  @tag obligation: ["graphvix.warnings.I3", "graphvix.warnings.I7"]
+  test "subgraphs treated as clusters are checked against C" do
+    like =
+      Subgraph.new("cluster_a") |> Subgraph.set_attributes(:graph, label: "A", bgcolor: "red")
+
+    plain = Subgraph.new("s") |> Subgraph.set_attributes(:graph, bgcolor: "red")
+
+    assert Graphvix.warnings(Graphvix.add_subgraph(Graphvix.new(), like)) == []
+
+    assert Graphvix.warnings(Graphvix.add_subgraph(Graphvix.new(), plain)) ==
+             [{:unsupported_attribute, {:subgraph, ["s"]}, "bgcolor"}]
+  end
+
   # -- I4, I5, I15 --------------------------------------------------------------
 
   @tag obligation: ["graphvix.warnings.I4", "graphvix.warnings.I5", "graphvix.warnings.I15"]
@@ -342,6 +369,105 @@ defmodule Graphvix.WarningsContractTest do
              "b" => "s",
              "c" => "cluster_x"
            }
+  end
+
+  # -- rank subgraphs (I4, I6, I16) -------------------------------------------
+
+  defp rank_subgraph(id, nodes) do
+    Enum.reduce(
+      nodes,
+      Subgraph.new(id) |> Subgraph.set_attributes(:graph, rank: "same"),
+      &Subgraph.add_node(&2, &1)
+    )
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "a root rank subgraph pins its nodes to the root" do
+    g =
+      Graphvix.new()
+      |> Graphvix.add_subgraph(rank_subgraph("s", ["a", "b"]))
+      |> Graphvix.add_cluster(cluster("x", ["a", "c"]))
+
+    assert Graphvix.warnings(g) == [
+             {:multiple_clusters, "a", kept: ["s"], ignored: [["cluster_x"]]}
+           ]
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "the outermost rank subgraph on a path decides" do
+    inner = Cluster.new("y") |> Cluster.add_subgraph(rank_subgraph("t", ["a"]))
+
+    outer =
+      Subgraph.new("s")
+      |> Subgraph.set_attributes(:graph, rank: "same")
+      |> Subgraph.add_cluster(inner)
+
+    g = Graphvix.add_subgraph(Graphvix.new(), outer)
+
+    assert Graphvix.warnings(g) == []
+
+    assert Graphvix.warnings(Graphvix.add_cluster(g, cluster("z", ["a"]))) ==
+             [{:multiple_clusters, "a", kept: ["s", "cluster_y", "t"], ignored: [["cluster_z"]]}]
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "newrank turns rank pinning off" do
+    g =
+      Graphvix.new()
+      |> Graphvix.set_attributes(:graph, newrank: true)
+      |> Graphvix.add_subgraph(rank_subgraph("s", ["a", "b"]))
+      |> Graphvix.add_cluster(cluster("x", ["a", "c"]))
+
+    assert Graphvix.warnings(g) == []
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "a rank subgraph in a cluster is not deepened by a nested cluster" do
+    x =
+      Cluster.new("x")
+      |> Cluster.add_subgraph(rank_subgraph("s", ["a"]))
+      |> Cluster.add_cluster(cluster("y", ["a"]))
+
+    assert Graphvix.warnings(Graphvix.add_cluster(Graphvix.new(), x)) == [
+             {:multiple_clusters, "a",
+              kept: ["cluster_x", "s"], ignored: [["cluster_x", "cluster_y"]]}
+           ]
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "a rank subgraph in a cluster pulls a node up from a cluster nested in it" do
+    x =
+      Cluster.new("x")
+      |> Cluster.add_subgraph(Subgraph.new("clusterQ") |> Subgraph.add_node("a"))
+      |> Cluster.add_subgraph(rank_subgraph("s", ["a"]))
+
+    assert Graphvix.warnings(Graphvix.add_cluster(Graphvix.new(), x)) == [
+             {:multiple_clusters, "a",
+              kept: ["cluster_x", "s"], ignored: [["cluster_x", "clusterQ"]]}
+           ]
+  end
+
+  @tag obligation: "graphvix.warnings.I6"
+  test "a rank subgraph and its own enclosing cluster do not warn" do
+    x =
+      Cluster.new("x")
+      |> Cluster.add_subgraph(rank_subgraph("s", ["a", "b"]))
+      |> Cluster.add_node("a")
+
+    assert Graphvix.warnings(Graphvix.add_cluster(Graphvix.new(), x)) == []
+  end
+
+  @tag :graphviz
+  @tag obligation: ["graphvix.warnings.I4", "graphvix.warnings.I16"]
+  test "root rank subgraph placement matches dot" do
+    g =
+      Graphvix.new()
+      |> Graphvix.add_subgraph(rank_subgraph("s", ["a", "b"]))
+      |> Graphvix.add_cluster(cluster("x", ["a", "c"]))
+
+    {dot, _} = with_log(fn -> Graphvix.to_dot(g) end)
+
+    assert dot_placement(run_dot_json(dot)) == %{"a" => nil, "b" => nil, "c" => "cluster_x"}
   end
 
   # -- I8 -----------------------------------------------------------------------
@@ -520,20 +646,17 @@ defmodule Graphvix.WarningsContractTest do
 
   # -- I16 ----------------------------------------------------------------------
 
-  # A random tree: root nodes, plain subgraphs and clusters nested up to three
-  # deep, with node ids drawn from a small pool so they repeat across blocks.
+  # A random tree: root nodes and clusters, cluster-like, plain and rank=same
+  # subgraphs nested up to three deep, with node ids drawn from a small pool so
+  # they repeat across blocks.
   defp node_ids, do: list_of(member_of(~w(a b c d e)), max_length: 3)
 
   defp block_gen(0), do: tuple({node_ids(), constant([])})
 
-  defp block_gen(depth),
-    do:
-      tuple(
-        {node_ids(),
-         list_of(tuple({member_of([:cluster, :plain, :like]), block_gen(depth - 1)}),
-           max_length: 2
-         )}
-      )
+  defp block_gen(depth) do
+    kind = member_of([:cluster, :plain, :like, :rank])
+    tuple({node_ids(), list_of(tuple({kind, block_gen(depth - 1)}), max_length: 2)})
+  end
 
   defp build_children(children, prefix) do
     children
@@ -541,14 +664,22 @@ defmodule Graphvix.WarningsContractTest do
     |> Enum.map(fn {{kind, {nodes, grandchildren}}, i} ->
       id = "#{prefix}#{i}"
 
-      {mod, id} =
+      {mod, block} =
         case kind do
-          :cluster -> {Cluster, id}
-          :plain -> {Subgraph, "p" <> id}
-          :like -> {Subgraph, "clusterlike" <> id}
+          :cluster ->
+            {Cluster, Cluster.new(id)}
+
+          :plain ->
+            {Subgraph, Subgraph.new("p" <> id)}
+
+          :like ->
+            {Subgraph, Subgraph.new("clusterlike" <> id)}
+
+          :rank ->
+            {Subgraph, Subgraph.new("rk" <> id) |> Subgraph.set_attributes(:graph, rank: "same")}
         end
 
-      block = Enum.reduce(nodes, mod.new(id), &mod.add_node(&2, &1))
+      block = Enum.reduce(nodes, block, &mod.add_node(&2, &1))
 
       Enum.reduce(build_children(grandchildren, id <> "_"), block, fn
         {Cluster, child}, acc -> mod.add_cluster(acc, child)
@@ -558,22 +689,44 @@ defmodule Graphvix.WarningsContractTest do
     end)
   end
 
-  # emitted names of the clusters enclosing each node occurrence, per node id
-  defp cluster_occurrences(block, path \\ []) do
-    own = for n <- block.nodes, do: {n.id, Enum.filter(path, &(&1 =~ ~r/^cluster/i))}
+  # {node id, emitted names of the blocks enclosing the occurrence}, in render order
+  defp occurrences(block, path \\ []) do
+    own = for n <- block.nodes, do: {n.id, path}
 
     nested =
-      Enum.flat_map(block.subgraphs, &cluster_occurrences(&1, path ++ [&1.id])) ++
-        Enum.flat_map(block.clusters, &cluster_occurrences(&1, path ++ ["cluster_" <> &1.id]))
+      Enum.flat_map(block.subgraphs, &occurrences(&1, path ++ [&1.id])) ++
+        Enum.flat_map(block.clusters, &occurrences(&1, path ++ ["cluster_" <> &1.id]))
 
     nested ++ own
+  end
+
+  # the occurrence's cluster as warnings.I4 defines it (nil = none)
+  defp occurrence_cluster(path, newrank) do
+    path =
+      if newrank,
+        do: path,
+        else: Enum.take_while(path, &(not String.starts_with?(&1, "rk")))
+
+    path
+    |> Enum.with_index()
+    |> Enum.filter(fn {name, _} -> name =~ ~r/^cluster/i end)
+    |> List.last({nil, -1})
   end
 
   @tag :graphviz
   @tag obligation: "graphvix.warnings.I16"
   property "placement agrees with dot -Tjson" do
-    check all({root_nodes, children} <- block_gen(3), max_runs: 50) do
-      g = Enum.reduce(root_nodes, Graphvix.new(), &Graphvix.add_node(&2, &1))
+    check all(
+            {root_nodes, children} <- block_gen(3),
+            newrank <- frequency([{3, constant(false)}, {1, constant(true)}]),
+            max_runs: 100
+          ) do
+      g =
+        if newrank,
+          do: Graphvix.set_attributes(Graphvix.new(), :graph, newrank: true),
+          else: Graphvix.new()
+
+      g = Enum.reduce(root_nodes, g, &Graphvix.add_node(&2, &1))
 
       g =
         Enum.reduce(build_children(children, "c"), g, fn
@@ -582,7 +735,7 @@ defmodule Graphvix.WarningsContractTest do
         end)
 
       warnings = Graphvix.warnings(g)
-      occurrences = cluster_occurrences(g)
+      occurrences = occurrences(g)
 
       expected =
         for {id, _} <- occurrences, into: %{} do
@@ -593,19 +746,26 @@ defmodule Graphvix.WarningsContractTest do
               _ -> nil
             end)
 
-          chain =
-            warned ||
+          cluster =
+            if warned do
+              occurrence_cluster(warned, newrank)
+            else
               occurrences
               |> Enum.filter(&(elem(&1, 0) == id))
-              |> Enum.map(&elem(&1, 1))
-              |> Enum.max_by(&length/1)
+              |> Enum.map(&occurrence_cluster(elem(&1, 1), newrank))
+              |> Enum.max_by(&elem(&1, 1))
+            end
 
-          {id, chain |> Enum.filter(&(&1 =~ ~r/^cluster/i)) |> List.last()}
+          {id, elem(cluster, 0)}
         end
 
       {dot, _} = with_log(fn -> Graphvix.to_dot(g) end)
 
-      assert dot_placement(run_dot_json(dot)) == expected, dot
+      # graphs on which dot itself crashes are outside I16
+      case try_dot_json(dot) do
+        {:ok, json} -> assert dot_placement(json) == expected, dot
+        :crashed -> :ok
+      end
     end
   end
 end

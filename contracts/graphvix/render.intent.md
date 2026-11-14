@@ -187,7 +187,7 @@ warning (`graphvix.warnings`); validating attribute values; layout.
 
 ### graphvix.render.I16 — Output is always valid DOT
 - **scope:** `Graphvix.to_dot/1`
-- **must:** produce text that `dot` parses without error for every graph the builders can construct, including ids, ports and labels containing quotes, backslashes, newlines and DOT keywords
+- **must:** produce text that `dot` parses without error for every graph the builders can construct (except graphs on which `dot` 13.0.0 itself crashes; see Known limits), including ids, ports and labels containing quotes, backslashes, newlines and DOT keywords
 - **why:** the library's job is to produce input Graphviz accepts; a caller should never have to escape anything themselves
 - **kind:** functional
 - **status:** active
@@ -280,6 +280,13 @@ strict digraph G {
   expressed.
 - Edges cannot be placed inside subgraphs or clusters.
 - The graph is always named `G`.
+- `dot` 13.0.0 crashes (exit status 139, even with `-Tcanon`) on some graphs
+  where `rank` subgraphs and clusters share nodes; the output is still the
+  DOT this Contract specifies.
+- Two ids cannot round-trip through Graphviz: an id ending in an odd run of
+  backslashes gains one (I6), and a caller's `\"` inside an id is read by
+  Graphviz as `"`. Every other id, including DOT keywords, quotes and
+  newlines, is read back unchanged (checked by the I16 `:graphviz` test).
 
 ## Regeneration brief
 

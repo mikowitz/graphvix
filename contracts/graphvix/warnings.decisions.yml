@@ -1,8 +1,8 @@
 - id: placement-model
   date: "2026-11-14"
-  decision: A node's cluster is set by its first cluster occurrence in render order, moved deeper by a later occurrence in a descendant, and kept by a later occurrence in an ancestor or an unrelated cluster.
-  driver: Graphviz places nodes this way silently; warnings are only useful if they predict where Graphviz puts the node.
-  evidence: "`dot -Tjson` 13.0.0 on the worked example in warnings.intent.md and on `subgraph cluster_y { c; }` nested before `c;` in its parent cluster."
+  decision: Unless the root sets newrank=true, an occurrence in a subgraph with a non-empty rank pins the node to that subgraph's innermost enclosing cluster; otherwise a node's cluster is set by its first cluster occurrence in render order, moved deeper by a later occurrence in a descendant, and kept by a later occurrence in an ancestor or an unrelated cluster.
+  driver: Graphviz places nodes this way silently; warnings are only useful if they predict where Graphviz puts the node. The rank rule was added after the final review showed a root-level rank=same subgraph silently removing nodes from clusters.
+  evidence: "`dot -Tjson` 13.0.0 on the worked example in warnings.intent.md, on `subgraph cluster_y { c; }` nested before `c;` in its parent cluster, and on rank=same/min subgraphs before and after clusters, nested in clusters, and with newrank=true."
   conditions:
     - text: Graphviz 13.x placement semantics
   invariant: [graphvix.warnings.I4, graphvix.warnings.I16]

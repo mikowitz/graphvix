@@ -35,7 +35,7 @@ order `:G, :S, :C, :N, :E`.
 
 ### graphvix.attribute_table.I2 — Pinned facts from the reference
 - **scope:** `Graphvix.Attributes.lookup/1`
-- **must:** return, as fetched on 2026-11-14 (page modified 2024-07-28): `cluster` → `[:S, :C]`; `color` → `[:C, :N, :E]`; `label` → `[:G, :C, :N, :E]`; `lhead` → `[:E]`; `rank` → `[:S]`; `rankdir` → `[:G]`; `shape` → `[:N]`; and know exactly 176 attributes
+- **must:** return, as fetched on 2026-11-14 (page modified 2024-07-28): `cluster` → `[:S, :C]`; `color` → `[:C, :N, :E]`; `label` → `[:G, :C, :N, :E]`; `lhead` → `[:E]`; `rank` → `[:S]`; `rankdir` → `[:G]`; `shape` → `[:N]`; `nslimit1` → `[:G]`; and know exactly 177 attributes (names may contain digits)
 - **why:** these are environment facts the warnings Contract's tests rely on; a regeneration that changes them must be reviewed, not absorbed
 - **kind:** persisted-format
 - **status:** active
@@ -57,7 +57,7 @@ order `:G, :S, :C, :N, :E`.
 
 ### graphvix.attribute_table.I5 — parse/1 reads the reference table
 - **scope:** `Mix.Tasks.Graphvix.Gen.Attributes.parse/1`
-- **must:** return one `{name, letters}` row per attribute row of the reference table, in page order, mapping Graphs, Subgraphs, Clusters, Nodes and Edges to `:G`, `:S`, `:C`, `:N` and `:E`
+- **must:** return one `{name, letters}` row per attribute row of the reference table, in page order (including names containing digits, such as `nslimit1`), mapping Graphs, Subgraphs, Clusters, Nodes and Edges to `:G`, `:S`, `:C`, `:N` and `:E`
 - **why:** the generator's correctness is what keeps I1 true after a regeneration; a saved excerpt of the page pins its parsing
 - **kind:** functional
 - **status:** active

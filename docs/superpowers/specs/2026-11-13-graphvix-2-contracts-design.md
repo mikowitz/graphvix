@@ -311,7 +311,10 @@ Placement rules (behind kinds 3 and 4):
 - Root occurrences never anchor a node and never warn (declaring nodes at the
   root and grouping them later is normal).
 - Plain subgraphs are transparent to placement; being in a subgraph never
-  warns on its own. A subgraph's cluster ancestry still counts. Exception:
+  warns on its own. (Revised 2026-11-14 after final review: a subgraph that
+  sets `rank` is *not* transparent unless the root sets `newrank`; it pins its
+  nodes at its enclosing cluster level. The full rule, fuzzed against `dot`,
+  is `graphvix.warnings.I4`.) A subgraph's cluster ancestry still counts. Exception:
   a `Subgraph` that Graphviz itself treats as a cluster (name starting with
   "cluster" in any case, or `cluster=true`) is a cluster for placement.
 - Processing occurrences in render order: the first cluster occurrence sets

@@ -28,15 +28,15 @@ and sets the node's shape.
 
 ### graphvix.records.I2 — Port cells render with their port and are listed
 - **scope:** `Graphvix.Record.to_label/1`, `Graphvix.Record.ports/1`
-- **must:** a cell `{port, text}` renders `"<port> text"`; `ports/1` returns every port name in the record, at any depth, in definition order
+- **must:** a cell `{port, text}` renders `"<port> text"`, with both the port and the text escaped per I3; `ports/1` returns every port name in the record, at any depth, in definition order
 - **why:** ports let edges attach to a cell; `graphvix.warnings` checks edge ports against `ports/1`
 - **kind:** functional
 - **status:** active
 
 ### graphvix.records.I3 — Record cell text is escaped
 - **scope:** `Graphvix.Record.to_label/1`
-- **must:** escape `{`, `}`, `|`, `<` and `>` in cell text with a backslash, so text containing them renders as literal characters
-- **why:** 1.x did not escape, so a `|` in cell text silently split the cell and changed the record's layout
+- **must:** in cell text and port names, double every run of backslashes that comes directly before `{`, `}`, `|`, `<`, `>` or the end of the text, then put a backslash before each `{`, `}`, `|`, `<` and `>`; leave every other backslash as written (`x\{y` → `x\\\{y`, `a>b` → `a\>b`, `line\nbreak` unchanged)
+- **why:** 1.x did not escape, so a `|` in cell text silently split the cell; Graphviz's record parser also reads a backslash as escaping the next character, so a caller's backslash before a special character must itself be escaped or the label is rejected ("bad label format"), while `\n` and `\l` must keep working (checked by fuzzing against `dot -Tcanon` 13.0.0)
 - **kind:** functional
 - **record:** escape-record-text
 - **status:** active
