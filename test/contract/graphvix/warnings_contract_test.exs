@@ -478,6 +478,194 @@ defmodule Graphvix.WarningsContractTest do
     assert dot_placement(run_dot_json(dot)) == %{"a" => nil, "b" => nil, "c" => "cluster_x"}
   end
 
+  # -- ties and edge cases ----------------------------------------------------
+
+  @tag obligation: ["graphvix.warnings.I1", "graphvix.warnings.I15"]
+  test "warnings on one node statement follow kind order" do
+    html = HTMLRecord.new([tr([td("x", bogus: 1)])])
+
+    n =
+      Cluster.new("n")
+      |> Cluster.add_node("a", zzcolour: "x", weight: 1, label: html, color: "red")
+
+    one = Cluster.new("1") |> Cluster.add_cluster(n) |> Cluster.add_node("a")
+    two = cluster("2", [{"a", [color: "blue"]}])
+    g = Graphvix.new() |> Graphvix.add_cluster(one) |> Graphvix.add_cluster(two)
+
+    assert Graphvix.warnings(g) == [
+             {:unknown_attribute, {:node, "a"}, "zzcolour"},
+             {:unsupported_attribute, {:node, "a"}, "weight"},
+             {:multiple_clusters, "a",
+              kept: ["cluster_1", "cluster_n"], ignored: [["cluster_2"]]},
+             {:nested_clusters, "a", placed: ["cluster_1", "cluster_n"], also: [["cluster_1"]]},
+             {:unknown_html_attribute, "a", :td, "bogus"},
+             {:conflicting_attribute, "a", "color",
+              winner: {["cluster_2"], "blue"}, others: [{["cluster_1", "cluster_n"], "red"}]}
+           ]
+  end
+
+  @tag obligation: ["graphvix.warnings.I1", "graphvix.warnings.I10", "graphvix.warnings.I12"]
+  test "a record shape warning comes before a conflict on the same node" do
+    g =
+      Graphvix.new()
+      |> Graphvix.add_node("b", color: "blue")
+      |> Graphvix.add_cluster(
+        cluster("x", [{"b", [label: Record.new(["r"]), shape: "box", color: "red"]}])
+      )
+
+    assert Graphvix.warnings(g) == [
+             {:record_shape, "b", "box"},
+             {:conflicting_attribute, "b", "color",
+              winner: {[], "blue"}, others: [{["cluster_x"], "red"}]}
+           ]
+  end
+
+  @tag obligation: ["graphvix.warnings.I1", "graphvix.warnings.I9", "graphvix.warnings.I13"]
+  test "warnings on one edge follow kind order" do
+    g =
+      Graphvix.add_edge(Graphvix.new(), {"a", "p"}, {"b", nil, :up},
+        label: Record.new(["r"]),
+        shape: "box",
+        zzz: 1
+      )
+
+    assert Graphvix.warnings(g) == [
+             {:unknown_attribute, {:edge, {"a", "p"}, {"b", nil, :up}}, "zzz"},
+             {:unsupported_attribute, {:edge, {"a", "p"}, {"b", nil, :up}}, "shape"},
+             {:unknown_port, {{"a", "p"}, {"b", nil, :up}}, "a", "p"},
+             {:record_label_misplaced, {:edge, {"a", "p"}, {"b", nil, :up}}},
+             {:invalid_compass_point, {{"a", "p"}, {"b", nil, :up}}, "b", :up}
+           ]
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "newrank given as a string also turns rank pinning off" do
+    g =
+      Graphvix.new()
+      |> Graphvix.set_attributes(:graph, newrank: "true")
+      |> Graphvix.add_subgraph(rank_subgraph("s", ["a"]))
+      |> Graphvix.add_cluster(cluster("x", ["a"]))
+
+    assert Graphvix.warnings(g) == []
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "an empty rank does not pin" do
+    s = Subgraph.new("s") |> Subgraph.set_attributes(:graph, rank: "") |> Subgraph.add_node("a")
+    g = Graphvix.new() |> Graphvix.add_subgraph(s) |> Graphvix.add_cluster(cluster("x", ["a"]))
+
+    assert Graphvix.warnings(g) == []
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "the first root rank occurrence sets the placement" do
+    g =
+      Graphvix.new()
+      |> Graphvix.add_subgraph(rank_subgraph("s", ["a"]))
+      |> Graphvix.add_subgraph(rank_subgraph("t", ["a"]))
+      |> Graphvix.add_cluster(cluster("x", ["a"]))
+
+    assert Graphvix.warnings(g) == [
+             {:multiple_clusters, "a", kept: ["s"], ignored: [["cluster_x"]]}
+           ]
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "a rank pull-up pins the node against later nested clusters" do
+    x =
+      Cluster.new("x")
+      |> Cluster.add_subgraph(Subgraph.new("clusterQ") |> Subgraph.add_node("a"))
+      |> Cluster.add_subgraph(rank_subgraph("r", ["a"]))
+      |> Cluster.add_cluster(cluster("y", ["a"]))
+
+    assert Graphvix.warnings(Graphvix.add_cluster(Graphvix.new(), x)) == [
+             {:multiple_clusters, "a",
+              kept: ["cluster_x", "r"],
+              ignored: [["cluster_x", "clusterQ"], ["cluster_x", "cluster_y"]]}
+           ]
+  end
+
+  @tag obligation: ["graphvix.warnings.I4", "graphvix.warnings.I5"]
+  test "a cluster claimed through a plain subgraph is deepened by a nested cluster" do
+    x =
+      Cluster.new("x")
+      |> Cluster.add_subgraph(Subgraph.new("p") |> Subgraph.add_node("a"))
+      |> Cluster.add_cluster(cluster("y", ["a"]))
+
+    assert Graphvix.warnings(Graphvix.add_cluster(Graphvix.new(), x)) == [
+             {:nested_clusters, "a",
+              placed: ["cluster_x", "cluster_y"], also: [["cluster_x", "p"]]}
+           ]
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "a rank occurrence in a nested cluster pins the node there" do
+    y =
+      Cluster.new("y")
+      |> Cluster.add_subgraph(rank_subgraph("r", ["a"]))
+      |> Cluster.add_cluster(cluster("z", ["a"]))
+
+    x =
+      Cluster.new("x")
+      |> Cluster.add_subgraph(Subgraph.new("p") |> Subgraph.add_node("a"))
+      |> Cluster.add_cluster(y)
+
+    assert Graphvix.warnings(Graphvix.add_cluster(Graphvix.new(), x)) == [
+             {:multiple_clusters, "a",
+              kept: ["cluster_x", "cluster_y", "r"],
+              ignored: [["cluster_x", "cluster_y", "cluster_z"]]},
+             {:nested_clusters, "a",
+              placed: ["cluster_x", "cluster_y", "r"], also: [["cluster_x", "p"]]}
+           ]
+  end
+
+  @tag obligation: "graphvix.warnings.I4"
+  test "a later occurrence in the same cluster does not change who set the placement" do
+    x =
+      Cluster.new("x")
+      |> Cluster.add_subgraph(Subgraph.new("p") |> Subgraph.add_node("a"))
+      |> Cluster.add_node("a")
+
+    g = Graphvix.new() |> Graphvix.add_cluster(x) |> Graphvix.add_cluster(cluster("z", ["a"]))
+
+    assert Graphvix.warnings(g) == [
+             {:multiple_clusters, "a", kept: ["cluster_x", "p"], ignored: [["cluster_z"]]}
+           ]
+  end
+
+  @tag obligation: "graphvix.warnings.I6"
+  test "a plain subgraph inside a cluster does not make a nested cluster" do
+    x =
+      Cluster.new("x")
+      |> Cluster.add_subgraph(Subgraph.new("p") |> Subgraph.add_node("a"))
+      |> Cluster.add_node("a")
+
+    assert Graphvix.warnings(Graphvix.add_cluster(Graphvix.new(), x)) == []
+  end
+
+  @tag obligation: "graphvix.warnings.I8"
+  test "exactly two blocks with one name are reported" do
+    g =
+      Graphvix.new()
+      |> Graphvix.add_cluster(Cluster.new("x"))
+      |> Graphvix.add_cluster(Cluster.new("x"))
+
+    assert Graphvix.warnings(g) == [
+             {:duplicate_name, "cluster_x", [["cluster_x"], ["cluster_x"]]}
+           ]
+  end
+
+  @tag obligation: "graphvix.warnings.I10"
+  test "record labels with nil or atom record shapes do not warn" do
+    g =
+      Graphvix.new()
+      |> Graphvix.add_node("a", label: Record.new(["x"]), shape: nil)
+      |> Graphvix.add_node("b", label: Record.new(["x"]), shape: :record)
+      |> Graphvix.add_node("c", label: Record.new(["x"]), shape: :Mrecord)
+
+    assert Graphvix.warnings(g) == []
+  end
+
   # -- I8 -----------------------------------------------------------------------
 
   @tag obligation: "graphvix.warnings.I8"

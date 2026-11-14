@@ -1,0 +1,17 @@
+- at: lib/graphvix/warnings.ex:17:5
+  operator: element_removal
+  mutation: "`:duplicate_name` → `(removed)`"
+  sort: equivalent
+  reason: A duplicate_name warning sits on a subgraph or cluster opening statement, where no other kind of warning is reported, so its place in the kind order never decides a tie.
+
+- at: lib/graphvix/warnings.ex:21:5
+  operator: element_removal
+  mutation: "`:conflicting_attribute` → `(removed)`"
+  sort: equivalent
+  reason: Removing a kind sorts it after every other kind on its statement; conflicts are reported on node statements, where only earlier kinds can also appear, so they already sort last there.
+
+- at: lib/graphvix/warnings.ex:23:5
+  operator: element_removal
+  mutation: "`:invalid_compass_point` → `(removed)`"
+  sort: equivalent
+  reason: invalid_compass_point is already the last kind, and removing a kind sorts it last, so the order is unchanged.
