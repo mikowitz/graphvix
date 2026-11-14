@@ -27,7 +27,12 @@ defmodule Graphvix.WarningsContractTest do
   end
 
   defp run_dot_json(text) do
-    path = Path.join(System.tmp_dir!(), "graphvix-warn-#{System.unique_integer([:positive])}.dot")
+    path =
+      Path.join(
+        System.tmp_dir!(),
+        "graphvix-warn-#{System.pid()}-#{System.unique_integer([:positive])}.dot"
+      )
+
     File.write!(path, text)
 
     try do
@@ -39,7 +44,12 @@ defmodule Graphvix.WarningsContractTest do
   end
 
   defp try_dot_json(text) do
-    path = Path.join(System.tmp_dir!(), "graphvix-warn-#{System.unique_integer([:positive])}.dot")
+    path =
+      Path.join(
+        System.tmp_dir!(),
+        "graphvix-warn-#{System.pid()}-#{System.unique_integer([:positive])}.dot"
+      )
+
     File.write!(path, text)
 
     try do

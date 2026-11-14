@@ -10,7 +10,10 @@ defmodule Graphvix.RenderContractTest do
   # -- helpers ------------------------------------------------------------------
 
   defp tmp_base do
-    Path.join(System.tmp_dir!(), "graphvix-render-#{System.unique_integer([:positive])}")
+    Path.join(
+      System.tmp_dir!(),
+      "graphvix-render-#{System.pid()}-#{System.unique_integer([:positive])}"
+    )
   end
 
   # Runs `dot -T<format>` on DOT text; returns {output, exit_status}.
@@ -542,7 +545,10 @@ defmodule Graphvix.RenderLoggingContractTest do
   import ExUnit.CaptureLog
 
   defp tmp_base do
-    Path.join(System.tmp_dir!(), "graphvix-log-#{System.unique_integer([:positive])}")
+    Path.join(
+      System.tmp_dir!(),
+      "graphvix-log-#{System.pid()}-#{System.unique_integer([:positive])}"
+    )
   end
 
   # -- I13 ----------------------------------------------------------------------
@@ -610,7 +616,10 @@ defmodule Graphvix.RenderCompileContractTest do
   use Covenant.Case, component: "graphvix.render", async: false
 
   defp tmp_base do
-    Path.join(System.tmp_dir!(), "graphvix-compile-#{System.unique_integer([:positive])}")
+    Path.join(
+      System.tmp_dir!(),
+      "graphvix-compile-#{System.pid()}-#{System.unique_integer([:positive])}"
+    )
   end
 
   defp cleanup(base) do
