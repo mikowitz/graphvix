@@ -22,13 +22,15 @@
         "graphvix.attribute_table.I1": {
           "failing": 0,
           "kind": "functional",
-          "passing": 3,
+          "passing": 5,
           "status": "active",
           "testable": true,
           "tests": [
             "property a name is known exactly when names lists it",
             "test every listed name is known with ordered letters",
-            "test names in another case or spelling are unknown"
+            "test lookup matches every row of the saved reference",
+            "test names in another case or spelling are unknown",
+            "test regenerating from the saved reference reproduces the checked-in table"
           ]
         },
         "graphvix.attribute_table.I2": {
@@ -44,10 +46,11 @@
         "graphvix.attribute_table.I3": {
           "failing": 0,
           "kind": "functional",
-          "passing": 1,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
+            "test a page without a modification date is recorded as unknown",
             "test the table names its source"
           ]
         },
@@ -60,17 +63,19 @@
           "tests": [
             "test the generator is a hand-run mix task",
             "test the project has no runtime dependencies",
-            "test the table is compiled from a checked-in file under lib"
+            "test the table is defined in a checked-in file under lib"
           ]
         },
         "graphvix.attribute_table.I5": {
           "failing": 0,
           "kind": "functional",
-          "passing": 1,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
-            "test parse reads the saved reference excerpt"
+            "test a page with no attribute rows is refused",
+            "test parse reads the saved reference excerpt",
+            "test regenerating from the saved reference reproduces the checked-in table"
           ]
         }
       }
@@ -181,11 +186,12 @@
         "graphvix.builder.I8": {
           "failing": 0,
           "kind": "functional",
-          "passing": 3,
+          "passing": 4,
           "status": "active",
           "testable": true,
           "tests": [
             "test clusters and subgraphs nest and return their own type",
+            "test clusters and subgraphs take both graph and node attributes",
             "test clusters nest in clusters and subgraphs in subgraphs",
             "test set_attributes on a cluster or subgraph rejects :edge"
           ]
@@ -291,10 +297,11 @@
         "graphvix.records.I8": {
           "failing": 0,
           "kind": "functional",
-          "passing": 1,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
+            "test ports are found in tables nested in lists and fonts",
             "test td ports render and are listed including nested tables"
           ]
         },
@@ -363,11 +370,12 @@
         "graphvix.render.I13": {
           "failing": 0,
           "kind": "non_functional",
-          "passing": 3,
+          "passing": 4,
           "status": "active",
           "testable": true,
           "tests": [
             "test a graph without warnings logs nothing",
+            "test compile logs each warning once even when dot is missing",
             "test each warning is logged once per to_dot call and output is still returned",
             "test write logs each warning once"
           ]
@@ -513,23 +521,28 @@
         "graphvix.warnings.I1": {
           "failing": 0,
           "kind": "non_functional",
-          "passing": 3,
+          "passing": 6,
           "status": "active",
           "testable": true,
           "tests": [
+            "test a record shape warning comes before a conflict on the same node",
             "test warnings are deterministic",
             "test warnings follow render order then kind order",
-            "test warnings never log"
+            "test warnings never log",
+            "test warnings on one edge follow kind order",
+            "test warnings on one node statement follow kind order"
           ]
         },
         "graphvix.warnings.I10": {
           "failing": 0,
           "kind": "functional",
-          "passing": 1,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
-            "test record labels on non-record shapes are reported"
+            "test a record shape warning comes before a conflict on the same node",
+            "test record labels on non-record shapes are reported",
+            "test record labels with nil or atom record shapes do not warn"
           ]
         },
         "graphvix.warnings.I11": {
@@ -545,10 +558,11 @@
         "graphvix.warnings.I12": {
           "failing": 0,
           "kind": "functional",
-          "passing": 2,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
+            "test a record shape warning comes before a conflict on the same node",
             "test conflicting values across blocks name the value read last",
             "test the reported winner is the value dot uses"
           ]
@@ -556,12 +570,13 @@
         "graphvix.warnings.I13": {
           "failing": 0,
           "kind": "functional",
-          "passing": 2,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
             "test html labels outside node labels are fine",
-            "test record labels outside node labels are reported"
+            "test record labels outside node labels are reported",
+            "test warnings on one edge follow kind order"
           ]
         },
         "graphvix.warnings.I14": {
@@ -577,10 +592,11 @@
         "graphvix.warnings.I15": {
           "failing": 0,
           "kind": "persisted_format",
-          "passing": 1,
+          "passing": 2,
           "status": "active",
           "testable": true,
           "tests": [
+            "test warnings on one node statement follow kind order",
             "test worked example yields exactly the two documented warnings"
           ]
         },
@@ -627,16 +643,23 @@
         "graphvix.warnings.I4": {
           "failing": 0,
           "kind": "functional",
-          "passing": 9,
+          "passing": 16,
           "status": "active",
           "testable": true,
           "tests": [
+            "test a cluster claimed through a plain subgraph is deepened by a nested cluster",
+            "test a later occurrence in the same cluster does not change who set the placement",
+            "test a rank occurrence in a nested cluster pins the node there",
+            "test a rank pull-up pins the node against later nested clusters",
             "test a rank subgraph in a cluster is not deepened by a nested cluster",
             "test a rank subgraph in a cluster pulls a node up from a cluster nested in it",
             "test a root rank subgraph pins its nodes to the root",
+            "test an empty rank does not pin",
             "test first of several unrelated clusters is kept",
+            "test newrank given as a string also turns rank pinning off",
             "test newrank turns rank pinning off",
             "test root rank subgraph placement matches dot",
+            "test the first root rank occurrence sets the placement",
             "test the outermost rank subgraph on a path decides",
             "test worked example placement matches dot",
             "test worked example yields exactly the two documented warnings"
@@ -645,10 +668,11 @@
         "graphvix.warnings.I5": {
           "failing": 0,
           "kind": "functional",
-          "passing": 3,
+          "passing": 4,
           "status": "active",
           "testable": true,
           "tests": [
+            "test a cluster claimed through a plain subgraph is deepened by a nested cluster",
             "test a later occurrence in a nested cluster moves the node deeper",
             "test worked example placement matches dot",
             "test worked example yields exactly the two documented warnings"
@@ -657,11 +681,12 @@
         "graphvix.warnings.I6": {
           "failing": 0,
           "kind": "functional",
-          "passing": 4,
+          "passing": 5,
           "status": "active",
           "testable": true,
           "tests": [
             "test a node only in plain subgraphs never warns",
+            "test a plain subgraph inside a cluster does not make a nested cluster",
             "test a rank subgraph and its own enclosing cluster do not warn",
             "test edges to undeclared nodes neither warn nor anchor",
             "test root plus one cluster never warns"
@@ -683,23 +708,25 @@
         "graphvix.warnings.I8": {
           "failing": 0,
           "kind": "functional",
-          "passing": 2,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
             "test a subgraph and a cluster with the same id do not clash",
-            "test duplicate emitted names are reported"
+            "test duplicate emitted names are reported",
+            "test exactly two blocks with one name are reported"
           ]
         },
         "graphvix.warnings.I9": {
           "failing": 0,
           "kind": "functional",
-          "passing": 2,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
             "test a port defined in any occurrence of the node counts",
-            "test ports a node does not define are reported"
+            "test ports a node does not define are reported",
+            "test warnings on one edge follow kind order"
           ]
         }
       }
