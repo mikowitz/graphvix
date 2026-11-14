@@ -15,7 +15,7 @@ defmodule Graphvix do
   their keys are stored as strings.
   """
 
-  alias Graphvix.{Builder, Edge, Graph}
+  alias Graphvix.{Builder, Cluster, Edge, Graph, Subgraph}
 
   @doc """
   Returns a new, empty graph.
@@ -51,6 +51,18 @@ defmodule Graphvix do
   @spec add_edge(Graph.t(), term(), term(), Builder.attrs()) :: Graph.t()
   def add_edge(%Graph{} = graph, from, to, attrs \\ []) do
     %{graph | edges: graph.edges ++ [Edge.new(from, to, attrs)]}
+  end
+
+  @doc "Adds a subgraph, built with `Graphvix.Subgraph`, to the root of the graph."
+  @spec add_subgraph(Graph.t(), Subgraph.t()) :: Graph.t()
+  def add_subgraph(%Graph{} = graph, %Subgraph{} = subgraph) do
+    %{graph | subgraphs: graph.subgraphs ++ [subgraph]}
+  end
+
+  @doc "Adds a cluster, built with `Graphvix.Cluster`, to the root of the graph."
+  @spec add_cluster(Graph.t(), Cluster.t()) :: Graph.t()
+  def add_cluster(%Graph{} = graph, %Cluster{} = cluster) do
+    %{graph | clusters: graph.clusters ++ [cluster]}
   end
 
   @doc """
