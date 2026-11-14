@@ -97,6 +97,18 @@ defmodule Graphvix do
     do: Graphvix.Render.compile(graph, basename, format)
 
   @doc """
+  Returns the problems Graphviz would silently tolerate in this graph.
+
+  Each warning is a tagged tuple, such as `{:unknown_attribute, target, key}`
+  or `{:multiple_clusters, node_id, kept: path, ignored: [path]}`; see
+  `contracts/graphvix/warnings.intent.md` for every kind. The list is in the
+  order Graphviz reads the statements involved. `to_dot/1`, `write/2` and
+  `compile/3` log each warning; this function never logs.
+  """
+  @spec warnings(Graph.t()) :: [tuple()]
+  defdelegate warnings(graph), to: Graphvix.Warnings
+
+  @doc """
   Merges attributes into the graph's own attributes (`:graph`) or into the
   defaults for every node (`:node`) or edge (`:edge`).
   """
