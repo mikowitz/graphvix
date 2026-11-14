@@ -3,24 +3,25 @@ defmodule Graphvix.Warnings do
   # Graphvix.warnings/1. See contracts/graphvix/warnings.intent.md.
   #
   # The graph is flattened into its statements in render order
-  # (graphvix.render.I2, I3). Each check returns {position, kind_rank,
+  # (graphvix.render.I2, I3). Each check returns {position, kind_index,
   # warning} triples; sorting them gives the order warnings.I1 requires.
 
   alias Graphvix.{Attributes, Cluster, Graph, HTMLRecord, Record, Render, Subgraph}
 
-  @rank %{
-    unknown_attribute: 2,
-    unsupported_attribute: 3,
-    multiple_clusters: 4,
-    nested_clusters: 5,
-    duplicate_name: 8,
-    unknown_port: 9,
-    record_shape: 10,
-    unknown_html_attribute: 11,
-    conflicting_attribute: 12,
-    record_label_misplaced: 13,
-    invalid_compass_point: 14
-  }
+  # The order of the kinds when several warnings concern one statement.
+  @kinds [
+    :unknown_attribute,
+    :unsupported_attribute,
+    :multiple_clusters,
+    :nested_clusters,
+    :duplicate_name,
+    :unknown_port,
+    :record_shape,
+    :unknown_html_attribute,
+    :conflicting_attribute,
+    :record_label_misplaced,
+    :invalid_compass_point
+  ]
 
   @spec warnings(Graph.t()) :: [tuple()]
   def warnings(%Graph{} = graph) do
@@ -82,7 +83,7 @@ defmodule Graphvix.Warnings do
     ctx = %{
       ctx
       | names: ctx.names ++ [name],
-        blocks: ctx.blocks ++ [%{name: name, kind: kind, id: id}]
+        blocks: ctx.blocks ++ [%{kind: kind, id: id}]
     }
 
     target =
@@ -115,7 +116,7 @@ defmodule Graphvix.Warnings do
         {key, value} <- Enum.sort(attrs),
         value != nil,
         warning <- attribute_warnings(key, value, letter, target),
-        do: {at, @rank[elem(warning, 0)], warning}
+        do: warn(at, warning)
   end
 
   defp statement_letter(%{type: :node}), do: :N
@@ -150,7 +151,7 @@ defmodule Graphvix.Warnings do
       |> Enum.map(&{occurrence_cluster(&1.ctx), &1})
       |> Enum.reject(&(elem(&1, 0) == :skip))
       |> placement_warnings(id)
-      |> Enum.map(&{first.at, @rank[elem(&1, 0)], &1})
+      |> Enum.map(&warn(first.at, &1))
     end)
   end
 
@@ -189,7 +190,7 @@ defmodule Graphvix.Warnings do
     nested =
       Enum.filter(
         occurrences,
-        &(cluster.(&1) not in [[], placement] and List.starts_with?(placement, cluster.(&1)))
+        &(cluster.(&1) != placement and List.starts_with?(placement, cluster.(&1)))
       )
 
     multiple =
@@ -207,9 +208,9 @@ defmodule Graphvix.Warnings do
 
   # warnings.I4's walk. Returns {placement, the occurrence that set it}.
   defp place(occurrences) do
-    Enum.reduce_while(occurrences, {nil, nil, false}, fn
+    Enum.reduce_while(occurrences, {nil, nil, nil}, fn
       {{:rank, []}, _} = occurrence, _state ->
-        {:halt, {[], occurrence, true}}
+        {:halt, {[], occurrence, nil}}
 
       {{kind, c}, _} = occurrence, {nil, _, _} ->
         {:cont, {c, occurrence, kind == :rank}}
@@ -240,7 +241,7 @@ defmodule Graphvix.Warnings do
   # -- node labels (I10, I11) --------------------------------------------------
 
   defp node_checks(statements) do
-    for %{type: :node, node: node, at: at} <- statements,
+    for %{node: node, at: at} <- statements,
         warning <- record_shape(node) ++ html_attributes(node),
         do: warn(at, warning)
   end
@@ -265,14 +266,14 @@ defmodule Graphvix.Warnings do
 
   defp edge_checks(statements) do
     ports =
-      for %{type: :node, node: %{id: id, attributes: %{"label" => %module{} = label}}} <-
+      for %{node: %{id: id, attributes: %{"label" => %module{} = label}}} <-
             statements,
           module in [Record, HTMLRecord],
           port <- module.ports(label),
           reduce: %{},
           do: (acc -> Map.update(acc, id, MapSet.new([port]), &MapSet.put(&1, port)))
 
-    for %{type: :edge, edge: edge, at: at} <- statements,
+    for %{edge: edge, at: at} <- statements,
         warning <- endpoint_warnings(edge, ports),
         do: warn(at, warning)
   end
@@ -282,8 +283,7 @@ defmodule Graphvix.Warnings do
 
     unknown_ports =
       for endpoint <- endpoints,
-          {id, port} <- [port_of(endpoint)],
-          port != nil,
+          {id, port} <- port_of(endpoint),
           not MapSet.member?(Map.get(ports, id, MapSet.new()), port),
           do: {:unknown_port, {from, to}, id, port}
 
@@ -295,9 +295,10 @@ defmodule Graphvix.Warnings do
     unknown_ports ++ bad_compass
   end
 
-  defp port_of({id, port}), do: {id, port}
-  defp port_of({id, port, _compass}), do: {id, port}
-  defp port_of(id), do: {id, nil}
+  defp port_of({_id, nil, _compass}), do: []
+  defp port_of({id, port, _compass}), do: [{id, port}]
+  defp port_of({id, port}), do: [{id, port}]
+  defp port_of(_id), do: []
 
   # -- conflicting values (I12) ------------------------------------------------
 
@@ -329,5 +330,5 @@ defmodule Graphvix.Warnings do
     end
   end
 
-  defp warn(at, warning), do: {at, @rank[elem(warning, 0)], warning}
+  defp warn(at, warning), do: {at, Enum.find_index(@kinds, &(&1 == elem(warning, 0))), warning}
 end
