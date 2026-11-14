@@ -384,10 +384,13 @@ everything.
   needs them to build nested structures and set cluster attributes.
 - Attribute keys are stored as strings in the structs (so atom and string keys
   merge correctly, and no atoms are created from user strings).
-- Quoted-string escaping escapes `"` and leaves `\` alone, so Graphviz
-  label escapes like `\n`, `\l`, `\N` keep working — except an odd run of
-  trailing backslashes gets one more, so `foo\` cannot escape the closing
-  quote. This becomes a decision record.
+- Quoted-string escaping leaves `\` alone, so Graphviz label escapes like
+  `\n`, `\l`, `\N` keep working, with two exceptions forced by the DOT
+  lexer (which pairs a backslash with the next character): a `"` gets a
+  backslash unless it already follows an odd run of backslashes, and an odd
+  trailing run gets one more. (Revised 2026-11-14 during contract writing:
+  escaping only `"` broke on a backslash directly before a quote.) This
+  becomes a decision record.
 - Duplicate-name checks (kind 5) compare emitted names, so a `Subgraph`
   `cluster_x` does clash with a `Cluster` `x`.
 - Kind 9 and kind 10 tuple shapes: `{:conflicting_attribute, node_id, key,

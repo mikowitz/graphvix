@@ -1,0 +1,66 @@
+- id: containers-before-nodes
+  date: "2026-11-14"
+  decision: Inside every block, subgraphs and clusters are emitted before the block's own nodes.
+  driver: A Graphviz `node [...]` default applies only to nodes created after it, so with nodes first a cluster's defaults silently missed every node also declared at the root (checked with `dot -Tcanon` 13.0.0).
+  alternatives:
+    - option: Keep nodes first and warn when a default cannot reach a node
+      rejected: Cluster node defaults become mostly useless; rejected by the user.
+    - option: Keep nodes first and list it as a known limit
+      rejected: Silently drops what the caller wrote, an anti-goal.
+  evidence: "`dot -Tjson` on `subgraph \"cluster_x\" { node [color=\"red\"]; \"a\"; } \"a\";` gives node a color red."
+  invariant: [graphvix.render.I2, graphvix.render.I3]
+  approved_by: mikowitz (2026-11-14)
+
+- id: semicolons-everywhere
+  date: "2026-11-14"
+  decision: Every non-block statement ends with `;`, including graph attributes and node/edge defaults.
+  driver: The user required `;` after node and edge statements; extending it to every statement gives one rule with no exceptions.
+  invariant: graphvix.render.I4
+  approved_by: mikowitz (2026-11-14)
+
+- id: sorted-attribute-keys
+  date: "2026-11-14"
+  decision: Attribute keys are emitted sorted by name.
+  driver: Attributes are stored in maps with no meaningful order; sorting makes output deterministic.
+  invariant: graphvix.render.I5
+  approved_by: mikowitz (2026-11-14)
+
+- id: backslash-preserved
+  date: "2026-11-14"
+  decision: In quoted strings a `"` gets a backslash unless it already follows an odd run of backslashes, an odd trailing run of backslashes gets one more, and every other backslash is left as written.
+  driver: Graphviz label escapes (`\n`, `\l`, `\N`) must keep working, but the DOT lexer pairs each backslash with the next character, so `foo\` and `a\"b`-style input would otherwise run past the closing quote (both checked with `dot -Tjson` 13.0.0).
+  alternatives:
+    - option: Escape every backslash
+      rejected: Breaks `\n`, `\l`, `\N` in labels.
+    - option: Escape only `"`, plus doubling an odd trailing run
+      rejected: A backslash before a quote in user text (`a\"b` written as `a\\"b`) still closes the string early.
+  invariant: graphvix.render.I6
+  approved_by: mikowitz (2026-11-14)
+
+- id: cluster-prefix-always
+  date: "2026-11-14"
+  decision: Clusters are emitted as `cluster_<id>`, always adding the prefix.
+  driver: Graphviz recognises clusters by name prefix; guessing whether the caller already added it would be unpredictable.
+  invariant: graphvix.render.I7
+  approved_by: mikowitz (2026-11-14)
+
+- id: html-plaintext-shape
+  date: "2026-11-14"
+  decision: A node whose own label is an HTMLRecord gets shape plaintext, and a Record label gets shape record, unless the node sets shape itself.
+  driver: Parity with 1.x add_html_record/add_record output.
+  invariant: graphvix.render.I10
+  approved_by: mikowitz (2026-11-14)
+
+- id: values-never-rewritten
+  date: "2026-11-14"
+  decision: Attribute values are emitted as given; lhead/ltail are not translated to cluster names.
+  driver: Output must match what the caller wrote.
+  invariant: graphvix.render.I12
+  approved_by: mikowitz (2026-11-14)
+
+- id: graph-named-g
+  date: "2026-11-14"
+  decision: The graph is always emitted with the name G.
+  driver: Parity with 1.x; Graph has no name field.
+  invariant: graphvix.render.I1
+  approved_by: mikowitz (2026-11-14)

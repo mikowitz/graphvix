@@ -1,9 +1,9 @@
 {
   "apps": {
     "graphvix": {
-      "active": 20,
+      "active": 36,
       "coverage": 1.0,
-      "covered": 20
+      "covered": 36
     },
     "system": {
       "active": 0,
@@ -243,6 +243,198 @@
         }
       }
     },
+    "graphvix.render": {
+      "active": 16,
+      "app": "graphvix",
+      "coverage": 1.0,
+      "covered": 16,
+      "form": "heavy",
+      "obligations": {
+        "graphvix.render.I1": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test header reflects digraph and strict",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I10": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test pinned worked example renders exactly",
+            "test record labels set the shape unless the node sets one"
+          ]
+        },
+        "graphvix.render.I11": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test numbers atoms and booleans render as quoted text"
+          ]
+        },
+        "graphvix.render.I12": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test lhead and ltail are emitted as given"
+          ]
+        },
+        "graphvix.render.I13": {
+          "failing": 0,
+          "kind": "non_functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test a graph without warnings logs nothing",
+            "test each warning is logged once per to_dot call and output is still returned",
+            "test write logs each warning once"
+          ]
+        },
+        "graphvix.render.I14": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test write returns an error when the file cannot be written",
+            "test write writes basename.dot with the to_dot text"
+          ]
+        },
+        "graphvix.render.I15": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test compile returns an error when dot fails",
+            "test compile without dot on PATH returns an error",
+            "test compile writes the dot file and the compiled output"
+          ]
+        },
+        "graphvix.render.I16": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property any built graph is valid dot",
+            "test hostile ids and labels still parse in dot",
+            "test pinned worked example is valid dot"
+          ]
+        },
+        "graphvix.render.I2": {
+          "failing": 0,
+          "kind": "ordering",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test cluster node defaults reach root-declared nodes",
+            "test containers come before a block's own nodes and edges come last",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I3": {
+          "failing": 0,
+          "kind": "ordering",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property definition order survives merges and nesting"
+          ]
+        },
+        "graphvix.render.I4": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test deep nesting indents two spaces per level",
+            "test empty graph and empty cluster",
+            "test every statement ends in a semicolon and there are no blank lines",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I5": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test attribute keys are sorted and empty lists omitted",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I6": {
+          "failing": 0,
+          "kind": "security",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test hostile ids and labels still parse in dot",
+            "test quotes are escaped and backslashes preserved",
+            "test trailing backslash cannot escape the closing quote"
+          ]
+        },
+        "graphvix.render.I7": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test clusters are always prefixed and subgraphs are not",
+            "test pinned worked example renders exactly"
+          ]
+        },
+        "graphvix.render.I8": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test edge operator follows the graph kind",
+            "test endpoint forms render as ports and compass points",
+            "test every valid compass point renders",
+            "test pinned worked example renders exactly",
+            "test port and compass endpoints are accepted by dot"
+          ]
+        },
+        "graphvix.render.I9": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test pinned worked example renders exactly",
+            "test record labels are quoted and html labels are bracketed on any element"
+          ]
+        }
+      }
+    },
     "system": {
       "active": 0,
       "app": "system",
@@ -255,8 +447,8 @@
   "covenant": "0.2.0",
   "mode": "static",
   "totals": {
-    "active": 20,
+    "active": 36,
     "coverage": 1.0,
-    "covered": 20
+    "covered": 36
   }
 }
