@@ -1,0 +1,26 @@
+- id: escape-record-text
+  date: "2026-11-14"
+  decision: Record cell text escapes `{ } | < >` with a backslash.
+  driver: 1.x passed cell text through, so a `|` in user text silently split a cell.
+  alternatives:
+    - option: Pass text through as 1.x did
+      rejected: User text can change the record's structure.
+  invariant: graphvix.records.I3
+  approved_by: mikowitz (2026-11-14)
+
+- id: drop-record-attrs
+  date: "2026-11-14"
+  decision: Record.new/1 takes only the body; the 1.x attributes argument is removed.
+  driver: In 2.0 a record is the value of a node's label attribute, so it has no node of its own to carry attributes.
+  alternatives:
+    - option: Keep new/2 and merge its attributes into the node
+      rejected: Two places to set node attributes with a precedence rule between them; rejected by the user.
+  invariant: graphvix.records.I4
+  approved_by: mikowitz (2026-11-14)
+
+- id: html-single-line
+  date: "2026-11-14"
+  decision: HTMLRecord.to_label/1 renders on one line with no whitespace between elements.
+  driver: 1.x rendered multi-line HTML; inside nested DOT containers its indentation has no single correct form to pin.
+  invariant: graphvix.records.I5
+  approved_by: mikowitz (2026-11-14)

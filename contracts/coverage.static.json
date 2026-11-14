@@ -1,9 +1,9 @@
 {
   "apps": {
     "graphvix": {
-      "active": 11,
+      "active": 20,
       "coverage": 1.0,
-      "covered": 11
+      "covered": 20
     },
     "system": {
       "active": 0,
@@ -138,6 +138,111 @@
         }
       }
     },
+    "graphvix.records": {
+      "active": 9,
+      "app": "graphvix",
+      "coverage": 1.0,
+      "covered": 9,
+      "form": "light",
+      "obligations": {
+        "graphvix.records.I1": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property a column renders in braces",
+            "property a plain list renders as a row",
+            "property a string body renders as its text",
+            "test rows and columns nest as in 1.x"
+          ]
+        },
+        "graphvix.records.I2": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test port cells render with their port",
+            "test ports lists every port at any depth in definition order"
+          ]
+        },
+        "graphvix.records.I3": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property record cell text never leaves a special character unescaped",
+            "test port cell text is escaped too"
+          ]
+        },
+        "graphvix.records.I4": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test Record.new takes only a body"
+          ]
+        },
+        "graphvix.records.I5": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test an html record renders as one line of table markup",
+            "test br font and nested tables render in place"
+          ]
+        },
+        "graphvix.records.I6": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test attributes are hyphenated quoted and kept in order"
+          ]
+        },
+        "graphvix.records.I7": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test html text and attribute values are escaped"
+          ]
+        },
+        "graphvix.records.I8": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test td ports render and are listed including nested tables"
+          ]
+        },
+        "graphvix.records.I9": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test allowed attributes are the 1.x lists"
+          ]
+        }
+      }
+    },
     "system": {
       "active": 0,
       "app": "system",
@@ -150,8 +255,8 @@
   "covenant": "0.2.0",
   "mode": "static",
   "totals": {
-    "active": 11,
+    "active": 20,
     "coverage": 1.0,
-    "covered": 11
+    "covered": 20
   }
 }
