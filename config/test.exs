@@ -8,4 +8,3 @@ config :mix_test_watch,
     "docs"
   ]
 
-config :graphvix, :compiler, "echo"
