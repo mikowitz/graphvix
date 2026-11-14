@@ -69,7 +69,7 @@ defmodule Graphvix.Record do
   # record.I3: double backslash runs before a special character or the end,
   # then escape the special characters themselves.
   defp escape(text) do
-    ~r/(\\+)(?=[{}|<>]|$)/
+    ~r/(\\+)(?=[{}|<>]|\z)/
     |> Regex.replace(text, fn _, run -> run <> run end)
     |> String.replace(~r/([{}|<>])/, "\\\\\\1")
   end

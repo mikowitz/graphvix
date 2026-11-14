@@ -97,6 +97,7 @@ defmodule Graphvix.RecordsContractTest do
     assert Record.to_label(Record.new(["x\\{y"])) == "x\\\\\\{y"
     assert Record.to_label(Record.new(["end\\", "z"])) == "end\\\\ | z"
     assert Record.to_label(Record.new(["line\\nbreak"])) == "line\\nbreak"
+    assert Record.to_label(Record.new(["a\\\n"])) == "a\\\n"
   end
 
   # -- I4 -----------------------------------------------------------------------
