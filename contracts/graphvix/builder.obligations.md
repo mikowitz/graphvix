@@ -6,6 +6,7 @@ modules:
   - Graphvix.Edge
   - Graphvix.Subgraph
   - Graphvix.Cluster
+  - Graphvix.Builder
 ---
 
 # graphvix.builder
