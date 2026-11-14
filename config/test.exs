@@ -7,4 +7,3 @@ config :mix_test_watch,
     "credo --all --strict",
     "docs"
   ]
-

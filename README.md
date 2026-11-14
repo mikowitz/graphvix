@@ -1,274 +1,101 @@
 # Graphvix
 
-[![Build Status](https://travis-ci.org/mikowitz/graphvix.svg?branch=master)](https://travis-ci.org/mikowitz/graphvix)
+Graphviz in Elixir.
 
-Graphviz in Elixir
+Graphvix 2.0 models a graph as plain, immutable data. Every construction
+function returns a new graph, so graphs are built with pipes, compared with
+`==`, and never held in a process or ETS table.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
-
-1. Add `graphvix` to your list of dependencies in `mix.exs`:
-
 ```elixir
 def deps do
-  [{:graphvix, "~> 1.0.0"}]
+  [{:graphvix, "~> 2.0"}]
 end
 ```
 
-# Usage
+Rendering to DOT needs nothing else. `Graphvix.compile/3` runs Graphviz's
+`dot`, which must be on your `PATH`.
 
-See [the wiki](https://github.com/mikowitz/graphvix/wiki/Examples) for examples.
+## Usage
 
-## API Overview
+```elixir
+alias Graphvix.{Cluster, Subgraph}
 
-* Create a new graph
+graph =
+  Graphvix.new()
+  |> Graphvix.set_attributes(:graph, rankdir: "LR")
+  |> Graphvix.set_attributes(:node, shape: "box")
+  |> Graphvix.add_node("start", color: "green")
+  |> Graphvix.add_cluster(
+    Cluster.new("work")
+    |> Cluster.set_attributes(:graph, label: "Work")
+    |> Cluster.add_node("build")
+    |> Cluster.add_node("test")
+  )
+  |> Graphvix.add_subgraph(Subgraph.new("ends") |> Subgraph.set_attributes(:graph, rank: "same"))
+  |> Graphvix.add_edge("start", "build")
+  |> Graphvix.add_edge("build", "test", label: "then")
 
-    `Graphvix.Graph.new/0`
+Graphvix.to_dot(graph)        # the DOT text
+Graphvix.write(graph, "flow")   # writes flow.dot
+Graphvix.compile(graph, "flow") # writes flow.dot and flow.png
+```
 
-* Add a vertex to a graph
-
-    `Graphvix.Graph.add_vertex/2`
-    `Graphvix.Graph.add_vertex/3`
-
-* Add an edge between two vertices
-
-    `Graphvix.Graph.add_edge/3`
-    `Graphvix.Graph.add_edge/4`
-
-* Create a vertex with type `record`
-
-    `Graphvix.Record.new/1`
-    `Graphvix.Record.new/2`
-
-* Add a record vertex to a graph
-
-    `Graphvix.Graph.add_record/2`
-
-* Create a vertex using HTML table markup
-
-    `Graphvix.HTMLRecord.new/1`
-    `Graphvix.HTMLRecord.new/2`
-
-* Add an HTML table vertex to a graph
-
-    `Graphvix.Graph.add_html_record/2`
-
-* Save a graph to disk in `.dot` format
-
-    `Graphvix.Graph.write/2`
-
-* Save and compile a graph (defaults to `.png`)
-
-    `Graphvix.Graph.compile/2`
-    `Graphvix.Graph.compile/3`
-
-* Save, compile and open a graph (defaults to `.png` and your OS's default image viewer)
-
-    `Graphvix.Graph.graph/2`
-    `Graphvix.Graph.graph/3`
-
-## Basic Usage
-
-1. Alias the necessary module for ease of use
-
-    ```elixir
-    alias Graphvix.Graph
-    ```
-
-1. Create a new graph.
-
-    ```elixir
-    graph = Graph.new()
-    ```
-
-1. Add a simple vertex with a label
-
-    ```elixir
-    {graph, vertex_id} = Graph.add_vertex(graph, "vertex label")
-    ```
-
-1. Add a vertex with a label and attributes
-
-    ```elixir
-    {graph, vertex2_id} = Graph.add_vertex(
-      graph,
-      "my other vertex",
-      color: "blue", shape: "diamond"
-    )
-    ```
-
-1. Add an edge between two existing vertices
-
-    ```elixir
-    {graph, edge_id} = Graph.add_edge(
-      graph,
-      vertex_id, vertex2_id,
-      label: "Edge", color: "green"
-    )
-    ```
-
-1. Add a cluster containing one or more nodes
-
-    ```elixir
-    {graph, cluster_id} = Graph.add_cluster(graph, [vertex_id, vertex2_id])
-    ```
+* **Graphs** — `Graphvix.new/1` takes `digraph:` (default `true`) and
+  `strict:` (default `false`).
+* **Nodes** — ids are strings, atoms or numbers, stored as strings. Adding an
+  id again in the same graph, subgraph or cluster merges its attributes.
+* **Edges** — `Graphvix.add_edge/4` connects ids, `{id, port}`,
+  `{id, port, compass}` or `{id, nil, compass}`. Edges live at the root.
+* **Subgraphs and clusters** — built inside-out with `Graphvix.Subgraph` and
+  `Graphvix.Cluster` (`new/1`, `add_node/3`, `add_subgraph/2`,
+  `add_cluster/2`, `set_attributes/3`) and nested to any depth. Clusters are
+  emitted as `cluster_<id>`; refer to them that way in `lhead`/`ltail`.
+* **Attributes** — keyword lists or maps. `set_attributes/3` targets
+  `:graph`, `:node` or `:edge` (subgraphs and clusters: `:graph`, `:node`).
 
 ## Records
 
-1. Alias the necessary module for ease of use
+Use a `Graphvix.Record` or `Graphvix.HTMLRecord` as a node's `label`. The node
+gets `shape: "record"` or `shape: "plaintext"` unless you set a shape.
 
-    ```elixir
-    alias Graphvix.Record
-    ```
+```elixir
+import Graphvix.Record, only: [row: 1, column: 1]
+import Graphvix.HTMLRecord, only: [tr: 1, td: 1, td: 2]
 
-1. Create a simple record that contains only a row of cells
+record = Graphvix.Record.new(row(["a", column([{"p1", "b"}, "c"])]))
+table = Graphvix.HTMLRecord.new([tr([td("x", port: "p2"), td("y")])], border: 0)
 
-    ```elixir
-    record = Record.new(Record.row(["a", "b", "c"]))
-    ```
+Graphvix.new()
+|> Graphvix.add_node("r", label: record)
+|> Graphvix.add_node("t", label: table)
+|> Graphvix.add_edge({"r", "p1"}, {"t", "p2", :n})
+```
 
-    * A record with a top-level row can also be created by just passing a list
+Cell text is escaped for you. `HTMLRecord` is the only way to produce an
+HTML-like label; every other string is quoted.
 
-      ```elixir
-      record = Record.new(["a", "b", "c"])
-      ```
-1. Create a record with a single column of cells
+## Warnings
 
-    ```elixir
-    record = Record.new(Record.column(["a", "b", "c"]))
-    ```
+`Graphvix.warnings/1` lists what Graphviz would silently tolerate: unknown or
+misapplied attributes, nodes that Graphviz moves between clusters (including
+through `rank` subgraphs), duplicate cluster names, missing ports,
+conflicting attribute values, and more. `to_dot/1`, `write/2` and
+`compile/3` log each warning and still produce output.
 
-1. Create a record with nested rows and columns
+## The Contract
 
-    ```elixir
-    import Graphvix.Record, only: [column: 1, row: 1]
+`contracts/` holds the [Covenant](https://hex.pm/packages/covenant) Contract
+that 2.0 was built from, and `test/contract/` its executable tests.
+`mix covenant.check` verifies both. The Graphviz attribute table in
+`Graphvix.Attributes` is regenerated with `mix graphvix.gen.attributes`.
 
-    record = Record.new(row([
-      "a",
-      column([
-        "b",
-        row(["c", "d", "e"]),
-        "f"
-      ]),
-      "g"
-    ])
-    ```
+## Upgrading from 1.x
 
-### Ports
-
-1. Ports can be attached to record cells by passing a tuple of `{port_name, label}`
-
-    ```elixir
-    import Graphvix.Record, only: [column: 1, row: 1]
-
-    record = Record.new(row([
-      {"port_a", "a"},
-      column([
-        "b",
-        row(["c", {"port_d", "d"}, "e"]),
-        "f"
-      ]),
-      "g"
-    ])
-    ```
-
-1. Edges can be drawn from specific ports on a record
-
-    ```elixir
-    {graph, record_id} = Graph.add_record(graph, record)
-
-    {graph, _edge_id} = Graph.add_edge({record_id, "port_a"}, vertex_id)
-
-    ```
-
-## HTML Table Records
-
-1. Alias the necessary modules for ease of use
-
-    ```elixir
-    alias Graphvix.HTMLRecord
-    ```
-
-1. Create a simple table
-
-    ```elixir
-    record = HTMLRecord.new([
-      tr([
-        td("a"),
-        td("b"),
-        td("c")
-      ]),
-      tr([
-        td("d", port: "port_d"),
-        td("e"),
-        td("f")
-      ])
-    ])
-    ```
-
-1. Or a more complex table
-
-    ```elixir
-    record = HTMLRecord.new([
-      tr([
-        td("a", rowspan: 3),
-        td("b", colspan: 2),
-        td("f", rowspan: 3)
-      ]),
-      tr([
-        td("c"),
-        td("d")
-      ])
-      tr([
-        td("e", colspan: 2)
-      ])
-    ])
-    ```
-
-Cells can also use the `font/2` and `br/0` helper methods to add font styling and forced line breaks. See
-the documentation for `Graphvix.HTMLRecord` for examples.
-
-## Output
-
-1. Convert the graph to DOT format
-
-    ```elixir
-    Graph.to_dot(graph)
-    """
-    digraph G {
-      cluster c0 {
-        v0 [label="vertex label"]
-        v1 [label="my other vertex",color="blue",shape="diamond"]
-
-        v0 -> v1 [label="Edge",color="green"]
-      }
-    }
-    """
-    ```
-1. Save the graph to a .dot file, with an optional filename
-
-    ```elixir
-    Graph.write(graph, "first_graph") #=> creates "first_graph.dot"
-    ```
-
-1. Compile the graph to a .png or .pdf using the `dot` command
-
-    ```elixir
-    ## creates first_graph.dot and first_graph.png
-    Graph.compile(graph, "first_graph")
-
-    ## creates first_graph.dot and first_graph.pdf
-    Graph.compile(graph, "first_graph", :pdf)
-    ```
-
-1. Compile the graph using the `dot` command and open the resulting file
-
-    ```elixir
-    ## creates first_graph.dot and first_graph.pdf; opens first_graph.png
-    Graph.graph(graph, "first_graph")
-
-    ## creates first_graph.dot and first_graph.pdf; opens first_graph.pdf
-    Graph.graph(graph, "first_graph", :pdf)
-    ```
-
+* `Graphvix.Graph.*` functions are now on `Graphvix` and return the graph,
+  not `{graph, id}`: you choose node ids yourself.
+* "Vertex" is now "node"; `add_record/2` and `add_html_record/2` are gone
+  (pass the record as `label:`); `Record.new/2` is now `Record.new/1`.
+* Subgraphs and clusters are structs you build and add, not lists of ids.
+* `show/2` is gone.
