@@ -1,0 +1,23 @@
+- at: lib/graphvix.ex:97:25
+  operator: return_nil
+  mutation: "`Graphvix.Render.compile(graph, basename, format)` → `nil`"
+  sort: unpromised
+  reason: Graphvix.compile/3 lives in the Graphvix module this component owns but is promised by graphvix.render.I15, whose contract tests kill this mutant; the builder suite never calls it.
+
+- at: lib/graphvix.ex:116:55
+  operator: guard_removal
+  mutation: "`when target in [:graph, :node, :edge]` → `(no guard)`"
+  sort: unpromised
+  reason: Without the guard an unknown target raises KeyError instead of FunctionClauseError; the Contract only promises the three targets, not which error an invalid one raises.
+
+- at: lib/graphvix/builder.ex:14:14
+  operator: guard_removal
+  mutation: "`when is_number(id)` → `(no guard)`"
+  sort: unpromised
+  reason: builder.I3 promises string, atom and number ids; without the guard other terms (nil, tuples) are stringified instead of rejected, which the Contract leaves undefined.
+
+- at: lib/graphvix/builder.ex:18:20
+  operator: guard_removal
+  mutation: "`when is_list(attrs) or is_map(attrs)` → `(no guard)`"
+  sort: unpromised
+  reason: builder.I7 promises keyword lists and maps; without the guard other enumerables of pairs are accepted too and non-enumerables still raise, both outside the Contract.

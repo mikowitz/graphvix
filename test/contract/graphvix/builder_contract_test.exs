@@ -253,6 +253,22 @@ defmodule Graphvix.BuilderContractTest do
   end
 
   @tag obligation: "graphvix.builder.I8"
+  test "clusters and subgraphs take both graph and node attributes" do
+    c =
+      Cluster.new("c")
+      |> Cluster.set_attributes(:graph, label: "C")
+      |> Cluster.set_attributes(:node, shape: "box")
+
+    s =
+      Subgraph.new("s")
+      |> Subgraph.set_attributes(:graph, rank: "same")
+      |> Subgraph.set_attributes(:node, color: "red")
+
+    assert c.attributes == %{graph: %{"label" => "C"}, node: %{"shape" => "box"}}
+    assert s.attributes == %{graph: %{"rank" => "same"}, node: %{"color" => "red"}}
+  end
+
+  @tag obligation: "graphvix.builder.I8"
   test "set_attributes on a cluster or subgraph rejects :edge" do
     assert_raise FunctionClauseError, fn ->
       Cluster.set_attributes(Cluster.new("x"), :edge, color: "red")

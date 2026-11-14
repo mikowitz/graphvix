@@ -20,3 +20,6 @@ graphvix.store
 *.dot
 *.pdf
 *.png
+
+# Covenant mutation-testing scratch output
+/tmp

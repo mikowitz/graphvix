@@ -28,12 +28,6 @@ defmodule Graphvix.Edge do
     %__MODULE__{from: endpoint(from), to: endpoint(to), attributes: Builder.attrs(attrs)}
   end
 
-  @doc false
-  @spec node_id(endpoint()) :: String.t()
-  def node_id({id, _port}), do: id
-  def node_id({id, _port, _compass}), do: id
-  def node_id(id), do: id
-
   defp endpoint({id, port}), do: {Builder.id(id), Builder.id(port)}
   defp endpoint({id, nil, compass}), do: {Builder.id(id), nil, compass}
   defp endpoint({id, port, compass}), do: {Builder.id(id), Builder.id(port), compass}
