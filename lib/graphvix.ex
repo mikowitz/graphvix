@@ -15,7 +15,7 @@ defmodule Graphvix do
   their keys are stored as strings.
   """
 
-  alias Graphvix.{Builder, Graph}
+  alias Graphvix.{Builder, Edge, Graph}
 
   @doc """
   Returns a new, empty graph.
@@ -39,6 +39,18 @@ defmodule Graphvix do
   @spec add_node(Graph.t(), Builder.id(), Builder.attrs()) :: Graph.t()
   def add_node(%Graph{} = graph, id, attrs \\ []) do
     %{graph | nodes: Builder.put_node(graph.nodes, id, attrs)}
+  end
+
+  @doc """
+  Adds an edge between two endpoints.
+
+  An endpoint is a node id, `{id, port}`, `{id, port, compass}` or
+  `{id, nil, compass}`. Endpoints need not name nodes that were added;
+  Graphviz creates them. Every call adds a separate edge, including repeats.
+  """
+  @spec add_edge(Graph.t(), term(), term(), Builder.attrs()) :: Graph.t()
+  def add_edge(%Graph{} = graph, from, to, attrs \\ []) do
+    %{graph | edges: graph.edges ++ [Edge.new(from, to, attrs)]}
   end
 
   @doc """
