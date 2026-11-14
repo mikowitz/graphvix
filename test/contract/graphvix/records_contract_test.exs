@@ -165,6 +165,19 @@ defmodule Graphvix.RecordsContractTest do
     assert HTMLRecord.ports(record) == ["whole", "p1", "inner"]
   end
 
+  @tag obligation: "graphvix.records.I8"
+  test "ports are found in tables nested in lists and fonts" do
+    in_list = HTMLRecord.new([tr([td(["x", HTMLRecord.new([tr([td("a", port: "in_list")])])])])])
+
+    in_font =
+      HTMLRecord.new([
+        tr([td(font(HTMLRecord.new([tr([td("b", port: "in_font")])]), color: "red"))])
+      ])
+
+    assert HTMLRecord.ports(in_list) == ["in_list"]
+    assert HTMLRecord.ports(in_font) == ["in_font"]
+  end
+
   # -- I9 -----------------------------------------------------------------------
 
   @tag obligation: "graphvix.records.I9"

@@ -1,0 +1,41 @@
+- at: lib/graphvix/html_record.ex:37:35
+  operator: guard_removal
+  mutation: "`when is_list(rows)` → `(no guard)`"
+  sort: unpromised
+  reason: HTMLRecord.new/2 is promised for a list of rows; without the guard a non-list fails later in to_label/1 instead of at construction, which the Contract does not distinguish.
+
+- at: lib/graphvix/html_record.ex:42:17
+  operator: guard_removal
+  mutation: "`when is_list(cells)` → `(no guard)`"
+  sort: unpromised
+  reason: tr/1 is promised for a list of cells; a non-list then fails at render time instead of construction, which the Contract does not distinguish.
+
+- at: lib/graphvix/record.ex:29:35
+  operator: guard_removal
+  mutation: "`when kind in [:row, :column] and is_list(cells)` → `(no guard)`"
+  sort: unpromised
+  reason: Record.new/1 is promised for strings, lists, row/1 and column/1; without the guard other two-tuples are accepted as bodies and fail at render time, outside the Contract.
+
+- at: lib/graphvix/record.ex:29:64
+  operator: logical_swap
+  mutation: "`and` → `or`"
+  sort: unpromised
+  reason: Only loosens which malformed two-tuples Record.new/1 accepts; every promised body still matches.
+
+- at: lib/graphvix/record.ex:34:18
+  operator: guard_removal
+  mutation: "`when is_list(cells)` → `(no guard)`"
+  sort: unpromised
+  reason: row/1 is promised for a list of cells; a non-list then fails at render time instead of construction.
+
+- at: lib/graphvix/record.ex:38:21
+  operator: guard_removal
+  mutation: "`when is_list(cells)` → `(no guard)`"
+  sort: unpromised
+  reason: column/1 is promised for a list of cells; a non-list then fails at render time instead of construction.
+
+- at: lib/graphvix/record.ex:60:19
+  operator: guard_removal
+  mutation: "`when is_binary(text)` → `(no guard)`"
+  sort: equivalent
+  reason: The guard is on cell/1's last clause; every promised cell that reaches it is already a string.
