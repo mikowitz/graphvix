@@ -2,6 +2,8 @@ defmodule Graphvix.AttributeTableContractTest do
   use Covenant.Case, component: "graphvix.attribute_table", async: true
   use ExUnitProperties
 
+  import ExUnit.CaptureIO
+
   alias Graphvix.Attributes
   alias Mix.Tasks.Graphvix.Gen.Attributes, as: GenAttributes
 
@@ -29,6 +31,7 @@ defmodule Graphvix.AttributeTableContractTest do
     assert Attributes.lookup("colour") == :error
     assert Attributes.lookup("RANKDIR") == :error
     assert Attributes.lookup("") == :error
+    assert Attributes.lookup(:color) == :error
   end
 
   @tag obligation: "graphvix.attribute_table.I1"
@@ -117,5 +120,55 @@ defmodule Graphvix.AttributeTableContractTest do
              {"shape", [:N]},
              {"nslimit1", [:G]}
            ]
+  end
+
+  @tag :tmp_dir
+  @tag obligation: ["graphvix.attribute_table.I1", "graphvix.attribute_table.I5"]
+  test "regenerating from the saved reference reproduces the checked-in table", %{tmp_dir: dir} do
+    fixture = Path.join(Covenant.root(), "test/fixtures/graphviz_attrs_table.html")
+    checked_in = Path.join(Covenant.root(), "lib/graphvix/attributes.ex")
+    out = Path.join(dir, "attributes.ex")
+    without_date = &Regex.replace(~r/generated_on: "[^"]*"/, &1, "generated_on: _")
+
+    output = capture_io(fn -> GenAttributes.run(["--from", fixture, "--out", out]) end)
+
+    assert output =~ "Wrote 177 attributes to #{out}"
+    assert without_date.(File.read!(out)) == without_date.(File.read!(checked_in))
+  end
+
+  @tag obligation: "graphvix.attribute_table.I1"
+  test "lookup matches every row of the saved reference" do
+    rows =
+      GenAttributes.parse(
+        File.read!(Path.join(Covenant.root(), "test/fixtures/graphviz_attrs_table.html"))
+      )
+
+    assert Attributes.names() == Enum.map(rows, &elem(&1, 0))
+
+    for {name, letters} <- rows do
+      assert Attributes.lookup(name) == {:ok, letters}, name
+    end
+  end
+
+  @tag :tmp_dir
+  @tag obligation: "graphvix.attribute_table.I3"
+  test "a page without a modification date is recorded as unknown", %{tmp_dir: dir} do
+    excerpt = Path.join(Covenant.root(), "test/fixtures/graphviz_attrs_excerpt.html")
+    out = Path.join(dir, "attributes.ex")
+
+    capture_io(fn -> GenAttributes.run(["--from", excerpt, "--out", out]) end)
+
+    assert File.read!(out) =~ ~s(page_modified: "unknown")
+  end
+
+  @tag :tmp_dir
+  @tag obligation: "graphvix.attribute_table.I5"
+  test "a page with no attribute rows is refused", %{tmp_dir: dir} do
+    empty = Path.join(dir, "empty.html")
+    File.write!(empty, "<html></html>")
+
+    assert_raise Mix.Error, ~r/no attribute rows found/, fn ->
+      GenAttributes.run(["--from", empty, "--out", Path.join(dir, "attributes.ex")])
+    end
   end
 end

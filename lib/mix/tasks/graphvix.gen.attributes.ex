@@ -6,9 +6,10 @@ defmodule Mix.Tasks.Graphvix.Gen.Attributes do
   reference at https://graphviz.org/doc/info/attrs.html.
 
       mix graphvix.gen.attributes
-      mix graphvix.gen.attributes --from path/to/attrs.html
+      mix graphvix.gen.attributes --from path/to/attrs.html --out path/to/attributes.ex
 
-  `--from` reads a saved copy of the page instead of fetching it. The
+  `--from` reads a saved copy of the page instead of fetching it; `--out`
+  writes somewhere other than `lib/graphvix/attributes.ex`. The
   generated module is checked in; review its diff like any other change.
   Builds never run this task.
   """
@@ -22,15 +23,16 @@ defmodule Mix.Tasks.Graphvix.Gen.Attributes do
 
   @impl Mix.Task
   def run(args) do
-    {opts, _rest} = OptionParser.parse!(args, strict: [from: :string])
+    {opts, _rest} = OptionParser.parse!(args, strict: [from: :string, out: :string])
+    target = Keyword.get(opts, :out, @target)
     html = read(opts[:from])
     rows = parse(html)
 
     if rows == [], do: Mix.raise("no attribute rows found; has the page layout changed?")
 
-    File.write!(@target, render(rows, page_modified(html)))
-    Mix.Task.run("format", [@target])
-    Mix.shell().info("Wrote #{length(rows)} attributes to #{@target}")
+    File.write!(target, render(rows, page_modified(html)))
+    Mix.Task.rerun("format", [target])
+    Mix.shell().info("Wrote #{length(rows)} attributes to #{target}")
   end
 
   @doc """
