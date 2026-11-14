@@ -342,6 +342,7 @@
           "status": "active",
           "testable": true,
           "tests": [
+            "test nil attribute values are omitted",
             "test numbers atoms and booleans render as quoted text"
           ]
         },

@@ -428,6 +428,21 @@ defmodule Graphvix.RenderContractTest do
              ~s(  "a" [fixedsize="true", fontsize="10", penwidth="1.5", shape="box"];\n)
   end
 
+  @tag obligation: "graphvix.render.I11"
+  test "nil attribute values are omitted" do
+    g =
+      Graphvix.new()
+      |> Graphvix.add_node("a", color: nil, shape: "box")
+      |> Graphvix.add_node("b", label: nil)
+
+    assert quiet_to_dot(g) == """
+           digraph G {
+             "a" [shape="box"];
+             "b";
+           }
+           """
+  end
+
   # -- I12 ----------------------------------------------------------------------
 
   @tag obligation: "graphvix.render.I12"

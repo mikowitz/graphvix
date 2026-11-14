@@ -151,8 +151,8 @@ warning (`graphvix.warnings`); validating attribute values; layout.
 
 ### graphvix.render.I11 — Non-string values are rendered as quoted text
 - **scope:** `Graphvix.to_dot/1`
-- **must:** render integer, float, atom and boolean attribute values with `to_string/1` and quote them per I6 (`fontsize: 10` → `fontsize="10"`, `fixedsize: true` → `fixedsize="true"`)
-- **why:** callers use numbers, atoms and booleans naturally; quoted text is valid DOT for every value
+- **must:** render integer, float, atom and boolean attribute values with `to_string/1` and quote them per I6 (`fontsize: 10` → `fontsize="10"`, `fixedsize: true` → `fixedsize="true"`); omit an attribute whose value is `nil`, as if it were not set
+- **why:** callers use numbers, atoms and booleans naturally; quoted text is valid DOT for every value; `nil` has no DOT spelling, and `to_string(nil)` would emit an empty value that overrides defaults
 - **kind:** functional
 - **status:** active
 
@@ -298,3 +298,6 @@ Questions previous rounds asked, answered:
   `subgraph "cluster_x" {` line and a bare `}` at the same indent (I4).
 - *Does a default `label` that is a `Record` add a shape?* No; only a node's
   own label does (I10).
+- *What does a `nil` attribute value render as?* Nothing; the attribute is
+  omitted (I11). Values other than strings, numbers, atoms, booleans, `nil`,
+  `Record` and `HTMLRecord` are outside the Contract.

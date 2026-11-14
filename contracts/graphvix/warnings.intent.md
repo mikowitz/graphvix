@@ -282,3 +282,5 @@ Questions previous rounds asked, answered:
 - *Which value wins a conflict when the root and a cluster disagree?* The
   root's, because a block's own nodes are emitted after its nested blocks
   (I12).
+- *Are `nil`-valued attributes checked?* No. Rendering omits them
+  (`graphvix.render.I11`), so every check treats them as absent.
