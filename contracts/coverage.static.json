@@ -1,9 +1,9 @@
 {
   "apps": {
     "graphvix": {
-      "active": 52,
+      "active": 57,
       "coverage": 1.0,
-      "covered": 52
+      "covered": 57
     },
     "system": {
       "active": 0,
@@ -12,6 +12,69 @@
     }
   },
   "components": {
+    "graphvix.attribute_table": {
+      "active": 5,
+      "app": "graphvix",
+      "coverage": 1.0,
+      "covered": 5,
+      "form": "light",
+      "obligations": {
+        "graphvix.attribute_table.I1": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "property a name is known exactly when names lists it",
+            "test every listed name is known with ordered letters",
+            "test names in another case or spelling are unknown"
+          ]
+        },
+        "graphvix.attribute_table.I2": {
+          "failing": 0,
+          "kind": "persisted_format",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test pinned facts from the reference"
+          ]
+        },
+        "graphvix.attribute_table.I3": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test the table names its source"
+          ]
+        },
+        "graphvix.attribute_table.I4": {
+          "failing": 0,
+          "kind": "non_functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test the generator is a hand-run mix task",
+            "test the project has no runtime dependencies",
+            "test the table is compiled from a checked-in file under lib"
+          ]
+        },
+        "graphvix.attribute_table.I5": {
+          "failing": 0,
+          "kind": "functional",
+          "passing": 0,
+          "status": "active",
+          "testable": true,
+          "tests": [
+            "test parse reads the saved reference excerpt"
+          ]
+        }
+      }
+    },
     "graphvix.builder": {
       "active": 11,
       "app": "graphvix",
@@ -637,8 +700,8 @@
   "covenant": "0.2.0",
   "mode": "static",
   "totals": {
-    "active": 52,
+    "active": 57,
     "coverage": 1.0,
-    "covered": 52
+    "covered": 57
   }
 }

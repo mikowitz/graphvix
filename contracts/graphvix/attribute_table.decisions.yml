@@ -1,0 +1,12 @@
+- id: checked-in-attribute-table
+  date: "2026-11-14"
+  decision: The Graphviz attribute table is a generated module checked into lib/, regenerated only by running a dev-only mix task by hand.
+  driver: Warnings need the table at runtime, builds must not need the network, and table changes should be reviewed like code.
+  alternatives:
+    - option: Fetch the page at compile time
+      rejected: Puts the network in every build and makes builds non-reproducible.
+    - option: Hand-maintain the list
+      rejected: Drifts from Graphviz with no way to tell.
+  evidence: The reference page lists 176 attributes; its "Used By" column uses only the words Graphs, Subgraphs, Clusters, Nodes and Edges (checked 2026-11-14).
+  invariant: [graphvix.attribute_table.I1, graphvix.attribute_table.I4]
+  approved_by: mikowitz (2026-11-14)

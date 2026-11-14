@@ -1,0 +1,118 @@
+defmodule Graphvix.AttributeTableContractTest do
+  use Covenant.Case, component: "graphvix.attribute_table", async: true
+  use ExUnitProperties
+
+  alias Graphvix.Attributes
+  alias Mix.Tasks.Graphvix.Gen.Attributes, as: GenAttributes
+
+  @letter_order [:G, :S, :C, :N, :E]
+
+  # -- I1 -----------------------------------------------------------------------
+
+  @tag obligation: "graphvix.attribute_table.I1"
+  test "every listed name is known with ordered letters" do
+    names = Attributes.names()
+
+    assert names != []
+    assert names == Enum.uniq(names)
+
+    for name <- names do
+      assert {:ok, letters} = Attributes.lookup(name)
+      assert letters != []
+      assert letters == Enum.filter(@letter_order, &(&1 in letters))
+    end
+  end
+
+  @tag obligation: "graphvix.attribute_table.I1"
+  test "names in another case or spelling are unknown" do
+    assert Attributes.lookup("Color") == :error
+    assert Attributes.lookup("colour") == :error
+    assert Attributes.lookup("RANKDIR") == :error
+    assert Attributes.lookup("") == :error
+  end
+
+  @tag obligation: "graphvix.attribute_table.I1"
+  property "a name is known exactly when names lists it" do
+    known = MapSet.new(Attributes.names())
+
+    check all(name <- string(:alphanumeric, max_length: 12)) do
+      assert match?({:ok, _}, Attributes.lookup(name)) == MapSet.member?(known, name)
+    end
+  end
+
+  # -- I2 -----------------------------------------------------------------------
+
+  @tag obligation: "graphvix.attribute_table.I2"
+  test "pinned facts from the reference" do
+    assert Attributes.lookup("cluster") == {:ok, [:S, :C]}
+    assert Attributes.lookup("color") == {:ok, [:C, :N, :E]}
+    assert Attributes.lookup("label") == {:ok, [:G, :C, :N, :E]}
+    assert Attributes.lookup("lhead") == {:ok, [:E]}
+    assert Attributes.lookup("rank") == {:ok, [:S]}
+    assert Attributes.lookup("rankdir") == {:ok, [:G]}
+    assert Attributes.lookup("shape") == {:ok, [:N]}
+    assert length(Attributes.names()) == 176
+  end
+
+  # -- I3 -----------------------------------------------------------------------
+
+  @tag obligation: "graphvix.attribute_table.I3"
+  test "the table names its source" do
+    source = Attributes.source()
+
+    assert source.url == "https://graphviz.org/doc/info/attrs.html"
+    assert is_binary(source.page_modified) and source.page_modified != ""
+    assert is_binary(source.generated_on) and source.generated_on != ""
+  end
+
+  # -- I4 -----------------------------------------------------------------------
+
+  @tag obligation: "graphvix.attribute_table.I4"
+  test "the table is compiled from a checked-in file under lib" do
+    source = Attributes.module_info(:compile)[:source] |> to_string()
+    lib = Path.join(Covenant.root(), "lib")
+
+    assert String.starts_with?(source, lib <> "/")
+    assert String.ends_with?(source, ".ex")
+  end
+
+  @tag obligation: "graphvix.attribute_table.I4"
+  test "the project has no runtime dependencies" do
+    for dep <- Mix.Project.config()[:deps] do
+      opts =
+        if tuple_size(dep) == 3,
+          do: elem(dep, 2),
+          else: (is_list(elem(dep, 1)) && elem(dep, 1)) || []
+
+      only = opts |> Keyword.get(:only) |> List.wrap()
+
+      assert only != [] and Enum.all?(only, &(&1 in [:dev, :test])),
+             "#{elem(dep, 0)} is a runtime dependency"
+    end
+  end
+
+  @tag obligation: "graphvix.attribute_table.I4"
+  test "the generator is a hand-run mix task" do
+    Code.ensure_loaded!(GenAttributes)
+
+    assert function_exported?(GenAttributes, :run, 1)
+    assert Mix.Task.task_name(GenAttributes) == "graphvix.gen.attributes"
+  end
+
+  # -- I5 -----------------------------------------------------------------------
+
+  @tag obligation: "graphvix.attribute_table.I5"
+  test "parse reads the saved reference excerpt" do
+    html = File.read!(Path.join(Covenant.root(), "test/fixtures/graphviz_attrs_excerpt.html"))
+
+    assert GenAttributes.parse(html) == [
+             {"cluster", [:S, :C]},
+             {"color", [:C, :N, :E]},
+             {"label", [:G, :C, :N, :E]},
+             {"lhead", [:E]},
+             {"rank", [:S]},
+             {"rankdir", [:G]},
+             {"shape", [:N]}
+           ]
+  end
+end
