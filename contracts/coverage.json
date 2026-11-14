@@ -513,12 +513,13 @@
         "graphvix.warnings.I1": {
           "failing": 0,
           "kind": "non_functional",
-          "passing": 2,
+          "passing": 3,
           "status": "active",
           "testable": true,
           "tests": [
-            "test warnings are deterministic and silent",
-            "test warnings follow render order then kind order"
+            "test warnings are deterministic",
+            "test warnings follow render order then kind order",
+            "test warnings never log"
           ]
         },
         "graphvix.warnings.I10": {

@@ -186,6 +186,7 @@
           "testable": true,
           "tests": [
             "test clusters and subgraphs nest and return their own type",
+            "test clusters nest in clusters and subgraphs in subgraphs",
             "test set_attributes on a cluster or subgraph rejects :edge"
           ]
         },
@@ -516,8 +517,9 @@
           "status": "active",
           "testable": true,
           "tests": [
-            "test warnings are deterministic and silent",
-            "test warnings follow render order then kind order"
+            "test warnings are deterministic",
+            "test warnings follow render order then kind order",
+            "test warnings never log"
           ]
         },
         "graphvix.warnings.I10": {

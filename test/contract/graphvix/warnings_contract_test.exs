@@ -84,12 +84,10 @@ defmodule Graphvix.WarningsContractTest do
   # -- I1 -----------------------------------------------------------------------
 
   @tag obligation: "graphvix.warnings.I1"
-  test "warnings are deterministic and silent" do
+  test "warnings are deterministic" do
     g = worked_example() |> Graphvix.add_node("z", colour: "red")
 
-    log = capture_log(fn -> assert Graphvix.warnings(g) == Graphvix.warnings(g) end)
-
-    assert log == ""
+    assert Graphvix.warnings(g) == Graphvix.warnings(g)
   end
 
   @tag obligation: "graphvix.warnings.I1"
@@ -767,5 +765,22 @@ defmodule Graphvix.WarningsContractTest do
         :crashed -> :ok
       end
     end
+  end
+end
+
+defmodule Graphvix.WarningsLoggingContractTest do
+  # Synchronous: capture_log sees every process's log output.
+  use Covenant.Case, component: "graphvix.warnings", async: false
+
+  import ExUnit.CaptureLog
+
+  @tag obligation: "graphvix.warnings.I1"
+  test "warnings never log" do
+    g =
+      Graphvix.new()
+      |> Graphvix.add_node("z", colour: "red")
+      |> Graphvix.add_edge({"z", "p"}, "y")
+
+    assert capture_log(fn -> Graphvix.warnings(g) end) == ""
   end
 end

@@ -504,8 +504,41 @@ defmodule Graphvix.RenderContractTest do
       g = Enum.reduce(edges, g, fn {a, b, at}, g -> Graphvix.add_edge(g, a, b, at) end)
 
       dot = quiet_to_dot(g)
-      assert {_, 0} = run_dot(dot, "canon"), dot
+      # graphs on which dot itself crashes (exit status >= 128) are outside I16
+      {_, status} = run_dot(dot, "canon")
+      assert status == 0 or status >= 128, dot
     end
+  end
+
+  # -- I14 ----------------------------------------------------------------------
+
+  @tag obligation: "graphvix.render.I14"
+  test "write writes basename.dot with the to_dot text" do
+    base = tmp_base()
+    g = worked_example()
+
+    assert :ok = Graphvix.write(g, base)
+    assert File.read!(base <> ".dot") == quiet_to_dot(g)
+    File.rm(base <> ".dot")
+  end
+
+  @tag obligation: "graphvix.render.I14"
+  test "write returns an error when the file cannot be written" do
+    base = Path.join([tmp_base(), "missing-dir", "graph"])
+
+    assert {:error, _reason} = Graphvix.write(Graphvix.new(), base)
+  end
+end
+
+defmodule Graphvix.RenderLoggingContractTest do
+  # Synchronous: capture_log sees every process's log output, so log
+  # assertions must not run alongside async tests that render graphs.
+  use Covenant.Case, component: "graphvix.render", async: false
+
+  import ExUnit.CaptureLog
+
+  defp tmp_base do
+    Path.join(System.tmp_dir!(), "graphvix-log-#{System.unique_integer([:positive])}")
   end
 
   # -- I13 ----------------------------------------------------------------------
@@ -544,25 +577,6 @@ defmodule Graphvix.RenderContractTest do
     File.rm(base <> ".dot")
 
     assert length(Regex.scan(~r/\[warning\]/, log)) == 1
-  end
-
-  # -- I14 ----------------------------------------------------------------------
-
-  @tag obligation: "graphvix.render.I14"
-  test "write writes basename.dot with the to_dot text" do
-    base = tmp_base()
-    g = worked_example()
-
-    assert :ok = Graphvix.write(g, base)
-    assert File.read!(base <> ".dot") == quiet_to_dot(g)
-    File.rm(base <> ".dot")
-  end
-
-  @tag obligation: "graphvix.render.I14"
-  test "write returns an error when the file cannot be written" do
-    base = Path.join([tmp_base(), "missing-dir", "graph"])
-
-    assert {:error, _reason} = Graphvix.write(Graphvix.new(), base)
   end
 end
 
