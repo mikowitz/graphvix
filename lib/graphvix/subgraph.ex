@@ -38,8 +38,8 @@ defmodule Graphvix.Subgraph do
 
   @doc "Nests a subgraph inside this subgraph."
   @spec add_subgraph(t(), Subgraph.t()) :: t()
-  def add_subgraph(%__MODULE__{} = subgraph, %Subgraph{} = subgraph) do
-    %{subgraph | subgraphs: subgraph.subgraphs ++ [subgraph]}
+  def add_subgraph(%__MODULE__{} = parent, %Subgraph{} = child) do
+    %{parent | subgraphs: parent.subgraphs ++ [child]}
   end
 
   @doc "Nests a cluster inside this subgraph."

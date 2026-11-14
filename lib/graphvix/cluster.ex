@@ -43,8 +43,8 @@ defmodule Graphvix.Cluster do
 
   @doc "Nests a cluster inside this cluster."
   @spec add_cluster(t(), Cluster.t()) :: t()
-  def add_cluster(%__MODULE__{} = cluster, %Cluster{} = cluster) do
-    %{cluster | clusters: cluster.clusters ++ [cluster]}
+  def add_cluster(%__MODULE__{} = parent, %Cluster{} = child) do
+    %{parent | clusters: parent.clusters ++ [child]}
   end
 
   @doc """

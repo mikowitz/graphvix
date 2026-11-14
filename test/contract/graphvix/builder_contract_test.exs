@@ -243,6 +243,16 @@ defmodule Graphvix.BuilderContractTest do
   end
 
   @tag obligation: "graphvix.builder.I8"
+  test "clusters nest in clusters and subgraphs in subgraphs" do
+    c = Cluster.new("o") |> Cluster.add_cluster(Cluster.new("i") |> Cluster.add_node("a"))
+    s = Subgraph.new("o") |> Subgraph.add_subgraph(Subgraph.new("i") |> Subgraph.add_node("a"))
+
+    assert ids(c.clusters) == ["i"]
+    assert ids(s.subgraphs) == ["i"]
+    assert ids(hd(c.clusters).nodes) == ["a"]
+  end
+
+  @tag obligation: "graphvix.builder.I8"
   test "set_attributes on a cluster or subgraph rejects :edge" do
     assert_raise FunctionClauseError, fn ->
       Cluster.set_attributes(Cluster.new("x"), :edge, color: "red")
