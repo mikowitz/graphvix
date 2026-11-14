@@ -6,7 +6,7 @@ defmodule Graphvix.Warnings do
   # (graphvix.render.I2, I3). Each check returns {position, kind_rank,
   # warning} triples; sorting them gives the order warnings.I1 requires.
 
-  alias Graphvix.{Attributes, Cluster, Graph, Record, Render, Subgraph}
+  alias Graphvix.{Attributes, Cluster, Graph, HTMLRecord, Record, Render, Subgraph}
 
   @rank %{
     unknown_attribute: 2,
@@ -29,7 +29,14 @@ defmodule Graphvix.Warnings do
       |> statements()
       |> Enum.with_index(fn statement, index -> Map.put(statement, :at, index) end)
 
-    [&attribute_checks/1, &placement_checks/1]
+    [
+      &attribute_checks/1,
+      &placement_checks/1,
+      &duplicate_names/1,
+      &node_checks/1,
+      &edge_checks/1,
+      &conflicts/1
+    ]
     |> Enum.flat_map(& &1.(statements))
     |> Enum.sort_by(fn {at, kind, _warning} -> {at, kind} end)
     |> Enum.map(&elem(&1, 2))
@@ -218,4 +225,109 @@ defmodule Graphvix.Warnings do
   end
 
   defp descendant?(c, placement), do: c != placement and List.starts_with?(c, placement)
+  # -- duplicate names (I8) ----------------------------------------------------
+
+  defp duplicate_names(statements) do
+    statements
+    |> Enum.filter(&(&1.type == :block))
+    |> Enum.group_by(& &1.name)
+    |> Enum.filter(fn {_name, blocks} -> length(blocks) > 1 end)
+    |> Enum.map(fn {name, [first | _] = blocks} ->
+      warn(first.at, {:duplicate_name, name, Enum.map(blocks, & &1.path)})
+    end)
+  end
+
+  # -- node labels (I10, I11) --------------------------------------------------
+
+  defp node_checks(statements) do
+    for %{type: :node, node: node, at: at} <- statements,
+        warning <- record_shape(node) ++ html_attributes(node),
+        do: warn(at, warning)
+  end
+
+  defp record_shape(%{id: id, attributes: %{"label" => %Record{}, "shape" => shape}})
+       when shape not in [nil, "record", "Mrecord", :record, :Mrecord],
+       do: [{:record_shape, id, shape}]
+
+  defp record_shape(_node), do: []
+
+  defp html_attributes(%{id: id, attributes: %{"label" => %HTMLRecord{} = label}}) do
+    for {element, attrs} <- HTMLRecord.elements(label),
+        {key, _value} <- attrs,
+        key = key |> to_string() |> String.replace("_", "-"),
+        key not in HTMLRecord.allowed_attributes(element),
+        do: {:unknown_html_attribute, id, element, key}
+  end
+
+  defp html_attributes(_node), do: []
+
+  # -- edge endpoints (I9, I14) ------------------------------------------------
+
+  defp edge_checks(statements) do
+    ports =
+      for %{type: :node, node: %{id: id, attributes: %{"label" => %module{} = label}}} <-
+            statements,
+          module in [Record, HTMLRecord],
+          port <- module.ports(label),
+          reduce: %{},
+          do: (acc -> Map.update(acc, id, MapSet.new([port]), &MapSet.put(&1, port)))
+
+    for %{type: :edge, edge: edge, at: at} <- statements,
+        warning <- endpoint_warnings(edge, ports),
+        do: warn(at, warning)
+  end
+
+  defp endpoint_warnings(%{from: from, to: to}, ports) do
+    endpoints = [from, to]
+
+    unknown_ports =
+      for endpoint <- endpoints,
+          {id, port} <- [port_of(endpoint)],
+          port != nil,
+          not MapSet.member?(Map.get(ports, id, MapSet.new()), port),
+          do: {:unknown_port, {from, to}, id, port}
+
+    bad_compass =
+      for {id, _port, compass} <- endpoints,
+          compass not in Render.compass_points(),
+          do: {:invalid_compass_point, {from, to}, id, compass}
+
+    unknown_ports ++ bad_compass
+  end
+
+  defp port_of({id, port}), do: {id, port}
+  defp port_of({id, port, _compass}), do: {id, port}
+  defp port_of(id), do: {id, nil}
+
+  # -- conflicting values (I12) ------------------------------------------------
+
+  defp conflicts(statements) do
+    statements
+    |> Enum.filter(&(&1.type == :node))
+    |> Enum.group_by(& &1.node.id)
+    |> Enum.flat_map(fn {id, [first | _] = occurrences} ->
+      occurrences
+      |> Enum.flat_map(&Map.keys(&1.node.attributes))
+      |> Enum.uniq()
+      |> Enum.sort()
+      |> Enum.flat_map(&conflict(id, &1, occurrences))
+      |> Enum.map(&warn(first.at, &1))
+    end)
+  end
+
+  defp conflict(id, key, occurrences) do
+    values =
+      for %{node: %{attributes: %{^key => value}}, ctx: ctx} <- occurrences,
+          value != nil,
+          do: {ctx.names, value}
+
+    if values |> Enum.map(&elem(&1, 1)) |> Enum.uniq() |> length() > 1 do
+      {others, [winner]} = Enum.split(values, -1)
+      [{:conflicting_attribute, id, key, winner: winner, others: others}]
+    else
+      []
+    end
+  end
+
+  defp warn(at, warning), do: {at, @rank[elem(warning, 0)], warning}
 end
