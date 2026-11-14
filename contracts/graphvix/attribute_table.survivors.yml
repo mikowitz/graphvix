@@ -1,0 +1,53 @@
+- at: lib/graphvix/attributes.ex:200:20
+  operator: guard_removal
+  mutation: "`when is_binary(name)` → `(no guard)`"
+  sort: equivalent
+  reason: Without the guard a non-string name reaches Map.fetch/2 on a map with string keys and still returns :error.
+
+- at: lib/mix/tasks/graphvix.gen.attributes.ex:20:11
+  operator: string_empty
+  mutation: "`\"lib/graphvix/attributes.ex\"` → `\"\"`"
+  sort: unpromised
+  reason: The default output path is only used when the task is run by hand against the real project; tests always pass --out so they never overwrite the checked-in table.
+
+- at: lib/mix/tasks/graphvix.gen.attributes.ex:34:14
+  operator: statement_removal
+  mutation: "`Mix.Task.rerun(\"format\", [target])` → `(removed)`"
+  sort: equivalent
+  reason: The generated source is already in formatter style, so formatting it is a no-op today; the call guards against the template drifting from mix format.
+
+- at: lib/mix/tasks/graphvix.gen.attributes.ex:34:31
+  operator: element_removal
+  mutation: "`target` → `(removed)`"
+  sort: equivalent
+  reason: Formats the project's inputs instead of the generated file, which is already formatted; same reason as the format call above.
+
+- at: lib/mix/tasks/graphvix.gen.attributes.ex:52:34
+  operator: boolean_flip
+  mutation: "`true` → `false`"
+  sort: equivalent
+  reason: The reference's Used By cells never contain an empty entry between commas, so trimming empty splits changes nothing.
+
+- at: lib/mix/tasks/graphvix.gen.attributes.ex:59:5
+  operator: return_nil
+  mutation: "`case Mix.Utils.read_path(@url) do {:ok, html} -> html other…` → `nil`"
+  sort: unpromised
+  reason: Fetching from graphviz.org is never exercised by tests, because attribute_table.I4 keeps the network out of builds and tests; regeneration is tested with --from.
+
+- at: lib/mix/tasks/graphvix.gen.attributes.ex:60:19
+  operator: clause_removal
+  mutation: "`case {:ok, html} ->` → `(removed)`"
+  sort: unpromised
+  reason: Network fetch path; not exercised by tests (attribute_table.I4).
+
+- at: lib/mix/tasks/graphvix.gen.attributes.ex:61:13
+  operator: clause_removal
+  mutation: "`case other ->` → `(removed)`"
+  sort: unpromised
+  reason: Network fetch failure path; not exercised by tests (attribute_table.I4).
+
+- at: lib/mix/tasks/graphvix.gen.attributes.ex:61:26
+  operator: string_empty
+  mutation: "`\"could not fetch \#{@url}: \#{inspect(other)}\"` → `\"\"`"
+  sort: unpromised
+  reason: Network fetch failure message; not exercised by tests (attribute_table.I4).
