@@ -23,6 +23,29 @@ defmodule Graphvix.Render do
     Enum.join(lines, "\n") <> "\n"
   end
 
+  @spec write(Graph.t(), Path.t()) :: :ok | {:error, File.posix()}
+  def write(%Graph{} = graph, basename) do
+    File.write(basename <> ".dot", to_dot(graph))
+  end
+
+  # render.I15: dot is looked up on PATH at call time; failures are returned.
+  @spec compile(Graph.t(), Path.t(), atom()) :: {:ok, Path.t()} | {:error, term()}
+  def compile(%Graph{} = graph, basename, format) do
+    output = "#{basename}.#{format}"
+
+    with :ok <- write(graph, basename),
+         dot when is_binary(dot) <- System.find_executable("dot") || {:error, :dot_not_found},
+         {_, 0} <-
+           System.cmd(dot, ["-T#{format}", basename <> ".dot", "-o", output],
+             stderr_to_stdout: true
+           ) do
+      {:ok, output}
+    else
+      {:error, reason} -> {:error, reason}
+      {message, status} -> {:error, {:dot_failed, status, String.trim(message)}}
+    end
+  end
+
   # Statement order (render.I2): graph attributes, node default, edge default
   # (root only), subgraphs, clusters, the block's own nodes. Edges are added
   # by to_dot/1 for the root.

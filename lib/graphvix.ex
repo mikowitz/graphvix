@@ -77,6 +77,26 @@ defmodule Graphvix do
   defdelegate to_dot(graph), to: Graphvix.Render
 
   @doc """
+  Writes the graph's DOT text to `basename <> ".dot"`.
+
+  Returns `:ok`, or `{:error, reason}` when the file cannot be written.
+  """
+  @spec write(Graph.t(), Path.t()) :: :ok | {:error, File.posix()}
+  defdelegate write(graph, basename), to: Graphvix.Render
+
+  @doc """
+  Writes `basename <> ".dot"` and runs Graphviz's `dot` on it to produce
+  `basename <> "." <> format`.
+
+  Returns `{:ok, output_path}`, or `{:error, reason}` when the file cannot be
+  written, `dot` is not on `PATH` (`:dot_not_found`), or `dot` fails
+  (`{:dot_failed, exit_status, message}`). Never raises.
+  """
+  @spec compile(Graph.t(), Path.t(), atom()) :: {:ok, Path.t()} | {:error, term()}
+  def compile(graph, basename, format \\ :png),
+    do: Graphvix.Render.compile(graph, basename, format)
+
+  @doc """
   Merges attributes into the graph's own attributes (`:graph`) or into the
   defaults for every node (`:node`) or edge (`:edge`).
   """
