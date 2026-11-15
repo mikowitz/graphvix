@@ -20,7 +20,7 @@ defmodule Graphvix.AttributeTableContractTest do
 
     for name <- names do
       assert {:ok, letters} = Attributes.lookup(name)
-      assert letters != []
+      refute Enum.empty?(letters)
       assert letters == Enum.filter(@letter_order, &(&1 in letters))
     end
   end
@@ -65,8 +65,8 @@ defmodule Graphvix.AttributeTableContractTest do
     source = Attributes.source()
 
     assert source.url == "https://graphviz.org/doc/info/attrs.html"
-    assert is_binary(source.page_modified) and source.page_modified != ""
-    assert is_binary(source.generated_on) and source.generated_on != ""
+    assert String.trim(source.page_modified) != ""
+    assert String.trim(source.generated_on) != ""
   end
 
   # -- I4 -----------------------------------------------------------------------

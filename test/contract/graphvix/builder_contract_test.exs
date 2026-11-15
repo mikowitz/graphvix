@@ -270,12 +270,15 @@ defmodule Graphvix.BuilderContractTest do
 
   @tag obligation: "graphvix.builder.I8"
   test "set_attributes on a cluster or subgraph rejects :edge" do
+    # Built at runtime so the type checker doesn't flag the deliberate misuse.
+    edge = String.to_atom("edge")
+
     assert_raise FunctionClauseError, fn ->
-      Cluster.set_attributes(Cluster.new("x"), :edge, color: "red")
+      Cluster.set_attributes(Cluster.new("x"), edge, color: "red")
     end
 
     assert_raise FunctionClauseError, fn ->
-      Subgraph.set_attributes(Subgraph.new("x"), :edge, color: "red")
+      Subgraph.set_attributes(Subgraph.new("x"), edge, color: "red")
     end
   end
 
